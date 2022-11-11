@@ -1,0 +1,9 @@
+---
+title: "Text Mining"
+author: "Elodie Shoeiline Kwan, Joost Dijkstra, Katia Voltz and Nina Bidet"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: html_document
+---
+
+```{r child = c('intro.Rmd', 'data.Rmd', 'eda.Rmd', 'analysis.Rmd', 'concl.Rmd')}
+```
