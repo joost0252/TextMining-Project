@@ -3,3 +3,131 @@
 source("../scripts/setup.R")
 ```
 
+# Webscraping 
+The data we are using within this project is coming from the website "Big Bang Theory Transcripts". It is accessible in the following link : 
+[https://bigbangtrans.wordpress.com/](https://bigbangtrans.wordpress.com/series-1-episode-1-pilot-episode/)
+
+
+```{r include=FALSE}
+# Webscrap the html pages ending to create a loop 
+
+link.html <- read_html("https://bigbangtrans.wordpress.com/")
+
+## Create a list containing all my link endings
+link_end <- link.html %>%
+  html_nodes("#pages-2 a") %>% 
+  html_text2()
+
+## convert to lowercase 
+link_end <- tolower(link_end)
+
+## remove dash followed by space 
+link_end <- gsub("– ", "", link_end)
+
+## replace space by dash
+link_end <- gsub(" ", "-", link_end)
+
+## replace 
+link_end <- gsub("series-01-episode-01", "series-1-episode-1", link_end)
+link_end <- gsub("series-01-episode-02", "series-1-episode-2", link_end)
+link_end <- gsub("series-01-episode-03", "series-1-episode-3", link_end)
+link_end <- gsub("series-01-episode-04", "series-1-episode-4", link_end)
+link_end <- gsub("series-01-episode-05", "series-1-episode-5", link_end)
+link_end <- gsub("series-01-episode-06", "series-1-episode-6", link_end)
+link_end <- gsub("series-01-episode-07", "series-1-episode-7", link_end)
+link_end <- gsub("series-01-episode-08", "series-1-episode-8", link_end)
+link_end <- gsub("series-01-episode-09", "series-1-episode-9", link_end)
+link_end <- gsub("series-01", "series-1", link_end)
+link_end <- gsub("series-02", "series-2", link_end)
+link_end <- gsub("series-2-episode-05", "series-2-episode-5", link_end)
+link_end <- gsub("series-2-episode-08", "series-1-episode-08", link_end)
+link_end <- gsub("series-2-episode-10", "series-2-episode-11", link_end)
+link_end <- gsub("series-03", "series-3", link_end)
+link_end <- gsub("series-04", "series-4", link_end)
+link_end <- gsub("series-05", "series-5", link_end)
+link_end <- gsub("series-06", "series-6", link_end)
+link_end <- gsub("series-6-episode-14-the-cooper/kripke-inversion",
+                 "series-6-episode-14-the-cooperkripke-inversion", link_end)
+link_end <- gsub("series-6-episode-23", "series-06-episode-23", link_end)
+link_end <- gsub("series-6-episode-24", "series-06-episode-24", link_end)
+link_end <- gsub("series-07", "series-7", link_end)
+link_end <- gsub("series-08", "series-8", link_end)
+link_end <- gsub("series-8-episode-05", "series-7-episode-05", link_end)
+link_end <- gsub("series-09", "series-9", link_end)
+
+#head(link_end)
+
+```
+
+
+
+
+```{r include=FALSE}
+## Loop through my the links with link endings to get the script 
+# https://bigbangtrans.wordpress.com/series-2-episode-03-the-barbarian-sublimation/
+#https://bigbangtrans.wordpress.com/series-2-episode-03-the-barbarian-sublimation
+
+scripts <- data.frame()
+
+for(element in 2:length(link_end)){
+  
+  document_id <- paste0("doc", element-2)
+  episode_id <- gsub("-", "_", link_end[element])
+  Link = paste0("https://bigbangtrans.wordpress.com/", link_end[element])
+  
+ if (element < 17){
+   pages = read_html(Link)
+  page_scripts <- pages %>% 
+    html_nodes("#post-3 p , .MsoNormal span , .title") %>% 
+    html_text2()
+  
+  }else if (element == 46){
+  pages = read_html(Link)
+  page_scripts <- pages %>% 
+    html_nodes("content p , em , .title") %>% 
+    html_text2()   
+  #132-134
+  }else if (element == 123 || 132 < element < 151 || 132 < element < 151){
+  pages = read_html(Link)
+  page_scripts <- pages %>% 
+    html_nodes("p+ p , i , .title") %>% 
+    html_text2()  
+  
+  }
+  else{
+  pages = read_html(Link)
+  page_scripts <- pages %>% 
+    html_nodes(".title , #post-68 p , em") %>% 
+    html_text2()
+  }
+  
+  page_scripts <- unique(page_scripts)
+  page_scripts <- paste(page_scripts, collapse='// ')
+  
+  data_frame_col <- c(document_id, episode_id , page_scripts)
+  scripts <- rbind(scripts, data_frame_col)
+  
+  #assign(paste0("doc_", element-2), data_frame_col)
+
+  print(episode_id)
+}
+
+colnames(scripts) <- c("document", "title", "script")
+write.csv(scripts, "../data/series_scripts.csv", row.names = FALSE)
+
+#post-3 p , .MsoNormal span , .title
+
+#.title , #post-68 p , em     ## saison 2 ep 02
+
+##content p , em , .title     ## saison 3 ep 5
+#p+ p , i , .title            ## saison 6 ep 11, 20
+##content p , i , .title
+
+```
+
+
+
+```{r}
+
+```
+
