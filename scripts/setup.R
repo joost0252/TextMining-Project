@@ -4,8 +4,9 @@
 
 # load the required packages
 packages <- c(
-  "rvest",
-  "tidyverse", "readxl" #for wrangling
+  "rvest", # for webscraping 
+  "tidyverse", "readxl", #for wrangling
+  "kableExtra" # for a nice table 
 )
 
 purrr::walk(packages, library, character.only = TRUE)
