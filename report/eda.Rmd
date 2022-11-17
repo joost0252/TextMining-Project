@@ -7,6 +7,94 @@ output:
 source("../scripts/setup.R")
 ```
 
+# First Data Structuring
+
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+script.tb <- as_tibble(
+  data.frame(data_scripts)
+  )
+View(script.tb)
+
+script.tok <- unnest_tokens(
+  tbl = script.tb, 
+  output = "word",
+  input = "script",
+  to_lower = TRUE,
+  strip_punct = TRUE, 
+  strip_numeric = TRUE)
+
+script.tok <- anti_join(
+  script.tok,
+  stop_words,
+  by = c("word" = "word")
+)
+head(script.tok, 10)
+
+```
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+library(udpipe)
+script.for.udpipe <- 
+  script.tb
+script.for.udpipe <- script.for.udpipe %>% 
+  rename(doc_id = document,
+         text = script)
+
+script.fr <- script.tok %>% 
+  group_by(word) %>% 
+  summarize(n = n()) %>%
+  arrange(desc(n))
+
+script.fr <- script.tok %>% 
+  group_by(document, word) %>% 
+  summarize(n = n()) %>% 
+  ungroup() %>% 
+  arrange(desc(n))
+
+script.tfidf <- script.fr %>%  
+  bind_tf_idf(term = word,
+              document = document,
+              n = n) %>%
+  arrange(desc(n))
+head(script.tfidf, n = 10) %>% flextable() %>% autofit()
+
+script.tfidf.max <- script.tfidf %>% 
+  group_by(word) %>% 
+  summarise(tf_idf = max(tf_idf)) %>% 
+  ungroup() %>% arrange(desc(tf_idf))
+head(script.tfidf.max, n = 10) %>% flextable() %>% autofit()
+
+script.cp <- VCorpus(VectorSource(data_scripts$script))
+## inspect(crude.cp[[2]]) # un-comment this line
+
+script.cp <- tm_map(script.cp, removePunctuation) 
+script.cp <- tm_map(script.cp, removeNumbers)
+script.cp <- tm_map(script.cp, removeWords, stopwords("english"))
+script.cp <- tm_map(script.cp, content_transformer(tolower))
+script.cp <- tm_map(script.cp, stripWhitespace)
+script.cp <- tm_map(script.cp, removeWords, "reuter")
+
+
+
+```
+
+## DTM matrix 
+```{r}
+script.dtm <- DocumentTermMatrix(script.cp)
+inspect(script.dtm)
+
+
+```
+
+```{r}
+script.tfidf <- DocumentTermMatrix(script.cp, 
+                 control = list(weighting = weightTfIdf))
+inspect(script.tfidf)
+```
+
+
+
 #EDA
 
 ```{r echo=FALSE}
