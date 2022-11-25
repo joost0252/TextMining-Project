@@ -6,8 +6,10 @@
 packages <- c(
   "rvest", # for webscraping 
   "tidyverse", "readxl", #for wrangling
-  "kableExtra" # for a nice table 
-  ,"tidytext","wordcloud","lexicon","flextable","quanteda","quanteda.textstats","tm","ggrepel"
+  "kableExtra", # for a nice table 
+  "readr", "quanteda", "quanteda.textplots", "quanteda.textstats",
+  "tidytext","wordcloud","lexicon","flextable","tm","ggrepel", 
+  "dplyr", "ggplot2", "broom", "ggwordcloud", "igraph"
 )
 
 purrr::walk(packages, library, character.only = TRUE)

@@ -157,27 +157,17 @@ data_scripts[1:1, ] %>%
   kable_styling(latex_options = "HOLD_position")
 ```
 
+# Tokenization and cleaning of the data 
+We define the corpus for our analysis. The corpus will be the scrips colomn in our dataset. Then we clean the texts by removing the numbers, the punctuation, the symbols, and the separators. 
+
+In our scrips, we can see the main characters that are Sheldon, Leonard, Penny, Howard and Raj and they appear in all the sesaons' episodes. Therefore, we remove their name for the following explanatory data analysis because it will otherwise bias our results. 
 
 ```{r echo=FALSE}
-## Libraries needed for the exercises
-library(readr)
-library(quanteda)
-library(quanteda.textplots)
-library(quanteda.textstats)
-library(tidytext)
-library(dplyr)
-library(ggplot2)
-library(broom)
-library(ggwordcloud)
-library(igraph)
-```
-
-```{r echo=FALSE}
-
 script.cp <- corpus(data_scripts$script)
+
 script.tk <- tokens(
   script.cp,
-  remove_numbers = TRUE,
+  remove_numbers = TRUE, 
   remove_punct = TRUE,
   remove_symbols = TRUE,
   remove_separators = TRUE
@@ -185,14 +175,20 @@ script.tk <- tokens(
 script.tk <- script.tk %>% 
   tokens_tolower() %>% 
   tokens_remove(stop_words$word) %>% 
-  tokens_remove(c("sheldon","leonard","penny","howard","raj"))
-# We can see the main characters that are Sheldon, Leonard, Penny, Howard and Raj. They appear in all the sesaons's espisods.
-# We will remove their name for the following explanatory data analysis because otherwise it will biaise our results.
+  tokens_remove(c("sheldon","leonard","penny","howard","raj"))  #remove main characters'name
+```
 
 
-## Compute the DTM, TF-IDF and global frequencies
+# The Document-Term Matrix, the TF-IDF and the global frequencies 
+
+```{r echo=FALSE}
+## Compute the DTM
 script.dfm <- dfm(script.tk)
+
+## Compute the TF-IDF 
 script.tfidf <- dfm_tfidf(script.dfm)  
+
+## Compute the global frequencies
 script.freq <- textstat_frequency(script.dfm)
 
 
@@ -205,9 +201,6 @@ script.freq %>%
   coord_flip() +
   xlab("Frequency") + 
   ylab("term")
-
-# We can see the main characters that are Sheldon, Leonard, Penny, Howard and Raj. They appear in all the sesaons's espisods.
-# We will remove their name for the following explanatory data analysis because otherwise it will biaise our results
 ```
 
 ```{r echo=FALSE}
