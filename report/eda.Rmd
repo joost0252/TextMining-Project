@@ -7,134 +7,53 @@ output:
 source("../scripts/setup.R")
 ```
 
-# First Data Structuring
-
-
-```{r, echo = FALSE, message = FALSE, warning = FALSE}
-script.tb <- as_tibble(
-  data.frame(data_scripts)
-  )
-View(script.tb)
-
-script.tok <- unnest_tokens(
-  tbl = script.tb, 
-  output = "word",
-  input = "script",
-  to_lower = TRUE,
-  strip_punct = TRUE, 
-  strip_numeric = TRUE)
-
-script.tok <- anti_join(
-  script.tok,
-  stop_words,
-  by = c("word" = "word")
-)
-head(script.tok, 10)
-
-```
-
-```{r, echo = FALSE, message = FALSE, warning = FALSE}
-library(udpipe)
-script.for.udpipe <- 
-  script.tb
-script.for.udpipe <- script.for.udpipe %>% 
-  rename(doc_id = document,
-         text = script)
-
-script.fr <- script.tok %>% 
-  group_by(word) %>% 
-  summarize(n = n()) %>%
-  arrange(desc(n))
-
-script.fr <- script.tok %>% 
-  group_by(document, word) %>% 
-  summarize(n = n()) %>% 
-  ungroup() %>% 
-  arrange(desc(n))
-
-script.tfidf <- script.fr %>%  
-  bind_tf_idf(term = word,
-              document = document,
-              n = n) %>%
-  arrange(desc(n))
-head(script.tfidf, n = 10) %>% flextable() %>% autofit()
-
-script.tfidf.max <- script.tfidf %>% 
-  group_by(word) %>% 
-  summarise(tf_idf = max(tf_idf)) %>% 
-  ungroup() %>% arrange(desc(tf_idf))
-head(script.tfidf.max, n = 10) %>% flextable() %>% autofit()
-
-script.cp <- VCorpus(VectorSource(data_scripts$script))
-## inspect(crude.cp[[2]]) # un-comment this line
-
-script.cp <- tm_map(script.cp, removePunctuation) 
-script.cp <- tm_map(script.cp, removeNumbers)
-script.cp <- tm_map(script.cp, removeWords, stopwords("english"))
-script.cp <- tm_map(script.cp, content_transformer(tolower))
-script.cp <- tm_map(script.cp, stripWhitespace)
-script.cp <- tm_map(script.cp, removeWords, "reuter")
-
-
-
-```
-
-## DTM matrix 
-```{r}
-script.dtm <- DocumentTermMatrix(script.cp)
-inspect(script.dtm)
-
-
-```
-
-```{r}
-script.tfidf <- DocumentTermMatrix(script.cp, 
-                 control = list(weighting = weightTfIdf))
-inspect(script.tfidf)
-```
-
-
-
-#EDA
 
 ```{r echo=FALSE}
-## Libraries needed for the exercises
-library(readr)
-library(quanteda)
-library(quanteda.textplots)
-library(quanteda.textstats)
-library(tidytext)
-library(dplyr)
-library(ggplot2)
-library(broom)
-library(ggwordcloud)
-library(igraph)
+data_scripts <- read.csv("../data/series_scripts.csv")
 ```
 
-```{r echo=FALSE}
 
+# Tokenization and cleaning of the data 
+We define the corpus for our analysis. The corpus will be the scrips column in our data set. Then we clean the texts by removing the numbers, the punctuation, the symbols, and the separators. 
+
+In our scripts, we can see the main characters that are _Sheldon_, _Leonard_, _Penny_, _Howard_ and _Raj_ and they appear in all the seasons' episodes. Therefore, we remove their name for the following explanatory data analysis because it will otherwise bias our results. 
+
+We noticed that the term _'Amy'_ and _'Bernadette'_ appears the most. These are characters that appear towards the end of the series. The term 'scene' is also normal that it appears a lot, because at the beginning of each script and each time the characters change the scene, the term 'scene' is written.
+Therefore, we also remove these terms for the following analysis. 
+
+```{r echo=FALSE}
 script.cp <- corpus(data_scripts$script)
+
 script.tk <- tokens(
   script.cp,
-  remove_numbers = TRUE,
+  remove_numbers = TRUE, 
   remove_punct = TRUE,
   remove_symbols = TRUE,
   remove_separators = TRUE
   )
+
 script.tk <- script.tk %>% 
   tokens_tolower() %>% 
   tokens_remove(stop_words$word) %>% 
-  tokens_remove(c("sheldon","leonard","penny","howard","raj"))
-# We can see the main characters that are Sheldon, Leonard, Penny, Howard and Raj. They appear in all the sesaons's espisods.
-# We will remove their name for the following explanatory data analysis because otherwise it will biaise our results.
+  tokens_remove(
+    c("sheldon","leonard","penny","howard",
+      "raj", "amy", "bernadette", "scene"))  #remove main characters'name and 'scene'
+```
 
 
-## Compute the DTM, TF-IDF and global frequencies
+# The Document-Term Matrix, the TF-IDF and the global frequencies 
+
+```{r echo=FALSE}
+## Compute the DTM
 script.dfm <- dfm(script.tk)
+
+## Compute the TF-IDF 
 script.tfidf <- dfm_tfidf(script.dfm)  
+
+## Compute the global frequencies
 script.freq <- textstat_frequency(script.dfm)
 
-
+## We take the top 40 terms that appear the most
 script.freq %>% 
   top_n(40, frequency) %>%
   ggplot(aes(
@@ -143,12 +62,20 @@ script.freq %>%
   geom_bar(stat = "identity") + 
   coord_flip() +
   xlab("Frequency") + 
-  ylab("term")
+  ylab("term") + 
+  ggtitle("Top 40 most frequent words")
 ```
+
+
+## Cloud of words 
+The bigger the word, the more frequently it appears.
 
 ```{r echo=FALSE}
 textplot_wordcloud(script.dfm)
 ```
+
+## The 10 most frequent words per episode
+This plot doesn't tells us much information.
 
 ```{r echo=FALSE}
 script.dfm %>% 
@@ -157,7 +84,75 @@ script.dfm %>%
   ggplot(aes(x = term, y = count)) + 
   geom_bar(stat = "Identity") + 
   coord_flip() +
-  theme(axis.text.y = element_text(size = 3.5),
+  theme(axis.text.y = element_text(size = 5),
         axis.ticks.y = element_blank())  + 
-  facet_wrap(~document, ncol = 2)
+  facet_wrap(~document, ncol = 2) + 
+  ggtitle("Top 10 TF per episodes")
 ```
+
+## The TF-IDF per episode 
+
+```{r}
+script.tfidf %>% 
+  tidy() %>% 
+  top_n(10, count) %>% 
+  ggplot(aes(x = term, y = count)) + 
+  geom_bar(stat = "Identity") + 
+  coord_flip() +
+  theme(axis.text.y = element_text(size = 5),
+        axis.ticks.y = element_blank())  + 
+  facet_wrap(~document, ncol = 2) + 
+    ggtitle("Top 10 TF-IDF per episodes")
+```
+
+
+# Exploratory Data analysis 
+We see that "yeah", "apartment", "hey" "knock" and "gonna" are the most frequent terms as we could also see before. 
+Terms such as "meemaw", "lesley", "missy", "arthur" and "bert" are rather more likely to be specific to a dew texts while still somehow frequent. 
+
+```{r echo=FALSE}
+script.freq %>% 
+  ggplot(aes(x=log10(docfreq),
+             y=log10(frequency))) + 
+  geom_text(aes(label=feature),
+            position=position_jitter(),
+            size=3) + 
+  xlab("Episode log-frequency") + 
+  ylab("log-frequency") + 
+  ggtitle("Representation of the frequencies agains the episode frequencies")
+```
+
+## Lexical diversity 
+We compute the lexical diversity of the scripts. 
+
+```{r echo=FALSE}
+script.dfm %>% textstat_lexdiv()
+```
+
+```{r echo=FALSE}
+script.dfm %>% textstat_lexdiv() %>%
+  arrange(desc(TTR)) %>%
+  slice(1:10) %>% #plot only the top 10
+  ggplot(aes(reorder(document, -TTR),
+             TTR)) + 
+  geom_bar(stat = "identity") + 
+  xlab("Episodes") + 
+  ggtitle("Plot of the 10 top Token-Type-Ratio") 
+```
+
+## Keyness analysis 
+
+
+```{r echo=FALSE}
+## text131 
+script.keyness <- textstat_keyness(script.dfm, target = "text131")
+
+textplot_keyness(script.keyness)
+
+## text92
+script.keyness <- textstat_keyness(script.dfm, target = "text92")
+
+textplot_keyness(script.keyness)
+```
+
+

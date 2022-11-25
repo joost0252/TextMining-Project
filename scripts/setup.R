@@ -9,7 +9,7 @@ packages <- c(
   "kableExtra", # for a nice table 
   "readr", "quanteda", "quanteda.textplots", "quanteda.textstats",
   "tidytext","wordcloud","lexicon","flextable","tm","ggrepel", 
-  "dplyr", "ggplot2", "broom", "ggwordcloud", "igraph"
+  "dplyr", "ggplot2", "broom", "ggwordcloud", "igraph", "udpipe"
 )
 
 purrr::walk(packages, library, character.only = TRUE)
