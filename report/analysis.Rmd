@@ -192,4 +192,8 @@ hash_valence_shifters
 
 ```{r}
 
+<<<<<<< HEAD
 ```
+=======
+```
+>>>>>>> 479478a9da44ef3254fc7c879d83c488438bd3fb
