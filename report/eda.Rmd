@@ -32,12 +32,20 @@ script.tk <- tokens(
   remove_separators = TRUE
   )
 
+#Remove possesive apostrophe ('s), such that words as leonard's are not skipped in the next part of the code
+script.tk <- tokens_replace(
+    script.tk, 
+    types(script.tk), 
+    stringi::stri_replace_all_regex(types(script.tk), "['\\p{Pf}][s]", "")
+)
+
 script.tk <- script.tk %>% 
-  tokens_tolower() %>% 
-  tokens_remove(stop_words$word) %>% 
+  tokens_tolower() %>%
+  tokens_remove(stop_words$word) %>%
   tokens_remove(
     c("sheldon","leonard","penny","howard",
-      "raj", "amy", "bernadette", "scene"))  #remove main characters'name and 'scene'
+      "raj", "amy", "bernadette", "scene", "series", "episode"))  #remove main characters'name and 'scene'
+script.tk
 ```
 
 
