@@ -157,3 +157,74 @@ data_scripts[1:1, ] %>%
   kable_styling(latex_options = "HOLD_position")
 ```
 
+<<<<<<< Updated upstream
+=======
+
+```{r echo=FALSE}
+## Libraries needed for the exercises
+library(readr)
+library(quanteda)
+library(quanteda.textplots)
+library(quanteda.textstats)
+library(tidytext)
+library(dplyr)
+library(ggplot2)
+library(broom)
+library(ggwordcloud)
+library(igraph)
+```
+
+```{r echo=FALSE}
+
+script.cp <- corpus(data_scripts$script)
+script.tk <- tokens(
+  script.cp,
+  remove_numbers = TRUE,
+  remove_punct = TRUE,
+  remove_symbols = TRUE,
+  remove_separators = TRUE
+  )
+script.tk <- script.tk %>% 
+  tokens_tolower() %>% 
+  tokens_remove(stop_words$word) %>% 
+  tokens_remove(c("sheldon","leonard","penny","howard","raj"))
+# We can see the main characters that are Sheldon, Leonard, Penny, Howard and Raj. They appear in all the sesaons's espisods.
+# We will remove their name for the following explanatory data analysis because otherwise it will biaise our results.
+
+
+## Compute the DTM, TF-IDF and global frequencies
+script.dfm <- dfm(script.tk)
+script.tfidf <- dfm_tfidf(script.dfm)  
+script.freq <- textstat_frequency(script.dfm)
+
+
+script.freq %>% 
+  top_n(40, frequency) %>%
+  ggplot(aes(
+    x = reorder(feature, frequency),
+    y = frequency)) + 
+  geom_bar(stat = "identity") + 
+  coord_flip() +
+  xlab("Frequency") + 
+  ylab("term")
+
+# We can see the main characters that are Sheldon, Leonard, Penny, Howard and Raj. They appear in all the sesaons's espisods.
+# We will remove their name for the following explanatory data analysis because otherwise it will biaise our results
+```
+
+```{r echo=FALSE}
+textplot_wordcloud(script.dfm)
+```
+
+```{r echo=FALSE}
+script.dfm %>% 
+  tidy() %>% 
+  top_n(10, count) %>% 
+  ggplot(aes(x = term, y = count)) + 
+  geom_bar(stat = "Identity") + 
+  coord_flip() +
+  theme(axis.text.y = element_text(size = 3.5),
+        axis.ticks.y = element_blank())  + 
+  facet_wrap(~document, ncol = 2)
+```
+>>>>>>> Stashed changes
