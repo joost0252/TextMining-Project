@@ -28,34 +28,34 @@ get_sentiments(lexicon = "nrc")
 
 We join the corresponding sentiment qualifier in “nrc” using inner.join() from dplyr:
 ```{r}
-script.tb <- as_tibble(
+season.tb <- as_tibble(
   data.frame(
-    data_scripts))
+    season_scripts))
 
-script.tok <- unnest_tokens(
-  script.tb,
+season.tok <- unnest_tokens(
+  season.tb,
   output = "word",
-  input = "script",
+  input = "agg_script",
   to_lower = TRUE,
   strip_punct = TRUE,
   strip_numeric = TRUE)
 
-script.sent <- 
+season.sent <- 
   inner_join(
-    script.tok,
+    season.tok,
     get_sentiments("nrc"),
     by = c("word" = "word"))
-head(script.sent, 10) %>% flextable() %>% autofit()
+head(season.sent, 10) %>% flextable() %>% autofit()
 ```
 
 Summary (long format)
 ```{r}
-table(script.sent$document , 
-      script.sent$sentiment)
+table(season.sent$season, 
+      season.sent$sentiment)
 
-## Long format + barplots
-script.sent %>% 
-  group_by(document, sentiment) %>% 
+## Long format + barplots --> NOT WORKING
+season.sent %>% 
+  group_by(season, sentiment) %>% 
   summarize(n = n()) %>%
   ungroup() %>% 
   ggplot(aes(x = sentiment,
@@ -63,25 +63,25 @@ script.sent %>%
              fill = sentiment)) + 
   geom_bar(stat = "identity",
            alpha = 0.8) + 
-  facet_wrap(~ document) + 
+  facet_wrap(~ season_scripts$season ) + 
   coord_flip()
 ```
 
 To compare the documents, we rescale them by their length (i.e. the frequencies of sentiments are computed, by document):
 ```{r}
 #totals by document
-script.sent.doc.total <- 
-  script.sent %>% 
-  group_by(document) %>% 
+season.sent.doc.total <- 
+  season.sent %>% 
+  group_by(season) %>% 
   summarize(Total = n()) %>% 
   ungroup()
 
 #add totals and compute relative frequency
 left_join(
-  script.sent,
-  script.sent.doc.total
-) %>% 
-  group_by(document, sentiment) %>%  
+  season.sent,
+  season.sent.doc.total
+  ) %>% 
+  group_by(season, sentiment) %>%  
   summarize(n = n(),
             Total = unique(Total)) %>%
   ungroup() %>% 
@@ -91,7 +91,7 @@ left_join(
     y = relfreq,
     fill = sentiment)) + 
   geom_bar(stat = "identity", alpha = 0.8) + 
-  facet_wrap(~ document) + 
+  facet_wrap(~ season_scripts$season) + 
   coord_flip()
 ```
 
@@ -102,15 +102,15 @@ get_sentiments("afinn")
 ```
 
 ```{r}
-script.sent <-
+season.sent <-
   inner_join(
-    script.tok, 
+    season.tok, 
     get_sentiments("afinn"),
     by = c("word" = "word"))
 
 ## Summarize per document (value average) + barplot
-script.sent %>% 
-  group_by(document) %>% 
+season.sent %>% 
+  group_by(season) %>% 
   summarize(Score = mean(value)) %>% 
   ungroup() %>% 
   arrange(Score) %>% 
@@ -119,11 +119,11 @@ script.sent %>%
 ```
 
 ```{r}
-script.sent %>% 
-  group_by(document) %>% 
+season.sent %>% 
+  group_by(season) %>% 
   summarize(Score = mean(value)) %>% 
   ungroup() %>% 
-  ggplot(aes(x = reorder(document, Score), y = Score)) + 
+  ggplot(aes(x = reorder(season, Score), y = Score)) + 
   geom_bar(stat = "identity") + 
   coord_flip() +
   ylab("Mean Sentiment Score") +
@@ -131,19 +131,19 @@ script.sent %>%
 ```
 ## Quanteda analysis
 ```{r}
-summary(script.cp)
+summary(season.cp)
 
 tokens_lookup(
-  script.tk,
+  season.tk,
   dictionary = data_dictionary_LSD2015
   ) 
 
-script.sent1 <- tokens_lookup(
-  script.tk, 
+season.sent1 <- tokens_lookup(
+  season.tk, 
   dictionary = data_dictionary_LSD2015) %>% 
   dfm() %>% 
   tidy()
-script.sent1 %>% 
+season.sent1 %>% 
   pivot_wider(
     names_from = "term",
     values_from = "count"
@@ -157,7 +157,7 @@ script.sent1 %>%
 ```
 
 ```{r}
-ggplot(script.sent1,
+ggplot(season.sent1,
        aes(x = document,
            y = count,
            fill = term)) + 
@@ -178,7 +178,7 @@ hash_valence_shifters
 
 ```{r}
 # Very long time to execute
-#mytext <- get_sentences(data_scripts$script)
+#mytext <- get_sentences(season_scripts$agg_script)
 #mytext
 ```
 
@@ -190,17 +190,5 @@ hash_valence_shifters
   #autofit()
 ```
 
-```{r}
-data_scripts$season <- c(
-  1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-  2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-  3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
-  4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
-  5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,
-  6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,
-  7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,
-  8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,
-  9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,
-  10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10)
-```
+
 
