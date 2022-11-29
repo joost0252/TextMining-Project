@@ -196,3 +196,180 @@ network <- graph_from_adjacency_matrix(
 plot(network,
      layout = layout_with_kk)
 ```
+
+################################ Season Analysis ##################################################
+
+```{r echo=FALSE}
+season.cp <- corpus(season_scripts$agg_script)
+
+season.tk <- tokens(
+  season.cp,
+  remove_numbers = TRUE, 
+  remove_punct = TRUE,
+  remove_symbols = TRUE,
+  remove_separators = TRUE
+  )
+
+#Remove possesive apostrophe ('s), such that words as leonard's are not skipped in the next part of the code
+season.tk <- tokens_replace(
+    season.tk, 
+    types(season.tk), 
+    stringi::stri_replace_all_regex(types(season.tk), "['\\p{Pf}][s]", "")
+)
+
+season.tk <- season.tk %>% 
+  tokens_tolower() %>%
+  tokens_remove(stop_words$word) %>%
+  tokens_remove(
+    c("sheldon","leonard","penny","howard",
+      "raj", "amy", "bernadette", "scene", "series", "episode"))  #remove main characters'name and 'scene'
+season.tk
+```
+
+# The Document-Term Matrix, the TF-IDF and the global frequencies 
+
+```{r echo=FALSE}
+## Compute the DTM
+season.dfm <- dfm(season.tk)
+
+## Compute the TF-IDF 
+season.tfidf <- dfm_tfidf(season.dfm)  
+
+## Compute the global frequencies
+season.freq <- textstat_frequency(season.dfm)
+
+## We take the top 40 terms that appear the most
+season.freq %>% 
+  top_n(40, frequency) %>%
+  ggplot(aes(
+    x = reorder(feature, frequency),
+    y = frequency)) + 
+  geom_bar(stat = "identity") + 
+  coord_flip() +
+  xlab("Frequency") + 
+  ylab("term") + 
+  ggtitle("Top 40 most frequent words")
+```
+
+
+## Cloud of words 
+The bigger the word, the more frequently it appears.
+
+```{r echo=FALSE}
+textplot_wordcloud(season.dfm)
+```
+
+## The 10 most frequent words per season
+This plot doesn't tells us much information.
+
+```{r echo=FALSE}
+season.dfm %>% 
+  tidy() %>% 
+  top_n(10, count) %>% 
+  ggplot(aes(x = term, y = count)) + 
+  geom_bar(stat = "Identity") + 
+  coord_flip() +
+  theme(axis.text.y = element_text(size = 5),
+        axis.ticks.y = element_blank())  + 
+  facet_wrap(~ season_scripts$season, ncol = 2) + 
+  ggtitle("Top 10 TF per season")
+```
+
+## The TF-IDF per season
+
+```{r}
+season.tfidf %>% 
+  tidy() %>% 
+  top_n(10, count) %>% 
+  ggplot(aes(x = term, y = count)) + 
+  geom_bar(stat = "Identity") + 
+  coord_flip() +
+  theme(axis.text.y = element_text(size = 5),
+        axis.ticks.y = element_blank())  + 
+  facet_wrap(~ season_scripts$season, ncol = 2) + 
+    ggtitle("Top 10 TF-IDF per season")
+```
+
+
+# Exploratory Data analysis 
+We see that "yeah", "apartment", "hey" "knock" and "gonna" are the most frequent terms as we could also see before. 
+Terms such as "meemaw", "lesley", "missy", "arthur" and "bert" are rather more likely to be specific to a dew texts while still somehow frequent. 
+
+```{r echo=FALSE}
+season.freq %>% 
+  ggplot(aes(x=log10(docfreq),
+             y=log10(frequency))) + 
+  geom_text(aes(label=feature),
+            position=position_jitter(),
+            size=3) + 
+  xlab("Season log-frequency") + 
+  ylab("log-frequency") + 
+  ggtitle("Representation of the frequencies agains the  frequencies")
+```
+
+## Lexical diversity 
+We compute the lexical diversity of the scripts. 
+
+```{r echo=FALSE}
+season.dfm %>% textstat_lexdiv()
+```
+
+```{r echo=FALSE}
+season.dfm %>% textstat_lexdiv() %>%
+  arrange(desc(TTR)) %>%
+  slice(1:10) %>% #plot only the top 10
+  ggplot(aes(reorder(document, -TTR),
+             TTR)) + 
+  geom_bar(stat = "identity") + 
+  xlab("Seasons") + 
+  ggtitle("Plot of the 10 top Token-Type-Ratio") 
+```
+
+## Keyness analysis 
+
+```{r echo=FALSE}
+## text5
+season.keyness <- textstat_keyness(season.dfm, target = "text5")
+
+textplot_keyness(season.keyness)
+
+## text9
+season.keyness <- textstat_keyness(season.dfm, target = "text9")
+
+textplot_keyness(season.keyness)
+```
+
+
+```{r echo=FALSE}
+#Table for co-occurance for all features
+season.co <- fcm(season.tk, 
+                context = "document", 
+                tri = FALSE,
+                )
+season.co
+```
+
+
+```{r}
+#Table for co-occurance for features with more than 300 co-occurances
+index <- season.freq %>% 
+  filter(frequency > 300) %>% 
+  data.frame() %>% 
+  select(feature)
+season.co <- season.co[index$feature, index$feature]
+season.co
+```
+
+
+```{r echo=FALSE}
+#Co-occurence graph with every line being 400 occurances. I believe we can do some more data cleaning, as these words take
+#a lot of occurances, while it problably wont help for our sentiment analysis
+season.co[season.co <= 400] <- 0
+season.co[season.co > 400] <- 1
+network <- graph_from_adjacency_matrix(
+  season.co,
+  mode = "undirected",
+  diag = FALSE)
+plot(network,
+     layout = layout_with_kk)
+```
