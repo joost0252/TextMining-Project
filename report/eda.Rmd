@@ -162,6 +162,8 @@ script.keyness <- textstat_keyness(script.dfm, target = "text92")
 
 textplot_keyness(script.keyness)
 ```
+
+
 ```{r echo=FALSE}
 #Table for co-occurance for all features
 script.co <- fcm(script.tk, 
@@ -169,6 +171,8 @@ script.co <- fcm(script.tk,
                 tri = FALSE)
 script.co
 ```
+
+
 ```{r}
 #Table for co-occurance for features with more than 300 co-occurances
 index <- script.freq %>% 
@@ -178,6 +182,7 @@ index <- script.freq %>%
 script.co <- script.co[index$feature, index$feature]
 script.co
 ```
+
 
 ```{r echo=FALSE}
 #Co-occurence graph with every line being 400 occurances. I believe we can do some more data cleaning, as these words take
