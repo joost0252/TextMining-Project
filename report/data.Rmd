@@ -131,20 +131,6 @@ Once we webscraped the data, we create a csv file to stock them. Therefore, when
 
 ```
 
-```{r echo=FALSE}
-### Analysis by season and not by episode, should we make an average ?)
-#data_scripts$season <- c(
-  1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-  2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-  3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
-  4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
-  5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,
-  6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,
-  7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,
-  8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,
-  9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,
-  10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10)
-```
 
 # Download created data file 
 We see that our data set has 231 rows and 3 columns:
@@ -170,4 +156,39 @@ data_scripts[1:1, ] %>%
   kable_classic(full_width = T, html_font = "Cambria", font_size = 7) %>%
   kable_styling(latex_options = "HOLD_position")
 ```
+
+
+# Aggregate the data by season 
+
+```{r echo=FALSE}
+### Analysis by season and not by episode, should we make an average ?)
+# Add a row indicating the season number
+data_scripts$season <- c(
+  1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+  2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+  3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+  4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
+  5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,
+  6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,
+  7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,
+  8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,
+  9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,
+  10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10)
+```
+
+```{r}
+season_scripts <- aggregate(data_scripts$script, list(data_scripts$season),
+                            paste, collapse="")
+names(season_scripts) <- c("season", "agg_script")
+```
+
+```{r}
+write.csv(season_scripts, "../data/season_scripts.csv", row.names = FALSE)
+```
+
+
+
+
+
+
 
