@@ -10,7 +10,6 @@ source("../scripts/setup.R")
 
 ```{r}
 data_scripts <- read.csv("../data/series_scripts.csv")
-
 season_scripts <- read.csv("../data/season_scripts.csv")
 ```
 
@@ -18,23 +17,15 @@ season_scripts <- read.csv("../data/season_scripts.csv")
 
 ### Sentiment Analysis
 
-## 1.Dictionary-based analysis
-```{r}
-library(tidyverse)
-library(tidytext)
-library(readr)
-library(sentimentr)
-library(quanteda)
-library(quanteda.textstats)
-library(lexicon) 
-library(flextable)
-```
-# NRC dictionary
+#### 1.Dictionary-based analysis
+
+##### NRC dictionary
 ```{r}
 get_sentiments(lexicon = "nrc")
 ```
 
 We join the corresponding sentiment qualifier in “nrc” using inner.join() from dplyr:
+
 ```{r}
 script.tb <- as_tibble(
   data.frame(
@@ -57,6 +48,7 @@ head(script.sent, 10) %>% flextable() %>% autofit()
 ```
 
 Summary (long format)
+
 ```{r}
 table(script.sent$document , 
       script.sent$sentiment)
@@ -76,6 +68,7 @@ script.sent %>%
 ```
 
 To compare the documents, we rescale them by their length (i.e. the frequencies of sentiments are computed, by document):
+
 ```{r}
 #totals by document
 script.sent.doc.total <- 
@@ -104,7 +97,7 @@ left_join(
 ```
 
 
-## 2. Value-Based analysis ("afinn" dictionary)
+#### 2. Value-Based analysis ("afinn" dictionary)
 ```{r}
 get_sentiments("afinn")
 ```
@@ -137,7 +130,8 @@ script.sent %>%
   ylab("Mean Sentiment Score") +
   xlab("")
 ```
-## Quanteda analysis
+
+### Quanteda analysis
 ```{r}
 summary(script.cp)
 
@@ -173,11 +167,7 @@ ggplot(script.sent1,
   coord_flip()
 ```
 
-## Valence-Shifters analysis
-```{r}
-library(sentimentr)
-library(lexicon)
-```
+### Valence-Shifters analysis
 
 ```{r}
 hash_sentiment_jockers_rinker
@@ -203,23 +193,16 @@ hash_valence_shifters
 
 ### Sentiment Analysis
 
-## 1.Dictionary-based analysis
-```{r}
-library(tidyverse)
-library(tidytext)
-library(readr)
-library(sentimentr)
-library(quanteda)
-library(quanteda.textstats)
-library(lexicon) 
-library(flextable)
-```
-# NRC dictionary
+#### 1.Dictionary-based analysis
+
+##### NRC dictionary
+
 ```{r}
 get_sentiments(lexicon = "nrc")
 ```
 
 We join the corresponding sentiment qualifier in “nrc” using inner.join() from dplyr:
+
 ```{r}
 season.tb <- as_tibble(
   data.frame(
@@ -242,6 +225,7 @@ head(season.sent, 10) %>% flextable() %>% autofit()
 ```
 
 Summary (long format)
+
 ```{r}
 table(season.sent$season, 
       season.sent$sentiment)
@@ -289,7 +273,7 @@ left_join(
 ```
 
 
-## 2. Value-Based analysis ("afinn" dictionary)
+#### 2. Value-Based analysis ("afinn" dictionary)
 ```{r}
 get_sentiments("afinn")
 ```
@@ -322,8 +306,35 @@ season.sent %>%
   ylab("Mean Sentiment Score") +
   xlab("")
 ```
-## Quanteda analysis
-```{r}
+
+### Quanteda analysis
+
+```{r echo=FALSE}
+season.tk <- tokens(
+  season.cp,
+  remove_numbers = TRUE, 
+  remove_punct = TRUE,
+  remove_symbols = TRUE,
+  remove_separators = TRUE
+  )
+
+#Remove possessive apostrophe ('s), such that words as leonard's are not skipped in the next part of the code
+season.tk <- tokens_replace(
+    season.tk, 
+    types(season.tk), 
+    stringi::stri_replace_all_regex(types(season.tk), "['\\p{Pf}][s]", "")
+)
+
+season.tk <- season.tk %>% 
+  tokens_tolower() %>%
+  tokens_remove(stop_words$word) %>%
+  tokens_remove(
+    c("sheldon","leonard","penny","howard",
+      "raj", "amy", "bernadette", "scene", "series", "episode"))  #remove main characters'name and 'scene'
+```
+
+
+```{r echo=FALSE}
 season.cp <- corpus(season_scripts$agg_script)
 summary(season.cp)
 
@@ -350,7 +361,7 @@ season.sent1 %>%
   autofit() 
 ```
 
-```{r}
+```{r echo=FALSE}
 ggplot(season.sent1,
        aes(x = document,
            y = count,
@@ -359,19 +370,15 @@ ggplot(season.sent1,
   coord_flip()
 ```
 
-## Valence-Shifters analysis
-```{r}
-library(sentimentr)
-library(lexicon)
-```
+#### Valence-Shifters analysis
 
-```{r}
+```{r echo=FALSE}
 hash_sentiment_jockers_rinker
 hash_valence_shifters
 ```
 
 ```{r}
-# Very long time to execute
+# Very long time to execute because it extracts the sentences out of the scripts
 #mytext <- get_sentences(season_scripts$agg_script)
 #mytext
 ```
@@ -379,9 +386,9 @@ hash_valence_shifters
 
 ```{r}
 # Same
-#sentiment(mytext) %>% 
-  #flextable() %>% 
-  #autofit()
+# sentiment(mytext) %>% 
+#   flextable() %>% 
+#   autofit()
 ```
 
 
