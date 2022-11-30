@@ -10,6 +10,7 @@ source("../scripts/setup.R")
 
 ```{r echo=FALSE}
 data_scripts <- read.csv("../data/series_scripts.csv")
+season_scripts <- read.csv("../data/season_scripts.csv")
 ```
 
 
@@ -148,8 +149,8 @@ script.dfm %>% textstat_lexdiv() %>%
   ggtitle("Plot of the 10 top Token-Type-Ratio") 
 ```
 
-## Keyness analysis 
 
+## Keyness analysis 
 
 ```{r echo=FALSE}
 ## text131 
@@ -197,9 +198,13 @@ plot(network,
      layout = layout_with_kk)
 ```
 
-################################ Season Analysis ##################################################
 
-```{r echo=FALSE}
+
+################################ Season Analysis ##################################################
+We see that the analysis per episode does not bring us much. Therefore we also investigate in the analysis per season. 
+
+
+```{r include=FALSE}
 season.cp <- corpus(season_scripts$agg_script)
 
 season.tk <- tokens(
@@ -258,6 +263,7 @@ The bigger the word, the more frequently it appears.
 ```{r echo=FALSE}
 textplot_wordcloud(season.dfm)
 ```
+
 
 ## The 10 most frequent words per season
 This plot doesn't tells us much information.
