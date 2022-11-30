@@ -8,6 +8,12 @@ output:
 source("../scripts/setup.R")
 ```
 
+```{r}
+data_scripts <- read.csv("../data/series_scripts.csv")
+```
+
+
+
 ### Sentiment Analysis
 
 ## 1.Dictionary-based analysis
