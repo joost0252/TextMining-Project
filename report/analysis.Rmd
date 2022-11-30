@@ -324,6 +324,7 @@ season.sent %>%
 ```
 ## Quanteda analysis
 ```{r}
+season.cp <- corpus(season_scripts$agg_script)
 summary(season.cp)
 
 tokens_lookup(
