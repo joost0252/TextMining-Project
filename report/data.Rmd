@@ -159,6 +159,7 @@ data_scripts[1:1, ] %>%
 
 
 # Aggregate the data by season 
+We realise that the analysis per episode can fast become tedious and less meaningful, we decide to aggregate the episodes by season. This way we get all the scripts of each season's episode on one concatenated string. 
 
 ```{r echo=FALSE}
 ### Analysis by season and not by episode, should we make an average ?)
@@ -176,13 +177,13 @@ data_scripts$season <- c(
   10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10)
 ```
 
-```{r}
+```{r echo=FALSE}
 season_scripts <- aggregate(data_scripts$script, list(data_scripts$season),
                             paste, collapse="")
 names(season_scripts) <- c("season", "agg_script")
 ```
 
-```{r}
+```{r echo=FALSE}
 write.csv(season_scripts, "../data/season_scripts.csv", row.names = FALSE)
 ```
 
