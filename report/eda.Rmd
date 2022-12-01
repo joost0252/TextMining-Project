@@ -197,11 +197,8 @@ plot(network,
      layout = layout_with_kk)
 ```
 
-<<<<<<< HEAD
 
 
-=======
->>>>>>> 4d4d182196e25bfe573d70e2954ffc6ea1170f2a
 ################################ Season Analysis ##################################################
 
 ```{r echo=FALSE}
@@ -377,8 +374,4 @@ network <- graph_from_adjacency_matrix(
   diag = FALSE)
 plot(network,
      layout = layout_with_kk)
-<<<<<<< HEAD
 ```
-=======
-```
->>>>>>> 4d4d182196e25bfe573d70e2954ffc6ea1170f2a
