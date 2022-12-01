@@ -191,4 +191,192 @@ hash_valence_shifters
 ```
 
 
+<<<<<<< HEAD
+=======
+#################################### Season Analysis ##################################################
+
+### Sentiment Analysis
+
+## 1.Dictionary-based analysis
+```{r}
+library(tidyverse)
+library(tidytext)
+library(readr)
+library(sentimentr)
+library(quanteda)
+library(quanteda.textstats)
+library(lexicon) 
+library(flextable)
+```
+# NRC dictionary
+```{r}
+get_sentiments(lexicon = "nrc")
+```
+>>>>>>> 4d4d182196e25bfe573d70e2954ffc6ea1170f2a
+
+We join the corresponding sentiment qualifier in “nrc” using inner.join() from dplyr:
+```{r}
+season.tb <- as_tibble(
+  data.frame(
+    season_scripts))
+
+season.tok <- unnest_tokens(
+  season.tb,
+  output = "word",
+  input = "agg_script",
+  to_lower = TRUE,
+  strip_punct = TRUE,
+  strip_numeric = TRUE)
+
+season.sent <- 
+  inner_join(
+    season.tok,
+    get_sentiments("nrc"),
+    by = c("word" = "word"))
+head(season.sent, 10) %>% flextable() %>% autofit()
+```
+
+Summary (long format)
+```{r}
+table(season.sent$season, 
+      season.sent$sentiment)
+
+## Long format + barplots --> NOT WORKING
+season.sent %>% 
+  group_by(season, sentiment) %>% 
+  summarize(n = n()) %>%
+  ungroup() %>% 
+  ggplot(aes(x = sentiment,
+             y = n,
+             fill = sentiment)) + 
+  geom_bar(stat = "identity",
+           alpha = 0.8) + 
+  facet_wrap(~ season_scripts$season ) + 
+  coord_flip()
+```
+
+To compare the documents, we rescale them by their length (i.e. the frequencies of sentiments are computed, by document):
+```{r}
+#totals by document
+season.sent.doc.total <- 
+  season.sent %>% 
+  group_by(season) %>% 
+  summarize(Total = n()) %>% 
+  ungroup()
+
+#add totals and compute relative frequency
+left_join(
+  season.sent,
+  season.sent.doc.total
+  ) %>% 
+  group_by(season, sentiment) %>%  
+  summarize(n = n(),
+            Total = unique(Total)) %>%
+  ungroup() %>% 
+  mutate(relfreq = n / Total) %>%
+  ggplot(aes(
+    x = sentiment,
+    y = relfreq,
+    fill = sentiment)) + 
+  geom_bar(stat = "identity", alpha = 0.8) + 
+  facet_wrap(~ season_scripts$season) + 
+  coord_flip()
+```
+
+
+## 2. Value-Based analysis ("afinn" dictionary)
+```{r}
+get_sentiments("afinn")
+```
+
+```{r}
+season.sent <-
+  inner_join(
+    season.tok, 
+    get_sentiments("afinn"),
+    by = c("word" = "word"))
+
+## Summarize per document (value average) + barplot
+season.sent %>% 
+  group_by(season) %>% 
+  summarize(Score = mean(value)) %>% 
+  ungroup() %>% 
+  arrange(Score) %>% 
+  flextable() %>% 
+  autofit()
+```
+
+```{r}
+season.sent %>% 
+  group_by(season) %>% 
+  summarize(Score = mean(value)) %>% 
+  ungroup() %>% 
+  ggplot(aes(x = reorder(season, Score), y = Score)) + 
+  geom_bar(stat = "identity") + 
+  coord_flip() +
+  ylab("Mean Sentiment Score") +
+  xlab("")
+```
+## Quanteda analysis
+```{r}
+summary(season.cp)
+
+tokens_lookup(
+  season.tk,
+  dictionary = data_dictionary_LSD2015
+  ) 
+
+season.sent1 <- tokens_lookup(
+  season.tk, 
+  dictionary = data_dictionary_LSD2015) %>% 
+  dfm() %>% 
+  tidy()
+season.sent1 %>% 
+  pivot_wider(
+    names_from = "term",
+    values_from = "count"
+  ) %>% 
+  mutate(negative = replace_na(negative, 0),
+         Score = round(negative / (negative + positive), 3)) %>% 
+  arrange(Score) %>% 
+  head(20) %>% 
+  flextable() %>% 
+  autofit() 
+```
+
+```{r}
+ggplot(season.sent1,
+       aes(x = document,
+           y = count,
+           fill = term)) + 
+  geom_bar(stat="identity") + 
+  coord_flip()
+```
+
+## Valence-Shifters analysis
+```{r}
+library(sentimentr)
+library(lexicon)
+```
+
+```{r}
+hash_sentiment_jockers_rinker
+hash_valence_shifters
+```
+
+```{r}
+# Very long time to execute
+#mytext <- get_sentences(season_scripts$agg_script)
+#mytext
+```
+
+
+```{r}
+# Same
+#sentiment(mytext) %>% 
+  #flextable() %>% 
+  #autofit()
+```
+
+
 
