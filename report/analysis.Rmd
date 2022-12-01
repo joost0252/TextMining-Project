@@ -376,6 +376,21 @@ hash_valence_shifters
   #autofit()
 ```
 
+### Analysis by character
 
-
+```{r}
+tidy_nrc %>% 
+  filter(author %in% c("sheldon","leonard","penny","howard","raj")) %>% 
+  ggplot(aes(sentiment, fill = author))+
+  geom_bar(show.legend = FALSE)+
+  facet_wrap(author~.)+
+  theme_dark()+
+  theme(
+    strip.text = element_text(face = "bold"),
+    plot.title = element_text(hjust = 0.5, size = 20, face = "bold")
+  )+
+  labs(fill = NULL, x = NULL, y = "Sentiment Frequency", title = "Sentiments of each characters by using nrc lexicon")+
+  scale_fill_manual(values = c("#EA181E", "#00B4E8", "#FABE0F","#EA181E", "#00B4E8", "#FABE0F"))+
+  annotation_custom(img,ymax = 4000, ymin = 2000, xmin = 1, xmax = 5)
+```
 
