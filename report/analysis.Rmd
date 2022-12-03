@@ -20,6 +20,11 @@ library(quanteda)
 library(quanteda.textstats)
 library(lexicon) 
 library(flextable)
+
+library(tidytext) # contains stop_words
+library(reshape2)
+library(ggplot2)
+library(dplyr)
 ```
 # NRC dictionary
 ```{r}
@@ -63,7 +68,7 @@ season.sent %>%
              fill = sentiment)) + 
   geom_bar(stat = "identity",
            alpha = 0.8) + 
-  facet_wrap(~ season_scripts$season ) + 
+  facet_wrap(~ season ) + 
   coord_flip()
 ```
 
@@ -91,7 +96,7 @@ left_join(
     y = relfreq,
     fill = sentiment)) + 
   geom_bar(stat = "identity", alpha = 0.8) + 
-  facet_wrap(~ season_scripts$season) + 
+  facet_wrap(~ season) + 
   coord_flip()
 ```
 
@@ -376,7 +381,7 @@ hash_valence_shifters
   #autofit()
 ```
 
-### Analysis by character
+### Analysis by character --> Doesn't work
 
 ```{r}
 tidy_nrc %>% 
@@ -393,4 +398,174 @@ tidy_nrc %>%
   scale_fill_manual(values = c("#EA181E", "#00B4E8", "#FABE0F","#EA181E", "#00B4E8", "#FABE0F"))+
   annotation_custom(img,ymax = 4000, ymin = 2000, xmin = 1, xmax = 5)
 ```
+
+## Similarities between season scripts
+```{r}
+season.dfm <- dfm(season.tk)
+season.tfidf <- dfm_tfidf(season.dfm)
+
+season.jac <- textstat_simil(
+  season.tfidf,
+  method = "jaccard",
+  margin = "documents")
+
+season.cos <- textstat_simil(
+  season.tfidf,
+  method = "cosine",
+  margin = "documents")
+
+season.euc <- textstat_dist(
+  season.tfidf,
+  method = "euclidean",
+  margin = "documents")
+```
+
+```{r}
+## Jaccard 
+season.jac.mat <- melt(as.matrix(season.jac)) # Convert the object to matrix then to data frame 
+ggplot(data = season.jac.mat, 
+       mapping = aes(x = Var1, y = Var2, fill = value)) +
+  scale_fill_gradient2(
+    low = "blue",
+    high = "red",
+    mid = "white", 
+    midpoint = 0.5,
+    limit = c(0, 1),
+    name = "Jaccard") +
+  geom_tile() + xlab("") + ylab("")
+
+## Cosine
+season.cos.mat <- melt(as.matrix(season.cos))
+ggplot(
+  data = season.cos.mat,
+  mapping = aes(x = Var1, y = Var2, fill = value)) +
+  scale_fill_gradient2(
+    low = "blue",
+    high = "red",
+    mid = "white",
+    midpoint = 0.5,
+    limit = c(0, 1),
+    name = "Cosine") +
+  geom_tile() + xlab("") + ylab("")
+
+## Euclidean
+season.euc.mat <- melt(as.matrix(season.euc))
+M <- max(season.euc.mat$value) # maximum distance
+season.euc.mat$value.std <- (M - season.euc.mat$value)/M 
+# conversion from distance to similarity in [0,1]
+ggplot(
+  data = season.euc.mat,
+  mapping = aes(x = Var1, 
+                y = Var2,
+                fill = value.std)) +
+  scale_fill_gradient2(
+    low = "blue",
+    high = "red",
+    mid = "white", 
+    midpoint = 0.5,
+    limit = c(0, 1),
+    name = "Euclidean") +
+  geom_tile() + xlab("") + ylab("")
+```
+
+## Clustering 
+```{r}
+season.hc <- hclust(as.dist(season.euc))
+## crude.hc <- hclust(as.dist(1 - crude.jac)) # use this line for Jaccard
+## crude.hc <- hclust(as.dist(1 - crude.cos)) # use this line for Cosine
+plot(season.hc)
+
+season.clust <- cutree(season.hc, k = 3)
+season.clust
+
+season.km <- kmeans(season.tfidf, centers = 3)
+season.km$cluster
+
+
+data.frame(
+  Clust.1 = names(sort(apply(season.tfidf[season.clust==1, ], 2, sum), decreasing = TRUE)[1:5]),
+  Clust.2 = names(sort(apply(season.tfidf[season.clust==2, ], 2, sum), decreasing = TRUE)[1:5]),
+  Clust.3 = names(sort(apply(season.tfidf[season.clust==3, ], 2, sum), decreasing = TRUE)[1:5])
+)
+
+
+data.frame(
+  Clust.1 = names(sort(apply(season.tfidf[season.km$cluster==1,], 2, sum), decreasing = TRUE)[1:5]),
+  Clust.2 = names(sort(apply(season.tfidf[season.km$cluster==2,], 2, sum), decreasing = TRUE)[1:5]),
+  Clust.3 = names(sort(apply(season.tfidf[season.km$cluster==3,], 2, sum), decreasing = TRUE)[1:5])
+)
+```
+
+
+## Similarities between words
+```{r}
+season.feat <- textstat_frequency(season.dfm) %>%
+  filter(rank <= 40) 
+season.feat$feature
+
+season.cos <- textstat_simil(
+  season.dfm[, season.feat$feature],
+  method = "cosine",
+  margin = "feature")
+season.cos.mat <- melt(as.matrix(season.cos)) # Convert the object to matrix then to data frame 
+
+ggplot(data = season.cos.mat, aes(x=Var1, y=Var2, fill=value)) +
+  scale_fill_gradient2(
+    low = "blue",
+    high = "red",
+    mid = "white",
+    midpoint = 0.5,
+    limit = c(0, 1),
+    name = "Cosine") +
+  geom_tile() + 
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 5),
+    axis.text.y = element_text(size = 5)) +
+  xlab("") + 
+  ylab("")
+
+```
+
+## Clustering words
+```{r}
+season.hcw <- hclust(as.dist(1 - season.cos))
+plot(season.hcw)
+```
+
+## Co-occurences --> Doesn't work
+```{r}
+season.fcm <- fcm(season.tk, 
+                 window = 3, 
+                 tri = FALSE)
+season.fcm <- (season.fcm + t(season.fcm))/2 ## make the co-occurrence matrix symmetrical
+
+season.fcm.mat <- melt(
+  as.matrix(
+    season.fcm[season.feat$feature, season.feat$feature]),
+  varnames = c("Var1", "Var2")) 
+ggplot(data = season.fcm.mat, 
+       mapping = aes(x = Var1, y = Var2, fill = value)) +
+  scale_fill_gradient2(
+    low = "blue",
+    high = "red",
+    mid = "white",
+    midpoint = 140,
+    limit = c(0, 280),
+    name = "Co-occurrence") +
+  geom_tile() + 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 5),
+        axis.text.y = element_text(size = 5)) +
+  xlab("") +
+  ylab("")
+```
+
+## Cluster dendrogram
+```{r}
+season.inv_occ <- 
+  280 - as.matrix(
+    season.fcm[season.feat$feature, season.feat$feature]) ## 280 is the max co-occurrence here
+season.hc <- hclust(as.dist(season.inv_occ))
+plot(season.hc)
+```
+
 
