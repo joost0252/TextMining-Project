@@ -26,6 +26,7 @@ library(reshape2)
 library(ggplot2)
 library(dplyr)
 ```
+
 # NRC dictionary
 ```{r}
 get_sentiments(lexicon = "nrc")
@@ -171,10 +172,6 @@ ggplot(season.sent1,
 ```
 
 ## Valence-Shifters analysis
-```{r}
-library(sentimentr)
-library(lexicon)
-```
 
 ```{r}
 hash_sentiment_jockers_rinker
@@ -201,16 +198,7 @@ hash_valence_shifters
 ### Sentiment Analysis
 
 ## 1.Dictionary-based analysis
-```{r}
-library(tidyverse)
-library(tidytext)
-library(readr)
-library(sentimentr)
-library(quanteda)
-library(quanteda.textstats)
-library(lexicon) 
-library(flextable)
-```
+
 # NRC dictionary
 ```{r}
 get_sentiments(lexicon = "nrc")
@@ -357,10 +345,6 @@ ggplot(season.sent1,
 ```
 
 ## Valence-Shifters analysis
-```{r}
-library(sentimentr)
-library(lexicon)
-```
 
 ```{r}
 hash_sentiment_jockers_rinker
