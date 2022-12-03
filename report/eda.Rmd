@@ -45,7 +45,7 @@ season.tk <- season.tk %>%
   tokens_remove(stop_words$word) %>%
   tokens_remove(
     c("sheldon","leonard","penny","howard","raj", 
-      "amy", "bernadette", "emily", "cooper", "stuart", "lucy","arthur","rostenkowski","bert","mike","james","lorvis","dan","dr","beverly","isabella","williams","lesley","missy","dave","claire","meemaw", "mary","leslie","lalita","dennis","alfred", "susan", "ramona", "christie","gallo", "zack", "wil", "kurt","toby", "amelia","nathan",
+      "amy", "bernadette", "emily", "cooper", "stuart", "lucy","arthur","rostenkowski","bert","mike","james","lorvis","dan","dr","beverly","isabella","williams","lesley","missy","dave","claire","meemaw", "mary","leslie","lalita","dennis","alfred", "susan", "ramona", "christie","gallo", "zack", "wil", "kurt","toby", "amelia","nathan","beverley",
       "scene", "series", "episode","pilot", "yeah","uh","hey","gonna","knock","dr","apartment","um","wanna","door")) 
       #remove main characters'name and 'scene'
 season.tk
