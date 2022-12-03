@@ -43,8 +43,10 @@ script.tk <- script.tk %>%
   tokens_tolower() %>%
   tokens_remove(stop_words$word) %>%
   tokens_remove(
-    c("sheldon","leonard","penny","howard",
-      "raj", "amy", "bernadette", "scene", "series", "episode"))  #remove main characters'name and 'scene'
+  c("sheldon","leonard","penny","howard","raj", 
+      "amy", "bernadette", "emily", "cooper", "stuart",  
+      "scene", "series", "episode", "yeah","uh","hey","gonna","knock","dr","apartment","um")) 
+      #remove main characters'name and 'scene'
 script.tk
 ```
 
