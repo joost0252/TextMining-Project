@@ -11,32 +11,6 @@ source("../scripts/setup.R")
 ### Sentiment Analysis
 
 ## 1.Dictionary-based analysis
-```{r}
-library(tidyverse)
-library(tidytext)
-library(readr)
-library(sentimentr)
-library(quanteda)
-library(quanteda.textstats)
-library(lexicon) 
-library(flextable)
-
-library(tidytext) # contains stop_words
-library(reshape2)
-library(ggplot2)
-library(dplyr)
-
-library(topicmodels)
-library(topicdoc)
-library(seededlda)
-library(quanteda.textmodels)
-```
-
-#################################### Season Analysis ##################################################
-
-### Sentiment Analysis
-
-## 1.Dictionary-based analysis
 
 # NRC dictionary
 ```{r}
