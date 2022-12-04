@@ -10,6 +10,7 @@ source("../scripts/setup.R")
 
 ```{r echo=FALSE}
 data_scripts <- read.csv("../data/series_scripts.csv")
+season_scripts <- read.csv("../data/season_scripts.csv")
 ```
 
 
