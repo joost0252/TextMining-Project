@@ -3,5 +3,31 @@ title: "Introduction"
 output: html_document
 ---
 
+Teacher : Boldi - Baumgartner
+Fall Semester 2022
+
 Elodie Shoeiline Kwan, Joost Dijkstra, Katia Voltz and Nina Bidet
 
+# Introduction
+
+We decided to analyze a TV series for this text mining project. In particular, one of the most successful comedies of the last years: The Big Bang Theory. We looked at the script of the 10 seasons of this series to make a detailed analysis, and try to understand, without having seen the series, the general framework that emerges. Our objective is to produce a detailed report based on an original database.
+
+## Overview
+Data set extracted from [https://bigbangtrans.wordpress.com/](https://bigbangtrans.wordpress.com/series-1-episode-1-pilot-episode/). 
+
+## Project objectives
+Our goal is to use the relevant text mining - machine learning tools, with supervised and unsupervised learning methods to characterize our data frame. 
+In our case, it would be a question of understanding the framing of the TV show, with sentiments analysis, vocabulary richness, and topics analysis. 
+
+## Structure of the report
+
++ Introduction
++ Part 1 : Data preparation
++ Part 2 : Exploratory Data Analysis (EDA)
++ Part 3 : Analysis
+  + Supervised learning analysis
+  + Unsupervised learning analysis
++ Conclusion 
+
+## Related work
+- Text mining and Machine learning course and exercises 
