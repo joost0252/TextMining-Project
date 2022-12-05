@@ -30,8 +30,8 @@ For each token in our data scripts, we join the corresponding sentiment qualifie
 ```{r}
 season.tb <- as_tibble(data.frame(season_scripts))
 
-words_to_remove <- c("scene", "series", "episode","pilot", "yeah","uh","hey",
-                    "gonna","knock","dr","apartment","um","wanna","door")
+words_to_remove <- c("scene", "series", "episode", "pilot", "yeah", "uh", "hey",
+                    "gonna", "knock", "dr", "apartment", "um", "wanna", "door")
 
 season.tok <- unnest_tokens(
   season.tb,
@@ -41,13 +41,18 @@ season.tok <- unnest_tokens(
   strip_punct = TRUE,
   strip_numeric = TRUE)
  
-
+season.tok <- season.tok %>%
+  anti_join(stop_words, by = c("word" = "word"))
+  
 season.sent <- 
   inner_join(
     season.tok,
     get_sentiments("nrc"),
     by = c("word" = "word"))
-head(season.sent, 10) %>% flextable() %>% autofit()
+
+head(season.sent, 10) %>% 
+  flextable() %>%
+  autofit()
 ```
 
 Here, we show the overall sentiment per season.
