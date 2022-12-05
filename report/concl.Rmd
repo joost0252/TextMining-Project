@@ -4,3 +4,8 @@ source("../scripts/setup.R")
 ```
 
 
+# Reference 
+
+https://saifmohammad.com/WebPages/NRC-Emotion-Lexicon.htm
+
+http://corpustext.com/reference/sentiment_afinn.html

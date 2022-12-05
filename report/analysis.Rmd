@@ -8,21 +8,30 @@ output:
 source("../scripts/setup.R")
 ```
 
-### Sentiment Analysis
-
-## 1.Dictionary-based analysis
-
-# NRC dictionary
-```{r}
-get_sentiments(lexicon = "nrc")
+```{r echo=FALSE}
+data_scripts <- read.csv("../data/series_scripts.csv")
+season_scripts <- read.csv("../data/season_scripts.csv")
 ```
->>>>>>> 4d4d182196e25bfe573d70e2954ffc6ea1170f2a
 
-We join the corresponding sentiment qualifier in “nrc” using inner.join() from dplyr:
+### Sentiment Analysis
+In this following part, we want to compute the sentiment of each season. To do so, we decide to first used the 'NRC' dictionary to perform the analysis. Then we want to compare our results to another analysis using another dictionary, the 'afinn' dictionary. 
+
+
+#### NRC dictionary
+The NRC dictionary contains a list of English words and their associations with eight basic emotions and two sentiments (positive or negative). These emotions are anger, fear, anticipation, trust, surprise, sadness, joy, and disgust. Based on this dictionary, one English word can be associated to several emotions. For example, we see on the following table that the term 'abandon' is associated to several emotions (fear, negative, sadness). 
+
+```{r echo=FALSE}
+head(get_sentiments(lexicon = "nrc"))
+```
+
+
+For each token in our data scripts, we join the corresponding sentiment qualifier in “nrc” using the `inner.join()` function from `dplyr`:
+
 ```{r}
-season.tb <- as_tibble(
-  data.frame(
-    season_scripts))
+season.tb <- as_tibble(data.frame(season_scripts))
+
+words_to_remove <- c("scene", "series", "episode","pilot", "yeah","uh","hey",
+                    "gonna","knock","dr","apartment","um","wanna","door")
 
 season.tok <- unnest_tokens(
   season.tb,
@@ -31,6 +40,7 @@ season.tok <- unnest_tokens(
   to_lower = TRUE,
   strip_punct = TRUE,
   strip_numeric = TRUE)
+ 
 
 season.sent <- 
   inner_join(
@@ -40,12 +50,13 @@ season.sent <-
 head(season.sent, 10) %>% flextable() %>% autofit()
 ```
 
-Summary (long format)
-```{r}
+Here, we show the overall sentiment per season.
+
+```{r echo=FALSE}
 table(season.sent$season, 
       season.sent$sentiment)
 
-## Long format + barplots --> NOT WORKING
+## Long format
 season.sent %>% 
   group_by(season, sentiment) %>% 
   summarize(n = n()) %>%
@@ -88,12 +99,19 @@ left_join(
 ```
 
 
-## 2. Value-Based analysis ("afinn" dictionary)
-```{r}
-get_sentiments("afinn")
+#### AFINN dictionary
+Now, on this part, we will us the AFINN dictionary. This dictionary contains a list of English words manually rated for valence with an integer between -5 (very negative) and +5 (very positive) by Finn Årup Nielsen.
+
+
+We see on the below table that the word 'abandoned' has a value of -2 which means that it is relatively negative. 
+
+```{r echo=FALSE}
+head(get_sentiments("afinn"))
 ```
 
-```{r}
+We see there on the table below that the seasons 3, 4 and 5 are categorized as relatively negative with season 3 being the most negative. 
+
+```{r echo=FALSE}
 season.sent <-
   inner_join(
     season.tok, 
@@ -121,6 +139,7 @@ season.sent %>%
   ylab("Mean Sentiment Score") +
   xlab("")
 ```
+
 ## Quanteda analysis
 ```{r}
 summary(season.cp)

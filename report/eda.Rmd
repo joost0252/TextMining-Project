@@ -15,11 +15,11 @@ season_scripts <- read.csv("../data/season_scripts.csv")
 
 
 # Tokenization and cleaning of the data 
-We define the corpus for our analysis. The corpus will be the scrips column in our data set. Then we clean the texts by removing the numbers, the punctuation, the symbols, and the separators. 
+We define the corpus for our analysis. The corpus will be the scripts column in our data set as it contains all the texts that must be analysed. Once defined, we clean the texts by removing the numbers, the punctuation, the symbols, and the separators. 
 
-In our scripts, we can see the main characters that are _Sheldon_, _Leonard_, _Penny_, _Howard_ and _Raj_ and they appear in all the seasons' episodes. Therefore, we remove their name for the following explanatory data analysis because it will otherwise bias our results. 
+In our scripts, we can see the main characters that are _Sheldon_, _Leonard_, _Penny_, _Howard_ and _Raj_. They appear in each seasons' episodes. Therefore, we remove their name for the following explanatory data analysis because it will otherwise bias our results. 
 
-We noticed that the term _'Amy'_ and _'Bernadette'_ appears the most. These are characters that appear towards the end of the series. The term 'scene' is also normal that it appears a lot, because at the beginning of each script and each time the characters change the scene, the term 'scene' is written.
+We noticed that the term _'Amy'_ and _'Bernadette'_ appears the most. These are characters that appear towards the end of the series. The term 'scene' is also normal that it appears a lot, because at the beginning of each script and every time characters change of scene, the term 'scene' is written.
 Therefore, we also remove these terms for the following analysis. 
 
 
@@ -34,22 +34,29 @@ season.tk <- tokens(
   remove_separators = TRUE
   )
 
-#Remove possesive apostrophe ('s), such that words as leonard's are not skipped in the next part of the code
+#Remove possessive apostrophe ('s), such that words as Leonard's are not skipped in the next part of the code
 season.tk <- tokens_replace(
     season.tk, 
     types(season.tk), 
     stringi::stri_replace_all_regex(types(season.tk), "['\\p{Pf}][s]", "")
 )
 
+characters_names <- c("sheldon","leonard","penny","howard","raj", "amy", 
+                      "bernadette", "emily", "cooper", "stuart", "lucy",
+                      "arthur","rostenkowski","bert","mike","james","lorvis",
+                      "dan","dr","beverly","isabella","williams","lesley",
+                      "missy","dave","claire","meemaw", "mary","leslie","lalita",
+                      "dennis","alfred", "susan", "ramona", "christie","gallo",
+                      "zack", "wil", "kurt","toby", "amelia","nathan",
+                      "beverley","haley","mandy","adam","barry","mark")
+
+words_to_remove <- c("scene", "series", "episode","pilot", "yeah","uh","hey",
+                    "gonna","knock","dr","apartment","um","wanna","door")
+
 season.tk <- season.tk %>% 
   tokens_tolower() %>%
   tokens_remove(stop_words$word) %>%
-  tokens_remove(
-    c("sheldon","leonard","penny","howard","raj", 
-      "amy", "bernadette", "emily", "cooper", "stuart", "lucy","arthur","rostenkowski","bert","mike","james","lorvis","dan","dr","beverly","isabella","williams","lesley","missy","dave","claire","meemaw", "mary","leslie","lalita","dennis","alfred", "susan", "ramona", "christie","gallo", "zack", "wil", "kurt","toby", "amelia","nathan","beverley","haley","mandy","adam","barry","mark",
-      "scene", "series", "episode","pilot", "yeah","uh","hey","gonna","knock","dr","apartment","um","wanna","door")) 
-      #remove main characters'name and 'scene'
-season.tk
+  tokens_remove(c(characters_names, words_to_remove)) 
 ```
 
 # The Document-Term Matrix, the TF-IDF and the global frequencies 
@@ -79,14 +86,14 @@ season.freq %>%
 
 
 ## Cloud of words 
-The bigger the word, the more frequently it appears.
+The bigger the word, the more frequently it appears. The most frequent words seems to be "time", "fun", "love", "happy", etc. Does this means that the seasons have mostly positive sentiments ? We will analyse that throughout our report. 
 
 ```{r echo=FALSE}
 textplot_wordcloud(season.dfm)
 ```
 
 ## The 10 most frequent words per season
-This plot doesn't tells us much information.
+Here, we plot the 10 most frequent words per season. We see that this plot doesn't tells us much information.
 
 ```{r echo=FALSE}
 season.dfm %>% 
@@ -102,6 +109,7 @@ season.dfm %>%
 ```
 
 ## The TF-IDF per season
+Again, here we plot the 10 most specific words per season. In the season 1 the term 'baby' is very specific. While in the season 4 the most specific term is 'birthday'.
 
 ```{r}
 season.tfidf %>% 
@@ -113,13 +121,13 @@ season.tfidf %>%
   theme(axis.text.y = element_text(size = 5),
         axis.ticks.y = element_blank())  + 
   facet_wrap(~ season_scripts$season, ncol = 2) + 
-    ggtitle("Top 10 TF-IDF per season")
+  ggtitle("Top 10 TF-IDF per season")
 ```
 
 
 # Exploratory Data analysis 
-We see that "yeah", "apartment", "hey" "knock" and "gonna" are the most frequent terms as we could also see before. 
-Terms such as "meemaw", "lesley", "missy", "arthur" and "bert" are rather more likely to be specific to a dew texts while still somehow frequent. 
+On this plot, we cannot see very clearly as there are a lot of terms. But we see that "time", "guys" are indeed very frequent as seen previously and that "gablehouser" is very specific to one particular season. It is season 3 if we look at the previous plot.
+
 
 ```{r echo=FALSE}
 season.freq %>% 
@@ -134,7 +142,7 @@ season.freq %>%
 ```
 
 ## Lexical diversity 
-We compute the lexical diversity of the scripts. 
+We compute the lexical diversity of the scripts and we see that the season do not have very diverse lexic. 
 
 ```{r echo=FALSE}
 season.dfm %>% textstat_lexdiv()
@@ -170,14 +178,13 @@ textplot_keyness(season.keyness)
 #Table for co-occurance for all features
 season.co <- fcm(season.tk, 
                 context = "document", 
-                tri = FALSE,
-                )
+                tri = FALSE)
 season.co
 ```
 
 
 ```{r}
-#Table for co-occurance for features with more than 300 co-occurances
+#Table for co-occurrence for features with more than 300 co-occurrences
 index <- season.freq %>% 
   filter(frequency > 300) %>% 
   data.frame() %>% 
@@ -188,8 +195,8 @@ season.co
 
 
 ```{r echo=FALSE}
-#Co-occurence graph with every line being 400 occurances. I believe we can do some more data cleaning, as these words take
-#a lot of occurances, while it problably wont help for our sentiment analysis
+#Co-occurrence graph with every line being 400 occurrences. I believe we can do some more data cleaning, as these words take
+#a lot of occurrences, while it problably wont help for our sentiment analysis
 season.co[season.co <= 400] <- 0
 season.co[season.co > 400] <- 1
 network <- graph_from_adjacency_matrix(
