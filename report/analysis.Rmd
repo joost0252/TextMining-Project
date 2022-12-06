@@ -147,13 +147,33 @@ season.sent %>%
 
 ## Quanteda analysis
 ```{r}
+season.cp <- corpus(season_scripts$agg_script)
 summary(season.cp)
+
+season.tk <- tokens(
+  season.cp, 
+  remove_numbers = TRUE,
+  remove_punct = TRUE,
+  remove_symbols = TRUE,
+  remove_separators = TRUE)
+season.tk <- tokens_tolower(season.tk) 
+season.tk <- tokens_replace(
+  season.tk,
+  pattern = hash_lemmas$token,
+  replacement = hash_lemmas$lemma)
+season.tk <- season.tk %>% 
+  tokens_remove(words_to_remove)
+#season.tk
 
 tokens_lookup(
   season.tk,
   dictionary = data_dictionary_LSD2015
   ) 
 
+# If you get an error with the below code, this is how I fixed it: 
+# 1. Open the registry edit tool by searching regedit in the start menu
+# 2. Navigate to Computer\HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\FileSystem
+# 3. Change LongPathsEnabled from 0 to 1
 season.sent1 <- tokens_lookup(
   season.tk, 
   dictionary = data_dictionary_LSD2015) %>% 
