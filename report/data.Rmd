@@ -88,15 +88,14 @@ Once we webscraped the data, we create a csv file to stock them. Therefore, when
 #   document_id <- paste0("doc", element-2)
 #   episode_id <- gsub("-", "_", link_end[element])
 #   Link = paste0("https://bigbangtrans.wordpress.com/", link_end[element])
-#   
-#   print("section 1")
-#   
+# 
 #   if (element < 17){
 #     pages = read_html(Link)
 #     page_scripts <- pages %>%
 #       html_nodes("#post-3 p , .MsoNormal span , .title") %>%
 #       html_text2()
 # 
+#     # element > 40 & element < 113
 #    }else if (element == 46){
 #    pages = read_html(Link)
 #    page_scripts <- pages %>%
@@ -104,7 +103,7 @@ Once we webscraped the data, we create a csv file to stock them. Therefore, when
 #      html_text2()
 # 
 # 
-#    }else if (element == 122){
+#    }else if (element > 40 & element < 113 ||element == 122){
 #    pages = read_html(Link)
 #    page_scripts <- pages %>%
 #      html_nodes("#content p , .title") %>%
@@ -124,8 +123,7 @@ Once we webscraped the data, we create a csv file to stock them. Therefore, when
 #      html_nodes(".title , #post-68 p , em") %>%
 #      html_text2()
 #    }
-#   
-#   print("section 2")
+# 
 #    page_scripts <- unique(page_scripts)
 # 
 #    if (element < 19){
@@ -179,12 +177,12 @@ Once we webscraped the data, we create a csv file to stock them. Therefore, when
 #     character_speech_10 <- rbind(character_speech_10, data_frame_col_characters)
 # 
 #   }
-#    print("section 3")
+#    
 #    page_scripts <- paste(page_scripts, collapse='// ')
 # 
 #    data_frame_col <- c(document_id, episode_id , page_scripts)
 #    scripts <- rbind(scripts, data_frame_col)
-#    
+# 
 #    print(episode_id)
 # 
 # }
@@ -268,6 +266,98 @@ names(season_scripts) <- c("season", "agg_script")
 
 ```{r echo=FALSE}
 write.csv(season_scripts, "../data/season_scripts.csv", row.names = FALSE)
+```
+
+
+# Tidy the "character_speech" data to have the column and information as we want 
+
+```{r}
+## re-import the data
+character_speech_1 <- read.csv("../data/character_speech_1.csv")
+character_speech_2 <- read.csv("../data/character_speech_2.csv")
+character_speech_3 <- read.csv("../data/character_speech_3.csv")
+character_speech_4 <- read.csv("../data/character_speech_4.csv")
+character_speech_5 <- read.csv("../data/character_speech_5.csv")
+character_speech_6 <- read.csv("../data/character_speech_6.csv")
+character_speech_7 <- read.csv("../data/character_speech_7.csv")
+character_speech_8 <- read.csv("../data/character_speech_8.csv")
+character_speech_9 <- read.csv("../data/character_speech_9.csv")
+character_speech_10 <- read.csv("../data/character_speech_10.csv")
+
+## define the main characters 
+main_characters <- c("Sheldon", "Leonard", "Penny", "Howard", "Raj")
+
+## split the character name and its scripts for each data
+character_speech_1[c('character_name',
+                     'character_scripts')] <- str_split_fixed(character_speech_1$main_character_script,
+                                                              ':', 2)
+character_speech_1 <- character_speech_1[character_speech_1$character_name %in% main_characters, ]
+
+
+character_speech_2[c('character_name',
+                     'character_scripts')] <- str_split_fixed(character_speech_2$main_character_script,
+                                                              ':', 2)
+character_speech_2 <- character_speech_2[character_speech_2$character_name %in% main_characters, ]
+
+
+character_speech_3[c('character_name',
+                     'character_scripts')] <- str_split_fixed(character_speech_3$main_character_script,
+                                                              ':', 2)
+character_speech_3 <- character_speech_3[character_speech_3$character_name %in% main_characters, ]
+
+
+character_speech_4[c('character_name',
+                     'character_scripts')] <- str_split_fixed(character_speech_4$main_character_script,
+                                                              ':', 2)
+character_speech_4 <- character_speech_4[character_speech_4$character_name %in% main_characters, ]
+
+
+character_speech_5[c('character_name',
+                     'character_scripts')] <- str_split_fixed(character_speech_5$main_character_script,
+                                                              ':', 2)
+character_speech_5 <- character_speech_5[character_speech_5$character_name %in% main_characters, ]
+
+
+character_speech_6[c('character_name',
+                     'character_scripts')] <- str_split_fixed(character_speech_6$main_character_script,
+                                                              ':', 2)
+character_speech_6 <- character_speech_6[character_speech_6$character_name %in% main_characters, ]
+
+
+character_speech_7[c('character_name',
+                     'character_scripts')] <- str_split_fixed(character_speech_7$main_character_script,
+                                                              ':', 2)
+character_speech_7 <- character_speech_7[character_speech_7$character_name %in% main_characters, ]
+
+
+character_speech_8[c('character_name',
+                     'character_scripts')] <- str_split_fixed(character_speech_8$main_character_script,
+                                                              ':', 2)
+character_speech_8 <- character_speech_8[character_speech_8$character_name %in% main_characters, ]
+
+
+character_speech_9[c('character_name',
+                     'character_scripts')] <- str_split_fixed(character_speech_9$main_character_script,
+                                                              ':', 2)
+character_speech_9 <- character_speech_9[character_speech_9$character_name %in% main_characters, ]
+
+
+character_speech_10[c('character_name',
+                     'character_scripts')] <- str_split_fixed(character_speech_10$main_character_script,
+                                                              ':', 2)
+character_speech_10 <- character_speech_10[character_speech_10$character_name %in% main_characters, ]
+
+
+## combine all these datasets into one dataset 
+
+character_speech <- rbind(character_speech_1, character_speech_2, character_speech_3,
+                          character_speech_4, character_speech_5, character_speech_6, 
+                          character_speech_7, character_speech_8, character_speech_9,
+                          character_speech_10)
+
+
+write.csv(character_speech , "../data/character_speech.csv", row.names = FALSE)
+
 ```
 
 
