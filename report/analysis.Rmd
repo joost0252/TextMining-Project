@@ -225,11 +225,12 @@ hash_valence_shifters
 ### Analysis by character --> Doesn't work
 
 ```{r}
-tidy_nrc %>% 
-  filter(author %in% c("sheldon","leonard","penny","howard","raj")) %>% 
-  ggplot(aes(sentiment, fill = author))+
+#tidy_nrc <- tidy_text %>% inner_join(nrc)
+season.sent %>% 
+  filter(value %in% c("sheldon","leonard","penny","howard","raj")) %>% 
+  ggplot(aes(sentiment, fill = "black"))+
   geom_bar(show.legend = FALSE)+
-  facet_wrap(author~.)+
+  facet_wrap(~c("sheldon","leonard","penny","howard","raj"), scales="free_y")+
   theme_dark()+
   theme(
     strip.text = element_text(face = "bold"),
@@ -237,7 +238,7 @@ tidy_nrc %>%
   )+
   labs(fill = NULL, x = NULL, y = "Sentiment Frequency", title = "Sentiments of each characters by using nrc lexicon")+
   scale_fill_manual(values = c("#EA181E", "#00B4E8", "#FABE0F","#EA181E", "#00B4E8", "#FABE0F"))+
-  annotation_custom(img,ymax = 4000, ymin = 2000, xmin = 1, xmax = 5)
+  annotation_custom(grid::roundrectGrob(), ymax = 4000, ymin = 2000, xmin = 1, xmax = 5)
 ```
 
 ## Similarities between season scripts
@@ -658,4 +659,138 @@ beta.long %>%
     axis.text.y = element_text(size = 5),
     axis.text.x = element_text(size = 5),
     strip.text = element_text(size = 5))
+```
+#Features: DTM and LSA
+```{r}
+# Get the script per character and tokenize this
+names(season_scripts)
+character.cp <- corpus(tweets, text_field = "text")## File with sentence of each sentence by character is needed.
+character.tok ## Tokenize this corpus 
+
+# The variable to predict is the character name:
+y <- factor(docvars(character.tok, "character"))
+
+#Compute the DTM matrix and show the dimensions:
+character.dfm <- dfm(character.tok)
+dim(character.dfm)
+```
+
+```{r}
+#Using a LSA to reduce dimensions, the nd should be played with to try different results:
+library(quanteda.textmodels)
+character.lsa <- textmodel_lsa(character.dfm, nd=25)
+head(character.lsa$docs) #In original file this was $docs, see what works.
+
+```
+
+```{r}
+#Training the classifier:
+character.df <- data.frame(Class=y, X=character.lsa$docs) #same here, $docs might need to be changed
+index.tr <- sample(size=round(0.8*length(y)), x=c(1:length(y)), replace=FALSE)
+df.tr <- character.df[index.tr,]
+df.te <- character.df[-index.tr,]
+library(caret)
+library(ranger)
+train(df.tr) #This is used to estimate the parameters for the given model from a set of data
+character.fit <- ranger(Class ~ ., 
+                     data = df.tr)
+pred.te <- predict(character.fit, df.te)
+
+confusionMatrix(data=pred.te$predictions, reference = df.te$Class) #This gives the confusionmatrix, precision, specifity, and sensitivity
+```
+# Improving the features
+```{r}
+
+## Same as above, but now it tries different nd/number of dimensions, may take a long time
+nd.vec <- c(2,5,25,50,100, 500, 1000)
+acc.vec <- numeric(length(nd.vec))
+for (j in 1:length(nd.vec)){
+  character.lsa <- textmodel_lsa(character.dfm, nd=nd.vec[j])
+  character.df <- data.frame(Class=y, X=character.lsa$docs)
+  df.tr <- df[index.tr,]
+  df.te <- df[-index.tr,]
+  
+  character.fit <- ranger(Class ~ ., 
+                       data = df.tr)
+  pred.te <- predict(character.fit, df.te)
+  acc.vec[j] <- confusionMatrix(data=pred.te$predictions, reference = df.te$Class)$overall[1]
+}
+## Growing trees.. Progress: 93%. Estimated remaining time: 2 seconds.
+acc.vec
+## [1] 0.7942547 0.8625776 0.8819876 0.8827640 0.8804348 0.8812112 0.8796584
+plot(acc.vec ~ nd.vec, type='b')
+
+```
+
+
+## Word Embedding with glove
+```{r}
+
+
+library(text2vec)
+character.fcm <- fcm(character.tok, 
+           context = "window",
+           count = "weighted",
+           window=5,
+           weights = 1/(1:5),
+           tri = FALSE)
+glove <- GlobalVectors$new(rank = 25, x_max = 1)
+
+word_vectors_main <- glove$fit_transform(character.fcm, n_iter = 100)
+
+```
+
+```{r}
+
+word_vectors_context <- glove$components
+character.glove <- word_vectors_main + t(word_vectors_context)
+
+ndoc <- length(character.tok) # number of documents
+centers <- matrix(nr=ndoc, nc=25) # document embedding matrix (1 document per row)
+for (i in 1:ndoc){
+  words_in_i <- character.glove[character.tok[[i]],, drop=FALSE]
+  centers[i,] <- apply(words_in_i,2,mean)
+}
+row.names(centers) <- names(character.tok)
+
+character.df <- data.frame(Class=y, X=centers)
+df.tr <- character.df[index.tr,]
+df.te <- character.df[-index.tr,]
+character.fit <- ranger(Class ~ ., 
+                     data = df.tr)
+pred.te <- predict(character.fit, df.te)
+confusionMatrix(data=pred.te$predictions, reference = df.te$Class)
+
+```
+
+# If we want to add more features (could be sentiment of sentence/word)
+```{r}
+character.tfidf <- dfm_tfidf(character.dfm)
+character.lsa <- textmodel_lsa(character.tfidf, nd=25)
+
+df <- data.frame(Class=y, X=tweets.lsa$docs)
+character.df <- cbind(character.df, 
+            logretweet=log10(docvars(character.tok, c("retweet_count"))),
+            length = log(sapply(character.tok, length)))
+df.tr <- character.df[index.tr,]
+df.te <- character.df[-index.tr,]
+tweets.fit <- ranger(Class ~ ., 
+                     data = df.tr, 
+                     importance = "impurity")
+pred.te <- predict(character.fit, df.te)
+confusionMatrix(data=pred.te$predictions, reference = df.te$Class)
+```
+
+#Further improvement based on adding the centroids (and the extra features from above if used)
+```{r}
+
+character.df <- cbind(character.df, Cent=centers) ## add the centroid features to the tf-idf-lsa, retweet, length features.
+df.tr <- character.df[index.tr,]
+df.te <- character.df[-index.tr,]
+character.fit <- ranger(Class ~ ., 
+                     data = df.tr, 
+                     importance = "impurity")
+pred.te <- predict(character.fit, df.te)
+confusionMatrix(data=pred.te$predictions, reference = df.te$Class)
+
 ```
