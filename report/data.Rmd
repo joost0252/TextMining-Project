@@ -67,67 +67,150 @@ Once we webscraped the data, we create a csv file to stock them. Therefore, when
 
 
 
-
 ```{r include=FALSE}
 ## DO NOT UN-COMMENT THE CODE UNLESS THERE ARE ANY WEBSCRAPING MODIFICATION TO DO
 
 # ## Loop through my the links with link endings to get the script 
-# 
+ 
 # scripts <- data.frame()
+# character_speech_1 <- data.frame()
+# character_speech_2 <- data.frame()
+# character_speech_3 <- data.frame()
+# character_speech_4 <- data.frame()
+# character_speech_5 <- data.frame()
+# character_speech_6 <- data.frame()
+# character_speech_7 <- data.frame()
+# character_speech_8 <- data.frame()
+# character_speech_9 <- data.frame()
+# character_speech_10 <- data.frame()
 # 
 # for(element in 2:length(link_end)){
-#   
 #   document_id <- paste0("doc", element-2)
 #   episode_id <- gsub("-", "_", link_end[element])
 #   Link = paste0("https://bigbangtrans.wordpress.com/", link_end[element])
 #   
-#  if (element < 17){
+#   print("section 1")
+#   
+#   if (element < 17){
+#     pages = read_html(Link)
+#     page_scripts <- pages %>%
+#       html_nodes("#post-3 p , .MsoNormal span , .title") %>%
+#       html_text2()
+# 
+#    }else if (element == 46){
 #    pages = read_html(Link)
-#   page_scripts <- pages %>% 
-#     html_nodes("#post-3 p , .MsoNormal span , .title") %>% 
-#     html_text2()
-#   
-#   }else if (element == 46){
-#   pages = read_html(Link)
-#   page_scripts <- pages %>% 
-#     html_nodes("content p , em , .title") %>% 
-#     html_text2()   
+#    page_scripts <- pages %>%
+#      html_nodes("content p , em , .title") %>%
+#      html_text2()
 # 
-#   
-#   }else if (element == 122){
-#   pages = read_html(Link)
-#   page_scripts <- pages %>% 
-#     html_nodes("#content p , .title") %>% 
-#     html_text2()   
-#   
-#   #132-134 || 132 < element < 152
-#   }else if (element == 123 || element > 132 & element < 152 || element > 152 & element < 233){
-#   pages = read_html(Link)
-#   page_scripts <- pages %>% 
-#     html_nodes("p+ p , i , .title") %>% 
-#     html_text2()  
-#   
-#   }
-#   else{
-#   pages = read_html(Link)
-#   page_scripts <- pages %>% 
-#     html_nodes(".title , #post-68 p , em") %>% 
-#     html_text2()
-#   }
-#   
-#   page_scripts <- unique(page_scripts)
-#   page_scripts <- paste(page_scripts, collapse='// ')
-#   
-#   data_frame_col <- c(document_id, episode_id , page_scripts)
-#   scripts <- rbind(scripts, data_frame_col)
-#   
-#   #assign(paste0("doc_", element-2), data_frame_col)
 # 
-#   print(episode_id)
+#    }else if (element == 122){
+#    pages = read_html(Link)
+#    page_scripts <- pages %>%
+#      html_nodes("#content p , .title") %>%
+#      html_text2()
+# 
+#    #132-134 || 132 < element < 152
+#    }else if (element == 123 || element > 132 & element < 152 || element > 152 & element < 233){
+#    pages = read_html(Link)
+#    page_scripts <- pages %>%
+#      html_nodes("p+ p , i , .title") %>%
+#      html_text2()
+# 
+#    }
+#    else{
+#    pages = read_html(Link)
+#    page_scripts <- pages %>%
+#      html_nodes(".title , #post-68 p , em") %>%
+#      html_text2()
+#    }
+#   
+#   print("section 2")
+#    page_scripts <- unique(page_scripts)
+# 
+#    if (element < 19){
+#      season <- rep(1, times = length(page_scripts))
+#      data_frame_col_characters <- cbind(season, page_scripts)
+#      character_speech_1 <- rbind(character_speech_1, data_frame_col_characters)
+# 
+#   }else if (element > 18 & element < 42 ){
+#     season <- rep(2, times = length(page_scripts))
+#     data_frame_col_characters <- cbind(season, page_scripts)
+#     character_speech_2 <- rbind(character_speech_2, data_frame_col_characters)
+# 
+#   }else if (element > 41 & element < 65){
+#     season <- rep(3, times = length(page_scripts))
+#     data_frame_col_characters <- cbind(season, page_scripts)
+#     character_speech_3 <- rbind(character_speech_3, data_frame_col_characters)
+# 
+#   }else if ( element > 64 & element < 89){
+#     season <- rep(4, times = length(page_scripts))
+#     data_frame_col_characters <- cbind(season, page_scripts)
+#     character_speech_4 <- rbind(character_speech_4, data_frame_col_characters)
+# 
+#   }else if (element > 88 & element < 113){
+#     season <- rep(5, times = length(page_scripts))
+#     data_frame_col_characters <- cbind(season, page_scripts)
+#     character_speech_5 <- rbind(character_speech_5, data_frame_col_characters)
+# 
+#   }else if (element > 112 & element < 137){
+#     season <- rep(6, times = length(page_scripts))
+#     data_frame_col_characters <- cbind(season, page_scripts)
+#     character_speech_6 <- rbind(character_speech_6, data_frame_col_characters)
+# 
+#   }else if (element > 136 & element < 161){
+#     season <- rep(7, times = length(page_scripts))
+#     data_frame_col_characters <- cbind(season, page_scripts)
+#     character_speech_7 <- rbind(character_speech_7, data_frame_col_characters)
+# 
+#   }else if (element > 160 & element < 185){
+#     season <- rep(8, times = length(page_scripts))
+#     data_frame_col_characters <- cbind(season, page_scripts)
+#     character_speech_8 <- rbind(character_speech_8, data_frame_col_characters)
+# 
+#   }else if (element > 184 & element < 209){
+#     season <- rep(9, times = length(page_scripts))
+#     data_frame_col_characters <- cbind(season, page_scripts)
+#     character_speech_9 <- rbind(character_speech_9, data_frame_col_characters)
+# 
+#   }else{
+#     season <- rep(10, times = length(page_scripts))
+#     data_frame_col_characters <- cbind(season, page_scripts)
+#     character_speech_10 <- rbind(character_speech_10, data_frame_col_characters)
+# 
+#   }
+#    print("section 3")
+#    page_scripts <- paste(page_scripts, collapse='// ')
+# 
+#    data_frame_col <- c(document_id, episode_id , page_scripts)
+#    scripts <- rbind(scripts, data_frame_col)
+#    
+#    print(episode_id)
+# 
 # }
 # 
 # colnames(scripts) <- c("document", "title", "script")
 # write.csv(scripts, "../data/series_scripts.csv", row.names = FALSE)
+# colnames(character_speech_1) <- c("season", "main_character_script")
+# write.csv(character_speech_1, "../data/character_speech_1.csv", row.names = FALSE)
+# colnames(character_speech_2) <- c("season", "main_character_script")
+# write.csv(character_speech_2, "../data/character_speech_2.csv", row.names = FALSE)
+# colnames(character_speech_3) <- c("season", "main_character_script")
+# write.csv(character_speech_3, "../data/character_speech_3.csv", row.names = FALSE)
+# colnames(character_speech_4) <- c("season", "main_character_script")
+# write.csv(character_speech_4, "../data/character_speech_4.csv", row.names = FALSE)
+# colnames(character_speech_5) <- c("season", "main_character_script")
+# write.csv(character_speech_5, "../data/character_speech_5.csv", row.names = FALSE)
+# colnames(character_speech_6) <- c("season", "main_character_script")
+# write.csv(character_speech_6, "../data/character_speech_6.csv", row.names = FALSE)
+# colnames(character_speech_7) <- c("season", "main_character_script")
+# write.csv(character_speech_7, "../data/character_speech_7.csv", row.names = FALSE)
+# colnames(character_speech_8) <- c("season", "main_character_script")
+# write.csv(character_speech_8, "../data/character_speech_8.csv", row.names = FALSE)
+# colnames(character_speech_9) <- c("season", "main_character_script")
+# write.csv(character_speech_9, "../data/character_speech_9.csv", row.names = FALSE)
+# colnames(character_speech_10) <- c("season", "main_character_script")
+# write.csv(character_speech_10, "../data/character_speech_10.csv", row.names = FALSE)
 
 ```
 
