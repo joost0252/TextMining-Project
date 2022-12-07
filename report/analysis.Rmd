@@ -794,3 +794,71 @@ pred.te <- predict(character.fit, df.te)
 confusionMatrix(data=pred.te$predictions, reference = df.te$Class)
 
 ```
+
+####################################### Sentiment Analysis by Characters ###############################################
+
+## Sentiments of each characters by using nrc lexicon 
+```{r}
+tidy_nrc %>% 
+  filter(author %in% c("Ross", "Monica", "Rachel", "Joey", "Chandler", "Phoebe")) %>% 
+  ggplot(aes(sentiment, fill = author))+
+  geom_bar(show.legend = FALSE)+
+  facet_wrap(author~.)+
+  theme_dark()+
+  theme(
+    strip.text = element_text(face = "bold"),
+    plot.title = element_text(hjust = 0.5, size = 20, face = "bold")
+  )+
+  labs(fill = NULL, x = NULL, y = "Sentiment Frequency", title = "Sentiments of each characters by using nrc lexicon")+
+  scale_fill_manual(values = c("#EA181E", "#00B4E8", "#FABE0F","#EA181E", "#00B4E8", "#FABE0F"))+
+  annotation_custom(img,ymax = 4000, ymin = 2000, xmin = 1, xmax = 5)
+```
+
+## Negative-Positive Ratio in all seasons by using bing lexicon
+```{r}
+tidy_bing %>% 
+  filter(author %in% c("Ross", "Monica", "Rachel", "Joey", "Chandler", "Phoebe")) %>% 
+  group_by(season, author) %>% 
+  count(sentiment) %>%
+  ungroup() %>%
+  ggplot(aes(season, n, fill = sentiment)) +
+  geom_col(position = "fill") +
+  geom_text(aes(label = n), position = position_fill(0.5), color = "white")+
+  coord_flip()+
+  facet_wrap(author~.)+
+  theme_dark()+
+  theme(
+    legend.position = "bottom",
+    plot.title = element_text(hjust = 0.5, size = 20, face = "bold")
+    )+
+  scale_fill_manual(values = c("#EA181E", "#00B4E8"))+
+  scale_x_continuous(breaks = scales::pretty_breaks(n = 10))+
+  labs(y = NULL,  x = "Season", fill = NULL, title = "Negative-Positive Ratio in all seasons by using bing lexicon")
+```
+
+## Total sentiment score
+```{r}
+tidy_afinn %>% 
+  filter(author %in% c("Ross", "Monica", "Rachel", "Joey", "Chandler", "Phoebe")) %>% 
+  group_by(season, author) %>% 
+  summarise(total = sum(value), .groups = 'drop') %>% 
+  ungroup() %>% 
+  mutate(Neg = if_else(total < 0, TRUE, FALSE)) %>% 
+  ggplot()+
+  geom_path(aes(season, total, color = author), size = 1.2)+
+  theme_minimal()+
+  theme(legend.position = "bottom")+
+  scale_x_continuous(breaks = scales::pretty_breaks(n = 10))+
+  scale_color_manual(values = c("#EA181E", "#00B4E8", "#FABE0F", "seagreen2", "orchid", "royalblue"))+
+  labs(x = "Season", color = NULL, y = "Total Sentiment Score")+
+  annotation_custom(img, ymin = 350, ymax = 400, xmin = 1, xmax = 4)
+```
+
+```{r}
+
+```
+
+
+```{r}
+
+```
