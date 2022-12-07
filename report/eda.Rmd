@@ -31,15 +31,19 @@ season.tk <- tokens(
   remove_numbers = TRUE, 
   remove_punct = TRUE,
   remove_symbols = TRUE,
-  remove_separators = TRUE
-  )
+  remove_separators = TRUE)
+
 
 #Remove possessive apostrophe ('s), such that words as Leonard's are not skipped in the next part of the code
 season.tk <- tokens_replace(
     season.tk, 
-    types(season.tk), 
-    stringi::stri_replace_all_regex(types(season.tk), "['\\p{Pf}][s]", "")
-)
+    types(season.tk),
+    stringi::stri_replace_all_regex(types(season.tk), "['\\p{Pf}][s]", ""))
+
+season.tk <- tokens_replace(season.tk,
+  pattern = hash_lemmas$token,
+  replacement = hash_lemmas$lemma)
+
 
 characters_names <- c("sheldon","leonard","penny","howard","raj", "amy", 
                       "bernadette", "emily", "cooper", "stuart", "lucy",
@@ -47,18 +51,22 @@ characters_names <- c("sheldon","leonard","penny","howard","raj", "amy",
                       "dan","dr","beverly","isabella","williams","lesley",
                       "missy","dave","claire","meemaw", "mary","leslie","lalita",
                       "dennis","alfred", "susan", "ramona", "christie","gallo",
-                      "zack", "wil", "kurt","toby", "amelia","nathan", "beverley","haley","mandy","adam","barry","mark","rebecca","randall","colonel")
+                      "zack", "wil", "kurt","toby", "amelia","nathan",
+                      "beverley","haley","mandy","adam","barry","mark","rebecca","randall","colonel")
 
 words_to_remove <- c("scene", "series", "episode","pilot", "yeah","uh","hey",
-                    "gonna","knock","dr","apartment","um","wanna","door")
+                    "gonna","knock","dr","apartment","um","wanna","door","Time shift","corridor")
 
 season.tk <- season.tk %>% 
   tokens_tolower() %>%
   tokens_remove(stop_words$word) %>%
   tokens_remove(c(characters_names, words_to_remove)) 
+
 ```
 
 # The Document-Term Matrix, the TF-IDF and the global frequencies 
+
+We use the TF-IDF method to look at the specificity of the terms through seasons. It allocates a weight to the most frequent words and translate a relevance of terms in the corpus. With the following graph, we can see that the most frequent term, is by far _'Time'_. Indeed with the frequency matrix, we can see that _'Time'_ appears more than 800 times in the whole show. 
 
 ```{r echo=FALSE}
 ## Compute the DTM
@@ -82,17 +90,17 @@ season.freq %>%
   ylab("term") + 
   ggtitle("Top 40 most frequent words")
 ```
-
+We observe that the most frequent terms are part of the feeling lexical field. For instance the words _'feel'_, _'love'_, _'fine'_. With only this first representation, we can observe a positive pattern in the show. 
 
 ## Cloud of words 
-The bigger the word, the more frequently it appears. The most frequent words seems to be "time", "fun", "love", "happy", etc. Does this means that the seasons have mostly positive sentiments ? We will analyse that throughout our report. 
+The bigger the word, the more frequently it appears. The most frequent words seems to be "time", "guy", "love", "feel", etc. Does this means that the seasons have mostly positive sentiments ? We will analyse that throughout our report. 
 
 ```{r echo=FALSE}
 textplot_wordcloud(season.dfm)
 ```
 
 ## The 10 most frequent words per season
-Here, we plot the 10 most frequent words per season. We see that this plot doesn't tells us much information.
+Here, we plot the 10 most frequent words per season. It is not really relevant because _'time'_ and _'guy'_ are always predominant through all the corpus. It looks logical to have them appearing individually.
 
 ```{r echo=FALSE}
 season.dfm %>% 
@@ -108,7 +116,7 @@ season.dfm %>%
 ```
 
 ## The TF-IDF per season
-Again, here we plot the 10 most specific words per season. In the season 1 the term 'baby' is very specific. While in the season 4 the most specific term is 'birthday'.
+Again, here we plot the 10 most specific words per season. In the season 1 the term 'feel' is very specific. While in the season 4 the most specific term is 'alright'.If we look at season 10 the name Hailey is very specific to this season, we can guess that this character is very important in the final story telling. 
 
 ```{r}
 season.tfidf %>% 
@@ -122,11 +130,8 @@ season.tfidf %>%
   facet_wrap(~ season_scripts$season, ncol = 2) + 
   ggtitle("Top 10 TF-IDF per season")
 ```
-
-
 # Exploratory Data analysis 
-On this plot, we cannot see very clearly as there are a lot of terms. But we see that "time", "guys" are indeed very frequent as seen previously and that "gablehouser" is very specific to one particular season. It is season 3 if we look at the previous plot.
-
+On this plot, we cannot see very clearly as there are a lot of terms. But we see that "time", "guys" are indeed very frequent as seen previously and that "gablehouser" is very specific to one particular season. It is season 1 and 2 with research. In the show it is actually a character Dr. Eric Gablehauser, he does not appear in the show after the 2 first season. 
 
 ```{r echo=FALSE}
 season.freq %>% 
@@ -141,7 +146,7 @@ season.freq %>%
 ```
 
 ## Lexical diversity 
-We compute the lexical diversity of the scripts and we see that the season do not have very diverse lexic. 
+We compute the lexical diversity of the scripts and we see that the season, especially the last (7,8,9,10) do not have very diverse lexical. Indeed the TTR is equal to 0,25, which means that in a sequence of 4 words, 3 words are the same and only 1 is different. 
 
 ```{r echo=FALSE}
 season.dfm %>% textstat_lexdiv()
@@ -157,8 +162,15 @@ season.dfm %>% textstat_lexdiv() %>%
   xlab("Seasons") + 
   ggtitle("Plot of the 10 top Token-Type-Ratio") 
 ```
+Here, season 5 has the richest diversity, with a score of 0,5. 
 
 ## Keyness analysis 
+
+We made a Keyness analysis, to understand what is the ration of the terms in the target compared to others in the rest of the corpus. 
+
+- In the first graph, we analysis season 5 as the target. The reference is the rest of the corpus, and we observe that the word _'rothman'_ is the most used in the script of season 5 compared to the rest. 
+
+- In the second graph, we analysis season 7 as the target. The reference is the rest of the corpus, and we observe that the word _'element'_ is the most used in the script of season 7 compared to the rest. 
 
 ```{r echo=FALSE}
 ## text5
@@ -166,8 +178,8 @@ season.keyness <- textstat_keyness(season.dfm, target = "text5")
 
 textplot_keyness(season.keyness)
 
-## text9
-season.keyness <- textstat_keyness(season.dfm, target = "text9")
+## text7
+season.keyness <- textstat_keyness(season.dfm, target = "text7")
 
 textplot_keyness(season.keyness)
 ```
@@ -191,7 +203,7 @@ index <- season.freq %>%
 season.co <- season.co[index$feature, index$feature]
 season.co
 ```
-
+Here is a representation of how many times the most frequent words co-occur together in all the corpus. For example, _'time'_ and _'guy'_ co-occur 99'510 times together in the corpus, which means that they are used in the same context in the script. 
 
 ```{r echo=FALSE}
 #Co-occurrence graph with every line being 400 occurrences. I believe we can do some more data cleaning, as these words take
