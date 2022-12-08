@@ -660,15 +660,27 @@ beta.long %>%
     axis.text.x = element_text(size = 5),
     strip.text = element_text(size = 5))
 ```
+
+######################################### Supervised Learning ##########################################
+
 #Features: DTM and LSA
 ```{r}
 # Get the script per character and tokenize this
-names(season_scripts)
-character.cp <- corpus(tweets, text_field = "text")## File with sentence of each sentence by character is needed.
-character.tok ## Tokenize this corpus 
+character <- read.csv("../data/character_speech.csv", stringsAsFactors = FALSE)
+names(character)
+
+character.cp <- corpus(character, text_field = "character_scripts")
+
+#Tokenize: (We may need to discuss how we want the data to be cleaned, now I only remove the punctuation, symbols, and stop words.)
+character.tok <- tokens(character.cp, 
+                        remove_punct = TRUE, 
+                        remove_symbols = TRUE)
+
+character.tok <- tokens_tolower(character.tok) %>% tokens_wordstem() %>% #due to wordstemming it seems that the character.tok file get some nan values and incomplete sentences.
+  tokens_remove(stopwords("english"))
 
 # The variable to predict is the character name:
-y <- factor(docvars(character.tok, "character"))
+y <- factor(docvars(character.tok, "character_name"))
 
 #Compute the DTM matrix and show the dimensions:
 character.dfm <- dfm(character.tok)
@@ -691,24 +703,24 @@ df.tr <- character.df[index.tr,]
 df.te <- character.df[-index.tr,]
 library(caret)
 library(ranger)
-train(df.tr) #This is used to estimate the parameters for the given model from a set of data
+#train(df.tr) #This is used to estimate the parameters for the given model from a set of data
 character.fit <- ranger(Class ~ ., 
                      data = df.tr)
 pred.te <- predict(character.fit, df.te)
 
 confusionMatrix(data=pred.te$predictions, reference = df.te$Class) #This gives the confusionmatrix, precision, specifity, and sensitivity
 ```
-# Improving the features
-```{r}
+# Improving the features; Takes really long!
+#```{r}
 
-## Same as above, but now it tries different nd/number of dimensions, may take a long time
+## Same as above chunck, but now it tries different nd/number of dimensions, may take a long time
 nd.vec <- c(2,5,25,50,100, 500, 1000)
 acc.vec <- numeric(length(nd.vec))
 for (j in 1:length(nd.vec)){
   character.lsa <- textmodel_lsa(character.dfm, nd=nd.vec[j])
   character.df <- data.frame(Class=y, X=character.lsa$docs)
-  df.tr <- df[index.tr,]
-  df.te <- df[-index.tr,]
+  df.tr <- character.df[index.tr,]
+  df.te <- character.df[-index.tr,]
   
   character.fit <- ranger(Class ~ ., 
                        data = df.tr)
@@ -720,8 +732,20 @@ acc.vec
 ## [1] 0.7942547 0.8625776 0.8819876 0.8827640 0.8804348 0.8812112 0.8796584
 plot(acc.vec ~ nd.vec, type='b')
 
-```
+#```
+```{r}
+## compare to tf-idf, results in a little higher accuracy
+character.tfidf <- dfm_tfidf(character.dfm)
+character.lsa <- textmodel_lsa(character.tfidf, nd=25)
 
+df <- data.frame(Class=y, X=character.lsa$docs)
+df.tr <- character.df[index.tr,]
+df.te <- character.df[-index.tr,]
+character.fit <- ranger(Class ~ ., 
+                     data = df.tr)
+pred.te <- predict(character.fit, df.te)
+confusionMatrix(data=pred.te$predictions, reference = df.te$Class)
+```
 
 ## Word Embedding with glove
 ```{r}
@@ -740,6 +764,9 @@ word_vectors_main <- glove$fit_transform(character.fcm, n_iter = 100)
 
 ```
 
+# Takes very long aswell, results of accuracy are worse than the previous one based on tf-idf 
+# Question for the teachter: I added [complete.cases(df.te),] and [complete.cases(df.tr),], to not include the NAN values and thus making
+# the script work. How does this influence the results?
 ```{r}
 
 word_vectors_context <- glove$components
@@ -753,45 +780,46 @@ for (i in 1:ndoc){
 }
 row.names(centers) <- names(character.tok)
 
+#any(is.na(words_in_i))
+
 character.df <- data.frame(Class=y, X=centers)
 df.tr <- character.df[index.tr,]
 df.te <- character.df[-index.tr,]
 character.fit <- ranger(Class ~ ., 
-                     data = df.tr)
-pred.te <- predict(character.fit, df.te)
-confusionMatrix(data=pred.te$predictions, reference = df.te$Class)
+                     data = df.tr[complete.cases(df.tr),])
+pred.te <- predict(character.fit, df.te[complete.cases(df.te),])
+confusionMatrix(data=pred.te$predictions, reference = df.te[complete.cases(df.te),]$Class)
 
 ```
 
-# If we want to add more features (could be sentiment of sentence/word)
+# In this case we add the length of the sentences, by using log (which they did in the example of week 8) it decreases the accuracy. Without the accuracy is a bit improved.
 ```{r}
 character.tfidf <- dfm_tfidf(character.dfm)
 character.lsa <- textmodel_lsa(character.tfidf, nd=25)
 
-df <- data.frame(Class=y, X=tweets.lsa$docs)
-character.df <- cbind(character.df, 
-            logretweet=log10(docvars(character.tok, c("retweet_count"))),
-            length = log(sapply(character.tok, length)))
-df.tr <- character.df[index.tr,]
-df.te <- character.df[-index.tr,]
-tweets.fit <- ranger(Class ~ ., 
-                     data = df.tr, 
-                     importance = "impurity")
-pred.te <- predict(character.fit, df.te)
-confusionMatrix(data=pred.te$predictions, reference = df.te$Class)
-```
-
-#Further improvement based on adding the centroids (and the extra features from above if used)
-```{r}
-
-character.df <- cbind(character.df, Cent=centers) ## add the centroid features to the tf-idf-lsa, retweet, length features.
+character.df <- data.frame(Class=y, X=character.lsa$docs)
+character.df <- cbind(character.df,
+            length = sapply(character.tok, length))
 df.tr <- character.df[index.tr,]
 df.te <- character.df[-index.tr,]
 character.fit <- ranger(Class ~ ., 
-                     data = df.tr, 
+                     data = df.tr[complete.cases(df.tr),], 
                      importance = "impurity")
-pred.te <- predict(character.fit, df.te)
-confusionMatrix(data=pred.te$predictions, reference = df.te$Class)
+pred.te <- predict(character.fit, df.te[complete.cases(df.te),])
+confusionMatrix(data=pred.te$predictions, reference = df.te[complete.cases(df.te),]$Class)
+```
+
+#Further improvement based on adding the centroids (and the extra feature from above if used). This results in the highest accuracy so far.
+```{r}
+
+character2.df <- cbind(character.df, Cent=centers) ## add the centroid features to the tf-idf-lsa, retweet, length features.
+df.tr <- character2.df[index.tr,]
+df.te <- character2.df[-index.tr,]
+character.fit <- ranger(Class ~ ., 
+                     data = df.tr[complete.cases(df.tr),], 
+                     importance = "impurity")
+pred.te <- predict(character.fit, df.te[complete.cases(df.te),])
+confusionMatrix(data=pred.te$predictions, reference = df.te[complete.cases(df.te),]$Class)
 
 ```
 
