@@ -822,6 +822,50 @@ pred.te <- predict(character.fit, df.te[complete.cases(df.te),])
 confusionMatrix(data=pred.te$predictions, reference = df.te[complete.cases(df.te),]$Class)
 
 ```
+# Trying code to put in sentences to predict
+```{r}
+char_pred <- data.frame(Predicted_sentence = c("Put here the sentence you want to predict"))
+char_pred <- do.call("rbind", replicate(5, char_pred, simplify = FALSE))
+
+
+
+char_pred.cp <- corpus(char_pred, text_field = "Predicted_sentence")
+
+char_pred.tok <- tokens(char_pred.cp, 
+                        remove_punct = TRUE, 
+                        remove_symbols = TRUE)
+
+char_pred.tok <- tokens_tolower(char_pred.tok) %>% tokens_wordstem() %>% #due to wordstemming it seems that the character.tok file get some nan values and incomplete sentences.
+  tokens_remove(stopwords("english"))
+
+char_pred.dfm <- dfm(char_pred.tok)
+dim(char_pred.dfm)
+
+char_pred.tfidf <- dfm_tfidf(char_pred.dfm)
+char_pred.lsa <- textmodel_lsa(char_pred.tfidf, nd=25)
+
+char_pred.lsa <- textmodel_lsa(char_pred.dfm, nd=25)
+head(char_pred.tfidf$docs) #In original file this was $docs, see what works.
+
+z <- c("Howard", "Leonard", "Penny", "Raj", "Sheldon")
+haracter.df <- data.frame(Class=z, X=char_pred.lsa$docs)
+character.df <- cbind(character.df)
+
+character_prediction <- predict(character.fit, char_pred.dfm)
+```
+
+```{r}
+# randomForest
+pred_randomForest <- predict(ames_randomForest, ames_test)
+head(pred_randomForest)
+##        1        2        3        4        5        6 
+## 128266.7 153888.0 264044.2 379186.5 212915.1 210611.4
+
+# ranger
+pred_ranger <- predict(character.fit, ames_test)
+head(pred_ranger$predictions)
+## [1] 128440.6 154160.1 266428.5 389959.6 225927.0 214493.1
+
 
 ####################################### Sentiment Analysis by Characters ###############################################
 
