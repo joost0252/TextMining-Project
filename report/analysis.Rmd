@@ -809,7 +809,7 @@ pred.te <- predict(character.fit, df.te[complete.cases(df.te),])
 confusionMatrix(data=pred.te$predictions, reference = df.te[complete.cases(df.te),]$Class)
 ```
 
-#Further improvement based on adding the centroids (and the extra feature from above if used). This results in the highest accuracy so far.
+#Further improvement based on adding the centroids (and the extra feature from above is used). This results gives the highest accuracy so far.
 ```{r}
 
 character2.df <- cbind(character.df, Cent=centers) ## add the centroid features to the tf-idf-lsa, retweet, length features.
