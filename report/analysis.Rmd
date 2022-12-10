@@ -222,24 +222,7 @@ hash_valence_shifters
   #autofit()
 ```
 
-### Analysis by character --> Doesn't work
 
-```{r}
-#tidy_nrc <- tidy_text %>% inner_join(nrc)
-season.sent %>% 
-  filter(value %in% c("sheldon","leonard","penny","howard","raj")) %>% 
-  ggplot(aes(sentiment, fill = "black"))+
-  geom_bar(show.legend = FALSE)+
-  facet_wrap(~c("sheldon","leonard","penny","howard","raj"), scales="free_y")+
-  theme_dark()+
-  theme(
-    strip.text = element_text(face = "bold"),
-    plot.title = element_text(hjust = 0.5, size = 20, face = "bold")
-  )+
-  labs(fill = NULL, x = NULL, y = "Sentiment Frequency", title = "Sentiments of each characters by using nrc lexicon")+
-  scale_fill_manual(values = c("#EA181E", "#00B4E8", "#FABE0F","#EA181E", "#00B4E8", "#FABE0F"))+
-  annotation_custom(grid::roundrectGrob(), ymax = 4000, ymin = 2000, xmin = 1, xmax = 5)
-```
 
 ## Similarities between season scripts
 ```{r}
@@ -869,21 +852,64 @@ head(pred_ranger$predictions)
 
 ####################################### Sentiment Analysis by Characters ###############################################
 
-## Sentiments of each characters by using nrc lexicon 
 ```{r}
-tidy_nrc %>% 
-  filter(author %in% c("Ross", "Monica", "Rachel", "Joey", "Chandler", "Phoebe")) %>% 
-  ggplot(aes(sentiment, fill = author))+
+char.tb <- as_tibble(data.frame(character_speech))
+
+words_to_remove <- c("scene", "series", "episode", "pilot", "yeah", "uh", "hey",
+                    "gonna", "knock", "dr", "apartment", "um", "wanna", "door")
+
+char.tok <- unnest_tokens(
+  char.tb,
+  output = "word",
+  input = "character_scripts",
+  to_lower = TRUE,
+  strip_punct = TRUE,
+  strip_numeric = TRUE)
+ 
+char.tok <- char.tok %>%
+  anti_join(stop_words, by = c("word" = "word"))
+  
+char.sent <- 
+  inner_join(
+    char.tok,
+    get_sentiments("nrc"),
+    by = c("word" = "word"))
+
+head(char.sent, 10) %>% 
+  flextable() %>%
+  autofit()
+```
+
+```{r}
+## Long format
+char.sent %>% 
+  group_by(character_name, sentiment) %>% 
+  summarize(n = n()) %>%
+  ungroup() %>% 
+  ggplot(aes(x = sentiment,
+             y = n,
+             fill = sentiment)) + 
+  geom_bar(stat = "identity",
+           alpha = 0.8) + 
+  facet_wrap(~character_name) + 
+  coord_flip()
+```
+
+## Sentiments of each characters by using nrc lexicon 
+
+```{r}
+char.sent %>% 
+  filter(char.sent %in% c("sheldon","leonard","penny","howard","raj")) %>% 
+  ggplot(aes(sentiment, fill = character_name))+
   geom_bar(show.legend = FALSE)+
-  facet_wrap(author~.)+
+  facet_wrap(character_name~.)+
   theme_dark()+
   theme(
     strip.text = element_text(face = "bold"),
     plot.title = element_text(hjust = 0.5, size = 20, face = "bold")
   )+
   labs(fill = NULL, x = NULL, y = "Sentiment Frequency", title = "Sentiments of each characters by using nrc lexicon")+
-  scale_fill_manual(values = c("#EA181E", "#00B4E8", "#FABE0F","#EA181E", "#00B4E8", "#FABE0F"))+
-  annotation_custom(img,ymax = 4000, ymin = 2000, xmin = 1, xmax = 5)
+  scale_fill_manual(values = c("#EA181E", "#00B4E8", "#FABE0F","#EA181E", "#00B4E8", "#FABE0F"))
 ```
 
 ## Negative-Positive Ratio in all seasons by using bing lexicon
@@ -910,14 +936,14 @@ tidy_bing %>%
 
 ## Total sentiment score
 ```{r}
-tidy_afinn %>% 
-  filter(author %in% c("Ross", "Monica", "Rachel", "Joey", "Chandler", "Phoebe")) %>% 
-  group_by(season, author) %>% 
+character_speech %>% 
+  filter(character_name %in% c("Ross", "Monica", "Rachel", "Joey", "Chandler", "Phoebe")) %>% 
+  group_by(season, character_name) %>% 
   summarise(total = sum(value), .groups = 'drop') %>% 
   ungroup() %>% 
   mutate(Neg = if_else(total < 0, TRUE, FALSE)) %>% 
   ggplot()+
-  geom_path(aes(season, total, color = author), size = 1.2)+
+  geom_path(aes(season, total, color = characters_names), size = 1.2)+
   theme_minimal()+
   theme(legend.position = "bottom")+
   scale_x_continuous(breaks = scales::pretty_breaks(n = 10))+
