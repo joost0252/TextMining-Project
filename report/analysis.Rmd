@@ -20,14 +20,15 @@ In this following part, we want to compute the sentiment of each season. To do s
 #### NRC dictionary
 The NRC dictionary contains a list of English words and their associations with eight basic emotions and two sentiments (positive or negative). These emotions are anger, fear, anticipation, trust, surprise, sadness, joy, and disgust. Based on this dictionary, one English word can be associated to several emotions. For example, we see on the following table that the term 'abandon' is associated to several emotions (fear, negative, sadness). 
 
-```{r echo=FALSE}
+```{r echo=FALSE, include=FALSE}
 head(get_sentiments(lexicon = "nrc"))
 ```
 
 
 For each token in our data scripts, we join the corresponding sentiment qualifier in “nrc” using the `inner.join()` function from `dplyr`:
+Below, you can see the first 10 rows of the dictionary. 
 
-```{r}
+```{r echo=FALSE}
 season.tb <- as_tibble(data.frame(season_scripts))
 
 words_to_remove <- c("scene", "series", "episode", "pilot", "yeah", "uh", "hey",
@@ -43,6 +44,10 @@ season.tok <- unnest_tokens(
  
 season.tok <- season.tok %>%
   anti_join(stop_words, by = c("word" = "word"))
+
+season.tok <- season.tok %>% 
+  filter(!word %in% words_to_remove) %>% 
+  mutate(word = str_remove_all(word, "'s")) 
   
 season.sent <- 
   inner_join(
@@ -55,7 +60,7 @@ head(season.sent, 10) %>%
   autofit()
 ```
 
-Here, we show the overall sentiment per season.
+Here, we show the overall sentiment per season. It seems that season 2 and 6 has very few sentiments.
 
 ```{r echo=FALSE}
 table(season.sent$season, 
@@ -104,6 +109,8 @@ left_join(
 ```
 
 
+By re-scaling, we see that all seasons follow the same pattern, meaning that they are mainly positive and reflecting the sentiment of trust while very few of disgust sentiments appear.
+
 #### AFINN dictionary
 Now, on this part, we will us the AFINN dictionary. This dictionary contains a list of English words manually rated for valence with an integer between -5 (very negative) and +5 (very positive) by Finn Årup Nielsen.
 
@@ -114,7 +121,7 @@ We see on the below table that the word 'abandoned' has a value of -2 which mean
 head(get_sentiments("afinn"))
 ```
 
-We see there on the table below that the seasons 3, 4 and 5 are categorized as relatively negative with season 3 being the most negative. 
+We see there on the table below that the seasons 3, 2 and 7 are categorized as relatively negative with season 3 being the most negative. 
 
 ```{r echo=FALSE}
 season.sent <-
@@ -133,7 +140,7 @@ season.sent %>%
   autofit()
 ```
 
-```{r}
+```{r echo=FALSE}
 season.sent %>% 
   group_by(season) %>% 
   summarize(Score = mean(value)) %>% 
@@ -146,7 +153,7 @@ season.sent %>%
 ```
 
 ## Quanteda analysis
-```{r}
+```{r echo=FALSE}
 season.cp <- corpus(season_scripts$agg_script)
 summary(season.cp)
 
@@ -156,11 +163,14 @@ season.tk <- tokens(
   remove_punct = TRUE,
   remove_symbols = TRUE,
   remove_separators = TRUE)
+
 season.tk <- tokens_tolower(season.tk) 
+
 season.tk <- tokens_replace(
   season.tk,
   pattern = hash_lemmas$token,
   replacement = hash_lemmas$lemma)
+
 season.tk <- season.tk %>% 
   tokens_remove(words_to_remove)
 #season.tk
@@ -170,27 +180,28 @@ tokens_lookup(
   dictionary = data_dictionary_LSD2015
   ) 
 
-# If you get an error with the below code, this is how I fixed it: 
-# 1. Open the registry edit tool by searching regedit in the start menu
-# 2. Navigate to Computer\HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\FileSystem
-# 3. Change LongPathsEnabled from 0 to 1
+
 season.sent1 <- tokens_lookup(
   season.tk, 
   dictionary = data_dictionary_LSD2015) %>% 
   dfm() %>% 
   tidy()
-season.sent1 %>% 
-  pivot_wider(
-    names_from = "term",
-    values_from = "count"
-  ) %>% 
-  mutate(negative = replace_na(negative, 0),
-         Score = round(negative / (negative + positive), 3)) %>% 
-  arrange(Score) %>% 
-  head(20) %>% 
-  flextable() %>% 
-  autofit() 
+
+#This part can be removed, it is repetitive
+# season.sent1 %>% 
+#   pivot_wider(
+#     names_from = "term",
+#     values_from = "count"
+#   ) %>% 
+#   mutate(negative = replace_na(negative, 0),
+#          Score = round(negative / (negative + positive), 3)) %>% 
+#   arrange(Score) %>% 
+#   head(20) %>% 
+#   flextable() %>% 
+#   autofit() 
 ```
+
+From another dictionary named 'data_dictionary_LSD2015', we see pretty much the same analysis. 
 
 ```{r}
 ggplot(season.sent1,
@@ -203,29 +214,17 @@ ggplot(season.sent1,
 
 ## Valence-Shifters analysis
 
-```{r}
+```{r echo=FALSE, include=FALSE}
 hash_sentiment_jockers_rinker
 hash_valence_shifters
-```
-
-```{r}
-# Very long time to execute
-#mytext <- get_sentences(season_scripts$agg_script)
-#mytext
-```
-
-
-```{r}
-# Same
-#sentiment(mytext) %>% 
-  #flextable() %>% 
-  #autofit()
 ```
 
 
 
 ## Similarities between season scripts
-```{r}
+In this part, we want to compare the similarities of the scripts between the season. We decided to use the 3 similarities measure to compute the similarity matrix: Jaccard similarity, Cosine distance, and Euclidean distance. 
+
+```{r echo=FALSE}
 season.dfm <- dfm(season.tk)
 season.tfidf <- dfm_tfidf(season.dfm)
 
@@ -294,6 +293,8 @@ ggplot(
 ```
 
 ## Clustering 
+Then, to create a cluster, we decide to focus on the Euclidean distance only.
+
 ```{r}
 season.hc <- hclust(as.dist(season.euc))
 ## crude.hc <- hclust(as.dist(1 - crude.jac)) # use this line for Jaccard
@@ -312,26 +313,20 @@ data.frame(
   Clust.2 = names(sort(apply(season.tfidf[season.clust==2, ], 2, sum), decreasing = TRUE)[1:5]),
   Clust.3 = names(sort(apply(season.tfidf[season.clust==3, ], 2, sum), decreasing = TRUE)[1:5])
 )
-
-
-data.frame(
-  Clust.1 = names(sort(apply(season.tfidf[season.km$cluster==1,], 2, sum), decreasing = TRUE)[1:5]),
-  Clust.2 = names(sort(apply(season.tfidf[season.km$cluster==2,], 2, sum), decreasing = TRUE)[1:5]),
-  Clust.3 = names(sort(apply(season.tfidf[season.km$cluster==3,], 2, sum), decreasing = TRUE)[1:5])
-)
 ```
 
 
 ## Similarities between words
 ```{r}
 season.feat <- textstat_frequency(season.dfm) %>%
-  filter(rank <= 40) 
+  filter(rank <= 50) 
 season.feat$feature
 
-season.cos <- textstat_simil(
+season.euc <- textstat_simil(
   season.dfm[, season.feat$feature],
   method = "cosine",
   margin = "feature")
+
 season.cos.mat <- melt(as.matrix(season.cos)) # Convert the object to matrix then to data frame 
 
 ggplot(data = season.cos.mat, aes(x=Var1, y=Var2, fill=value)) +
