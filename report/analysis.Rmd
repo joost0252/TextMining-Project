@@ -11,6 +11,7 @@ source("../scripts/setup.R")
 ```{r echo=FALSE}
 data_scripts <- read.csv("../data/series_scripts.csv")
 season_scripts <- read.csv("../data/season_scripts.csv")
+character <- read.csv("../data/character_speech.csv", stringsAsFactors = FALSE)
 ```
 
 ### Sentiment Analysis
@@ -244,7 +245,7 @@ season.euc <- textstat_dist(
   margin = "documents")
 ```
 
-```{r}
+```{r echo=FALSE}
 ## Jaccard 
 season.jac.mat <- melt(as.matrix(season.jac)) # Convert the object to matrix then to data frame 
 ggplot(data = season.jac.mat, 
@@ -292,6 +293,8 @@ ggplot(
   geom_tile() + xlab("") + ylab("")
 ```
 
+We get 3 quite different co-occurence matrices. From the Euclidean co-occurence plot, it seems that season 4 is quite close to every other seasons. 
+
 ## Clustering 
 Then, to create a cluster, we decide to focus on the Euclidean distance only.
 
@@ -317,6 +320,7 @@ data.frame(
 
 
 ## Similarities between words
+We use the cosine distance measure to determine the similarities between words. 
 ```{r}
 season.feat <- textstat_frequency(season.dfm) %>%
   filter(rank <= 50) 
@@ -525,9 +529,7 @@ n.doc <- 12
 doc.list <- names(
   sort(ntoken(season.tk), decreasing = TRUE)[1:n.doc])
 doc.list
-##  [1] "1841-Harrison" "1909-Taft"     "1845-Polk"     "1889-Harrison"
-##  [5] "1821-Monroe"   "1837-VanBuren" "1897-McKinley" "1925-Coolidge"
-##  [9] "1929-Hoover"   "1921-Harding"  "1853-Pierce"   "1861-Lincoln"
+
 
 theta.long %>% 
   filter(Doc %in% doc.list) %>%  
@@ -641,12 +643,11 @@ beta.long %>%
 
 ######################################### Supervised Learning ##########################################
 
+### Supervised Learning 
+
 #Features: DTM and LSA
 ```{r}
 # Get the script per character and tokenize this
-character <- read.csv("../data/character_speech.csv", stringsAsFactors = FALSE)
-names(character)
-
 character.cp <- corpus(character, text_field = "character_scripts")
 
 #Tokenize: (We may need to discuss how we want the data to be cleaned, now I only remove the punctuation, symbols, and stop words.)
@@ -654,7 +655,9 @@ character.tok <- tokens(character.cp,
                         remove_punct = TRUE, 
                         remove_symbols = TRUE)
 
-character.tok <- tokens_tolower(character.tok) %>% tokens_wordstem() %>% #due to wordstemming it seems that the character.tok file get some nan values and incomplete sentences.
+#due to wordstemming it seems that the character.tok file get some nan values and incomplete sentences.
+character.tok <- tokens_tolower(character.tok) %>%
+  tokens_wordstem() %>% 
   tokens_remove(stopwords("english"))
 
 # The variable to predict is the character name:
@@ -667,7 +670,6 @@ dim(character.dfm)
 
 ```{r}
 #Using a LSA to reduce dimensions, the nd should be played with to try different results:
-library(quanteda.textmodels)
 character.lsa <- textmodel_lsa(character.dfm, nd=25)
 head(character.lsa$docs) #In original file this was $docs, see what works.
 
@@ -679,8 +681,7 @@ character.df <- data.frame(Class=y, X=character.lsa$docs) #same here, $docs migh
 index.tr <- sample(size=round(0.8*length(y)), x=c(1:length(y)), replace=FALSE)
 df.tr <- character.df[index.tr,]
 df.te <- character.df[-index.tr,]
-library(caret)
-library(ranger)
+
 #train(df.tr) #This is used to estimate the parameters for the given model from a set of data
 character.fit <- ranger(Class ~ ., 
                      data = df.tr)
@@ -688,8 +689,10 @@ pred.te <- predict(character.fit, df.te)
 
 confusionMatrix(data=pred.te$predictions, reference = df.te$Class) #This gives the confusionmatrix, precision, specifity, and sensitivity
 ```
+
+
 # Improving the features; Takes really long!
-#```{r}
+```{r}
 
 ## Same as above chunck, but now it tries different nd/number of dimensions, may take a long time
 nd.vec <- c(2,5,25,50,100, 500, 1000)
@@ -710,7 +713,9 @@ acc.vec
 ## [1] 0.7942547 0.8625776 0.8819876 0.8827640 0.8804348 0.8812112 0.8796584
 plot(acc.vec ~ nd.vec, type='b')
 
-#```
+```
+
+
 ```{r}
 ## compare to tf-idf, results in a little higher accuracy
 character.tfidf <- dfm_tfidf(character.dfm)
@@ -727,9 +732,6 @@ confusionMatrix(data=pred.te$predictions, reference = df.te$Class)
 
 ## Word Embedding with glove
 ```{r}
-
-
-library(text2vec)
 character.fcm <- fcm(character.tok, 
            context = "window",
            count = "weighted",
@@ -742,9 +744,10 @@ word_vectors_main <- glove$fit_transform(character.fcm, n_iter = 100)
 
 ```
 
-# Takes very long aswell, results of accuracy are worse than the previous one based on tf-idf 
-# Question for the teachter: I added [complete.cases(df.te),] and [complete.cases(df.tr),], to not include the NAN values and thus making
-# the script work. How does this influence the results?
+Takes very long as well, results of accuracy are worse than the previous one based on tf-idf 
+> Question for the teachter: I added [complete.cases(df.te),] and [complete.cases(df.tr),], to not include the NAN values and thus making
+
+The script works. How does this influence the results?
 ```{r}
 
 word_vectors_context <- glove$components
@@ -770,7 +773,9 @@ confusionMatrix(data=pred.te$predictions, reference = df.te[complete.cases(df.te
 
 ```
 
-# In this case we add the length of the sentences, by using log (which they did in the example of week 8) it decreases the accuracy. Without the accuracy is a bit improved.
+
+In this case we add the length of the sentences, by using log (which they did in the example of week 8) it decreases the accuracy.
+Without the accuracy is a bit improved.
 ```{r}
 character.tfidf <- dfm_tfidf(character.dfm)
 character.lsa <- textmodel_lsa(character.tfidf, nd=25)
@@ -787,7 +792,8 @@ pred.te <- predict(character.fit, df.te[complete.cases(df.te),])
 confusionMatrix(data=pred.te$predictions, reference = df.te[complete.cases(df.te),]$Class)
 ```
 
-#Further improvement based on adding the centroids (and the extra feature from above is used). This results gives the highest accuracy so far.
+
+Further improvement based on adding the centroids (and the extra feature from above is used). This results gives the highest accuracy so far.
 ```{r}
 
 character2.df <- cbind(character.df, Cent=centers) ## add the centroid features to the tf-idf-lsa, retweet, length features.
@@ -800,6 +806,8 @@ pred.te <- predict(character.fit, df.te[complete.cases(df.te),])
 confusionMatrix(data=pred.te$predictions, reference = df.te[complete.cases(df.te),]$Class)
 
 ```
+
+
 # Trying code to put in sentences to predict
 ```{r}
 char_pred <- data.frame(Predicted_sentence = c("Put here the sentence you want to predict"))
@@ -832,6 +840,8 @@ character.df <- cbind(character.df)
 character_prediction <- predict(character.fit, char_pred.dfm)
 ```
 
+
+## Random Forest 
 ```{r}
 # randomForest
 pred_randomForest <- predict(ames_randomForest, ames_test)
@@ -843,6 +853,8 @@ head(pred_randomForest)
 pred_ranger <- predict(character.fit, ames_test)
 head(pred_ranger$predictions)
 ## [1] 128440.6 154160.1 266428.5 389959.6 225927.0 214493.1
+
+```
 
 
 ####################################### Sentiment Analysis by Characters ###############################################
@@ -947,11 +959,3 @@ character_speech %>%
   annotation_custom(img, ymin = 350, ymax = 400, xmin = 1, xmax = 4)
 ```
 
-```{r}
-
-```
-
-
-```{r}
-
-```

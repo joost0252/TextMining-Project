@@ -12,7 +12,8 @@ packages <- c(
   "dplyr", "ggplot2", "broom", "ggwordcloud", "igraph", "udpipe",
   "sentimentr", # for sentiment analysis 
   "reshape2", # for similarities
-  "topicmodels", "topicdoc", "seededlda", "quanteda.textmodels" # for LDA, LSA, Topic Modelling
+  "topicmodels", "topicdoc", "seededlda", "quanteda.textmodels", # for LDA, LSA, Topic Modelling
+  "text2vec", "ranger", "caret", "quanteda.textmodels" # supervised learning 
 )
 
 purrr::walk(packages, library, character.only = TRUE)
