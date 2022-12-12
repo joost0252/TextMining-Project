@@ -62,7 +62,7 @@ head(season.sent, 10) %>%
 ```
 
 Here, we show the overall sentiment per season. It seems that season 2 and 6 has very few sentiments.
-
+## Problem: graph is the same everywhere
 ```{r echo=FALSE}
 table(season.sent$season, 
       season.sent$sentiment)
