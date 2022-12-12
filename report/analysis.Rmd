@@ -11,7 +11,7 @@ source("../scripts/setup.R")
 ```{r echo=FALSE}
 data_scripts <- read.csv("../data/series_scripts.csv")
 season_scripts <- read.csv("../data/season_scripts.csv")
-character <- read.csv("../data/character_speech.csv", stringsAsFactors = FALSE)
+character_speech <- read.csv("../data/character_speech.csv", stringsAsFactors = FALSE)
 ```
 
 ### Sentiment Analysis
@@ -649,7 +649,7 @@ beta.long %>%
 #Features: DTM and LSA
 ```{r}
 # Get the script per character and tokenize this
-character.cp <- corpus(character, text_field = "character_scripts")
+character.cp <- corpus(character_speech, text_field = "character_scripts")
 
 #Tokenize: (We may need to discuss how we want the data to be cleaned, now I only remove the punctuation, symbols, and stop words.)
 character.tok <- tokens(character.cp, 
@@ -877,17 +877,29 @@ char.tk <- tokens_replace(
     types(char.tk),
     stringi::stri_replace_all_regex(types(char.tk), "['\\p{Pf}][s]", ""))
 
-char.tk <- tokens_replace(char.tk,
-  pattern = hash_lemmas$token,
-  replacement = hash_lemmas$lemma)
 
 words_to_remove <- c("scene", "series", "episode","pilot", "yeah","uh","hey",
                     "gonna","knock","dr","apartment","um","wanna","door","Time shift","corridor")
+
+characters_names <- c("sheldon","leonard","penny","howard","raj", "amy", 
+                      "bernadette", "emily", "cooper", "stuart", "lucy",
+                      "arthur","rostenkowski","bert","mike","james","lorvis",
+                      "dan","dr","beverly","isabella","williams","lesley",
+                      "missy","dave","claire","meemaw", "mary","leslie","lalita",
+                      "dennis","alfred", "susan", "ramona", "christie","gallo",
+                      "zack", "wil", "kurt","toby", "amelia","nathan",
+                      "beverley","haley","mandy","adam","barry","mark","rebecca","randall",
+                      "colonel","priya","Elizabeth","Katee","halley","alice","stan","valentine",
+                      "jimmy","wyatt","kim","koothrapalli")
 
 char.tk <- char.tk %>% 
   tokens_tolower() %>%
   tokens_remove(stop_words$word) %>%
   tokens_remove(c(characters_names, words_to_remove)) 
+
+char.tk <- tokens_replace(char.tk,
+  pattern = hash_lemmas$token,
+  replacement = hash_lemmas$lemma)
 
 ## Compute the DTM
 char.dfm <- dfm(char.tk)
@@ -908,7 +920,7 @@ char.dfm %>%
   coord_flip() +
   theme(axis.text.y = element_text(size = 5),
         axis.ticks.y = element_blank())  + 
-  facet_wrap(~ character_speech$character_name, ncol = 2) + 
+  facet_wrap( ~character_speech$character_name, ncol = 2) + 
   ggtitle("Top 10 TF per character")
 ```
 
@@ -971,15 +983,18 @@ char.dfm %>% textstat_lexdiv() %>%
 ```{r}
 char.sent %>% 
   filter(char.sent %in% c("sheldon","leonard","penny","howard","raj")) %>% 
-  ggplot(aes(sentiment, fill = character_name))+
-  geom_bar(show.legend = FALSE)+
-  facet_wrap(character_name~.)+
-  theme_dark()+
+  ggplot(aes(sentiment, fill = character_name)) +
+  geom_bar(show.legend = FALSE) +
+  facet_wrap(character_name~.) +
+  theme_dark() +
   theme(
     strip.text = element_text(face = "bold"),
     plot.title = element_text(hjust = 0.5, size = 20, face = "bold")
-  )+
-  labs(fill = NULL, x = NULL, y = "Sentiment Frequency", title = "Sentiments of each characters by using nrc lexicon")+
+  ) +
+  labs(fill = NULL, 
+       x = NULL, 
+       y = "Sentiment Frequency", 
+       title = "Sentiments of each characters by using nrc lexicon") +
   scale_fill_manual(values = c("#EA181E", "#00B4E8", "#FABE0F","#EA181E", "#00B4E8", "#FABE0F"))
 ```
 
