@@ -19,8 +19,11 @@ We define the corpus for our analysis. The corpus will be the scripts column in 
 
 In our scripts, we can see the main characters that are _Sheldon_, _Leonard_, _Penny_, _Howard_ and _Raj_. They appear in each seasons' episodes. Therefore, we remove their name for the following explanatory data analysis because it will otherwise bias our results. 
 
-We noticed that the term _'Amy'_ and _'Bernadette'_ appears the most. These are characters that appear towards the end of the series. The term 'scene' is also normal that it appears a lot, because at the beginning of each script and every time characters change of scene, the term 'scene' is written.
-Therefore, we also remove these terms for the following analysis. 
+We have created a variable _'characters_names'_ grouping the names of all the characters recurring during the series because these are, logically, the words that come up most often and this is not the purpose of our analysis here. It is the same with the words grouped in the variables _'words_to_remove'_, which are themselves linked to the stage directions or do not bring any added value. 
+
+## OK if remove this paragraph ? 
+(((We noticed that the term _'Amy'_ and _'Bernadette'_ appears the most. These are characters that appear towards the end of the series. The term 'scene' is also normal that it appears a lot, because at the beginning of each script and every time characters change of scene, the term 'scene' is written.
+Therefore, we also remove these terms for the following analysis.)))
 
 
 ```{r echo=FALSE}
@@ -52,7 +55,7 @@ characters_names <- c("sheldon","leonard","penny","howard","raj", "amy",
                       "missy","dave","claire","meemaw", "mary","leslie","lalita",
                       "dennis","alfred", "susan", "ramona", "christie","gallo",
                       "zack", "wil", "kurt","toby", "amelia","nathan",
-                      "beverley","haley","mandy","adam","barry","mark","rebecca","randall","colonel")
+                      "beverley","haley","mandy","adam","barry","mark","rebecca","randall","colonel","priya")
 
 words_to_remove <- c("scene", "series", "episode","pilot", "yeah","uh","hey",
                     "gonna","knock","dr","apartment","um","wanna","door","Time shift","corridor")
