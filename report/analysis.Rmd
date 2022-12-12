@@ -384,6 +384,7 @@ ggplot(data = season.fcm.mat,
 ```
 
 ## Cluster dendrogram
+# Problem: we have all the stop word within the cluster 
 ```{r}
 season.inv_occ <- 
   280 - as.matrix(
