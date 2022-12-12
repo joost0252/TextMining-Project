@@ -55,7 +55,7 @@ characters_names <- c("sheldon","leonard","penny","howard","raj", "amy",
                       "missy","dave","claire","meemaw", "mary","leslie","lalita",
                       "dennis","alfred", "susan", "ramona", "christie","gallo",
                       "zack", "wil", "kurt","toby", "amelia","nathan",
-                      "beverley","haley","mandy","adam","barry","mark","rebecca","randall","colonel","priya")
+                      "beverley","haley","mandy","adam","barry","mark","rebecca","randall","colonel","priya","Elizabeth","Katee","halley","alice","stan","valentine","jimmy","wyatt","kim","koothrapalli")
 
 words_to_remove <- c("scene", "series", "episode","pilot", "yeah","uh","hey",
                     "gonna","knock","dr","apartment","um","wanna","door","Time shift","corridor")
@@ -121,6 +121,7 @@ season.dfm %>%
 ## The TF-IDF per season
 Again, here we plot the 10 most specific words per season. In the season 1 the term 'feel' is very specific. While in the season 4 the most specific term is 'alright'.If we look at season 10 the name Hailey is very specific to this season, we can guess that this character is very important in the final story telling. 
 
+## Does not work
 ```{r echo=FALSE}
 season.tfidf %>% 
   tidy() %>% 
@@ -214,7 +215,7 @@ Here is a representation of how many times the most frequent words co-occur toge
 
 Below, we plot a co-occurrence graph. Each connection means that the two words appear together more than 400 times. We cannot see really well as many links are made.
 
-
+## Is this graph really meaningful ?
 ```{r echo=FALSE}
 #Co-occurrence graph with every line being 400 occurrences. I believe we can do some more data cleaning, as these words take
 #a lot of occurrences, while it problably wont help for our sentiment analysis
