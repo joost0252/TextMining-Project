@@ -861,12 +861,61 @@ head(pred_ranger$predictions)
 ####################################### Sentiment Analysis by Characters ###############################################
 
 ```{r}
+char.cp <- corpus(character_speech$character_scripts)
+
+char.tk <- tokens(
+  char.cp,
+  remove_numbers = TRUE, 
+  remove_punct = TRUE,
+  remove_symbols = TRUE,
+  remove_separators = TRUE)
+
+
+#Remove possessive apostrophe ('s), such that words as Leonard's are not skipped in the next part of the code
+char.tk <- tokens_replace(
+    char.tk, 
+    types(char.tk),
+    stringi::stri_replace_all_regex(types(char.tk), "['\\p{Pf}][s]", ""))
+
+char.tk <- tokens_replace(char.tk,
+  pattern = hash_lemmas$token,
+  replacement = hash_lemmas$lemma)
+
+words_to_remove <- c("scene", "series", "episode","pilot", "yeah","uh","hey",
+                    "gonna","knock","dr","apartment","um","wanna","door","Time shift","corridor")
+
+char.tk <- char.tk %>% 
+  tokens_tolower() %>%
+  tokens_remove(stop_words$word) %>%
+  tokens_remove(c(characters_names, words_to_remove)) 
+
+## Compute the DTM
+char.dfm <- dfm(char.tk)
+
+## Compute the TF-IDF 
+char.tfidf <- dfm_tfidf(char.dfm)  
+
+## Compute the global frequencies
+char.freq <- textstat_frequency(char.dfm)
+```
+
+```{r echo=FALSE}
+char.dfm %>% 
+  tidy() %>% 
+  top_n(10, count) %>% 
+  ggplot(aes(x = term, y = count)) + 
+  geom_bar(stat = "Identity") + 
+  coord_flip() +
+  theme(axis.text.y = element_text(size = 5),
+        axis.ticks.y = element_blank())  + 
+  facet_wrap(~ character_speech$character_name, ncol = 2) + 
+  ggtitle("Top 10 TF per character")
+```
+
+```{r}
 char.tb <- as_tibble(data.frame(character_speech))
 
-words_to_remove <- c("scene", "series", "episode", "pilot", "yeah", "uh", "hey",
-                    "gonna", "knock", "dr", "apartment", "um", "wanna", "door")
-
-char.tok <- unnest_tokens(
+char.tk <- unnest_tokens(
   char.tb,
   output = "word",
   input = "character_scripts",
@@ -874,18 +923,19 @@ char.tok <- unnest_tokens(
   strip_punct = TRUE,
   strip_numeric = TRUE)
  
-char.tok <- char.tok %>%
+char.tk <- char.tk %>%
   anti_join(stop_words, by = c("word" = "word"))
   
 char.sent <- 
   inner_join(
-    char.tok,
+    char.tk,
     get_sentiments("nrc"),
     by = c("word" = "word"))
 
 head(char.sent, 10) %>% 
   flextable() %>%
   autofit()
+
 ```
 
 ```{r}
@@ -902,6 +952,19 @@ char.sent %>%
   facet_wrap(~character_name) + 
   coord_flip()
 ```
+```{r echo=FALSE}
+char.dfm %>% textstat_lexdiv()
+
+char.dfm %>% textstat_lexdiv() %>%
+  arrange(desc(TTR)) %>%
+  slice(1:10) %>% #plot only the top 10
+  ggplot(aes(reorder(document, -TTR),
+             TTR)) + 
+  geom_bar(stat = "identity") + 
+  xlab("character_name") + 
+  ggtitle("Plot of the 10 top Token-Type-Ratio") 
+```
+
 
 ## Sentiments of each characters by using nrc lexicon 
 
