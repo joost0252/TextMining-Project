@@ -990,6 +990,7 @@ char.sent %>%
   facet_wrap(~character_name) + 
   coord_flip()
 ```
+
 ```{r echo=FALSE}
 char.dfm %>% textstat_lexdiv()
 
@@ -1008,8 +1009,8 @@ char.dfm %>% textstat_lexdiv() %>%
 
 ```{r}
 char.sent %>% 
-  filter(char.sent %in% c("sheldon","leonard","penny","howard","raj")) %>% 
-  ggplot(aes(sentiment, fill = character_name)) +
+  group_by(character_name) %>% 
+  ggplot(aes(season, fill = character_name)) +
   geom_bar(show.legend = FALSE) +
   facet_wrap(character_name~.) +
   theme_dark() +
@@ -1021,13 +1022,13 @@ char.sent %>%
        x = NULL, 
        y = "Sentiment Frequency", 
        title = "Sentiments of each characters by using nrc lexicon") +
-  scale_fill_manual(values = c("#EA181E", "#00B4E8", "#FABE0F","#EA181E", "#00B4E8", "#FABE0F"))
+  scale_fill_manual(values = c( "chartreuse1", "#FABE0F","cyan3", "darkorchid3", "palevioletred1"))
 ```
 
 ## Negative-Positive Ratio in all seasons by using bing lexicon
 ```{r}
 tidy_bing %>% 
-  filter(author %in% c("Ross", "Monica", "Rachel", "Joey", "Chandler", "Phoebe")) %>% 
+  group_by(character_name) %>% 
   group_by(season, author) %>% 
   count(sentiment) %>%
   ungroup() %>%
@@ -1049,7 +1050,6 @@ tidy_bing %>%
 ## Total sentiment score
 ```{r}
 character_speech %>% 
-  filter(character_name %in% c("Ross", "Monica", "Rachel", "Joey", "Chandler", "Phoebe")) %>% 
   group_by(season, character_name) %>% 
   summarise(total = sum(value), .groups = 'drop') %>% 
   ungroup() %>% 
