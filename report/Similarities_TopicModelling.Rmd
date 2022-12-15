@@ -1,0 +1,430 @@
+---
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+source("../scripts/setup.R")
+```
+
+
+## Similarities between season scripts
+In this part, we want to compare the similarities of the scripts between the season. We decided to use the 3 similarities measure to compute the similarity matrix: Jaccard similarity, Cosine distance, and Euclidean distance. 
+
+```{r echo=FALSE}
+season.dfm <- dfm(season.tk)
+season.tfidf <- dfm_tfidf(season.dfm)
+
+season.jac <- textstat_simil(
+  season.tfidf,
+  method = "jaccard",
+  margin = "documents")
+
+season.cos <- textstat_simil(
+  season.tfidf,
+  method = "cosine",
+  margin = "documents")
+
+season.euc <- textstat_dist(
+  season.tfidf,
+  method = "euclidean",
+  margin = "documents")
+```
+
+```{r echo=FALSE}
+## Jaccard 
+season.jac.mat <- melt(as.matrix(season.jac)) # Convert the object to matrix then to data frame 
+ggplot(data = season.jac.mat, 
+       mapping = aes(x = Var1, y = Var2, fill = value)) +
+  scale_fill_gradient2(
+    low = "blue",
+    high = "red",
+    mid = "white", 
+    midpoint = 0.5,
+    limit = c(0, 1),
+    name = "Jaccard") +
+  geom_tile() + xlab("") + ylab("")
+
+## Cosine
+season.cos.mat <- melt(as.matrix(season.cos))
+ggplot(
+  data = season.cos.mat,
+  mapping = aes(x = Var1, y = Var2, fill = value)) +
+  scale_fill_gradient2(
+    low = "blue",
+    high = "red",
+    mid = "white",
+    midpoint = 0.5,
+    limit = c(0, 1),
+    name = "Cosine") +
+  geom_tile() + xlab("") + ylab("")
+
+## Euclidean
+season.euc.mat <- melt(as.matrix(season.euc))
+M <- max(season.euc.mat$value) # maximum distance
+season.euc.mat$value.std <- (M - season.euc.mat$value)/M 
+# conversion from distance to similarity in [0,1]
+ggplot(
+  data = season.euc.mat,
+  mapping = aes(x = Var1, 
+                y = Var2,
+                fill = value.std)) +
+  scale_fill_gradient2(
+    low = "blue",
+    high = "red",
+    mid = "white", 
+    midpoint = 0.5,
+    limit = c(0, 1),
+    name = "Euclidean") +
+  geom_tile() + xlab("") + ylab("")
+```
+
+We get 3 quite different co-occurence matrices. From the Euclidean co-occurence plot, it seems that season 4 is quite close to every other seasons. 
+
+## Clustering 
+Then, to create a cluster, we decide to focus on the Euclidean distance only.
+
+```{r}
+season.hc <- hclust(as.dist(season.euc))
+## crude.hc <- hclust(as.dist(1 - crude.jac)) # use this line for Jaccard
+## crude.hc <- hclust(as.dist(1 - crude.cos)) # use this line for Cosine
+plot(season.hc)
+
+season.clust <- cutree(season.hc, k = 3)
+season.clust
+
+season.km <- kmeans(season.tfidf, centers = 3)
+season.km$cluster
+
+
+data.frame(
+  Clust.1 = names(sort(apply(season.tfidf[season.clust==1, ], 2, sum), decreasing = TRUE)[1:5]),
+  Clust.2 = names(sort(apply(season.tfidf[season.clust==2, ], 2, sum), decreasing = TRUE)[1:5]),
+  Clust.3 = names(sort(apply(season.tfidf[season.clust==3, ], 2, sum), decreasing = TRUE)[1:5])
+)
+```
+
+
+## Similarities between words
+We use the cosine distance measure to determine the similarities between words. 
+```{r}
+season.feat <- textstat_frequency(season.dfm) %>%
+  filter(rank <= 50) 
+season.feat$feature
+
+season.euc <- textstat_simil(
+  season.dfm[, season.feat$feature],
+  method = "cosine",
+  margin = "feature")
+
+season.cos.mat <- melt(as.matrix(season.cos)) # Convert the object to matrix then to data frame 
+
+ggplot(data = season.cos.mat, aes(x=Var1, y=Var2, fill=value)) +
+  scale_fill_gradient2(
+    low = "blue",
+    high = "red",
+    mid = "white",
+    midpoint = 0.5,
+    limit = c(0, 1),
+    name = "Cosine") +
+  geom_tile() + 
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 5),
+    axis.text.y = element_text(size = 5)) +
+  xlab("") + 
+  ylab("")
+
+```
+
+## Clustering words
+```{r}
+season.hcw <- hclust(as.dist(1 - season.cos))
+plot(season.hcw)
+```
+
+## Co-occurences --> Doesn't work
+```{r}
+season.fcm <- fcm(season.tk, 
+                 window = 3, 
+                 tri = FALSE)
+season.fcm <- (season.fcm + t(season.fcm))/2 ## make the co-occurrence matrix symmetrical
+
+season.fcm.mat <- melt(
+  as.matrix(
+    season.fcm[season.feat$feature, season.feat$feature]),
+  varnames = c("Var1", "Var2")) 
+ggplot(data = season.fcm.mat, 
+       mapping = aes(x = Var1, y = Var2, fill = value)) +
+  scale_fill_gradient2(
+    low = "blue",
+    high = "red",
+    mid = "white",
+    midpoint = 140,
+    limit = c(0, 280),
+    name = "Co-occurrence") +
+  geom_tile() + 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 5),
+        axis.text.y = element_text(size = 5)) +
+  xlab("") +
+  ylab("")
+```
+
+## Cluster dendrogram
+# Problem: we have all the stop word within the cluster 
+```{r}
+season.inv_occ <- 
+  280 - as.matrix(
+    season.fcm[season.feat$feature, season.feat$feature]) ## 280 is the max co-occurrence here
+season.hc <- hclust(as.dist(season.inv_occ))
+plot(season.hc)
+```
+
+
+## LSA on TF
+```{r}
+season.tf <- dfm(season.tk)
+season.lsa <- textmodel_lsa(x = season.tf, nd = 10) 
+head(season.lsa$docs)
+```
+
+```{r}
+head(season.lsa$features)
+```
+
+```{r}
+season.freq <- ntoken(season.tk) # row-sum of the DTM. Are you convinced it is the document length?
+data.frame(season.freq,
+           dim1 = season.lsa$docs[, 1]) %>% 
+  ggplot(aes(season.freq, dim1)) + 
+  geom_point() + 
+  xlab("Number of tokens") + 
+  ylab("LSA dim. 1")
+```
+
+```{r}
+n.terms <- 5
+## For Dimension 2
+w.order <- sort(season.lsa$features[, 2], decreasing = TRUE)
+w.top2 <- c(w.order[1:n.terms], rev(rev(w.order)[1:n.terms]))
+## For Dimension 3
+w.order <- sort(season.lsa$features[,3], decreasing = TRUE)
+w.top3 <- c(w.order[1:n.terms], rev(rev(w.order)[1:n.terms]))
+
+```
+
+```{r}
+w.top2
+```
+
+```{r}
+w.top3
+```
+
+```{r}
+biplot(
+  y = season.lsa$docs[, 2:3],
+  x = season.lsa$features[, 2:3],
+  col = c("black", "red"),
+  cex = c(0.3, 0.3),
+  xlab = "Dim 2",
+  ylab = "Dim 3")
+```
+
+```{r}
+w.subset <- 
+  season.lsa$features[
+    c(unique(c(names(w.top2), names(w.top3)))), 2:3]
+biplot(
+  y = season.lsa$docs[, 2:3],
+  x = w.subset,
+  col = c("black","red"),
+  cex = c(0.5, 0.5),
+  xlab = "Dim 2",
+  ylab = "Dim 3")
+```
+
+
+## LSA on TF_IDF ?? Do we want to do that ?
+```{r}
+
+```
+
+## LDA using quanteda
+```{r}
+set.seed(1234) #To create reproducible results
+season.lda <- textmodel_lda(x = season.tf, k = 10)
+seededlda::terms(season.lda, 5)
+```
+
+```{r}
+seededlda::topics(season.lda)
+```
+
+```{r}
+seededlda::topics(season.lda) %>% table()
+```
+
+## Term-Topic Analysis
+```{r}
+phi.long <- melt(
+  season.lda$phi,
+  varnames = c("Topic", "Term"),
+  value.name = "Phi") 
+
+phi.long %>% 
+  group_by(Topic) %>% 
+  top_n(10, Phi) %>% 
+  ggplot(aes(reorder_within(Term, Phi, Topic), Phi)) + 
+  geom_col(show.legend = FALSE) +
+  coord_flip() +
+  facet_wrap(~ Topic, scales = "free_y") +
+  scale_x_reordered() + 
+  xlab("Term") + 
+  theme(
+    axis.text.y = element_text(size = 5),
+    strip.text = element_text(size = 5))
+```
+
+
+## Topic-Document Analysis
+```{r}
+set.seed(1234)
+theta.long <- melt(
+  season.lda$theta,
+  varnames = c("Doc", "Topic"),
+  value.name = "Theta")
+
+theta.long %>% 
+  group_by(Topic) %>% 
+  top_n(10, Theta) %>% 
+  ggplot(aes(reorder_within(Doc, Theta, Topic), Theta)) + 
+  geom_col(show.legend = FALSE) +
+  coord_flip()+
+  facet_wrap(~ Topic, scales = "free_y") +
+  scale_x_reordered() + 
+  xlab("Document") + 
+  theme(
+    axis.text.y = element_text(size = 5),
+    strip.text = element_text(size = 5))
+```
+
+```{r}
+## 10 longest documents
+## ntoken compute the lengths. They are sorted in decreasing order. 
+## We take the 12 first
+n.doc <- 12
+doc.list <- names(
+  sort(ntoken(season.tk), decreasing = TRUE)[1:n.doc])
+doc.list
+
+
+theta.long %>% 
+  filter(Doc %in% doc.list) %>%  
+  ggplot(aes(reorder_within(Topic, Theta, Doc), Theta)) + 
+  geom_col(show.legend = FALSE) +
+  coord_flip()+
+  facet_wrap(~ Doc, scales = "free_y") +
+  scale_x_reordered() + 
+  xlab("Document") +
+   theme(
+    axis.text.y = element_text(size = 5),
+    strip.text = element_text(size = 5))
+```
+
+
+## LDA diagnostics
+```{r}
+rev(sort(colSums(season.lda$theta)/sum(season.lda$theta)))
+```
+
+```{r}
+season.codo <- fcm(
+  season.tf, 
+  context = "document",
+  count = "boolean",
+  tri = FALSE) # co-document frequencies
+term.mat <- seededlda::terms(season.lda, 5)
+Coh <- rep(0, 10)
+names(Coh) <- paste0("Topic", 1:10)
+for (k in 1:10) {
+  D.mat <- t(season.codo[term.mat[,k], term.mat[,k]])
+  D.vec <- season.tf %>% 
+    textstat_frequency %>% 
+    filter(feature %in% term.mat[, k]) %>% 
+    data.frame %>%
+    select(feature, docfreq)
+  for (m in 2:5){
+    for (l in 1:(m - 1)) {
+      vm <- term.mat[m, k]
+      vl <- term.mat[l, k]
+      Coh[k] <- Coh[k] + log((D.mat[vm, vl] + 1) / filter(D.vec, feature == vl)$docfreq)
+    }
+  }
+}
+rev(sort(Coh))
+```
+
+```{r}
+as.matrix(season.codo[term.mat[, 3], term.mat[, 3]])
+```
+
+```{r}
+as.matrix(season.codo[term.mat[, 5], term.mat[, 5]])
+```
+
+```{r}
+excl <- rep(0, 10)
+names(excl) <- paste0("Topic", 1:10)
+for (k in 1:10) {
+  for (i in 1:length(term.mat[,k])) {
+    term.phi <- filter(phi.long, Term == term.mat[i,k])
+    excl[k] <- excl[k] + filter(term.phi, Topic == "topic1")$Phi / sum(term.phi$Phi)
+  }
+  excl[k] <- excl[k] / length(term.mat[, k])
+}
+rev(sort(excl))
+```
+The most exclusive topic is Topic 1, with five top terms are more specific to it.
+
+
+## LDA with Topic Model
+```{r}
+season.LDA <- LDA(
+  convert(season.tf, to = "topicmodels"), k = 10)
+topicmodels::terms(season.LDA, 5)
+```
+
+```{r}
+topicmodels::topics(season.LDA)
+```
+
+```{r}
+topicmodels::topics(season.LDA) %>% table()
+```
+
+```{r}
+topic_diagnostics(
+  topic_model = season.LDA, 
+  dtm_data = convert(season.tf, to = "topicmodels"))
+```
+
+```{r}
+beta.long <- tidy(
+  season.LDA,
+  matrix = "beta") # equivalent to melt (with this package)
+
+beta.long %>% 
+  group_by(topic) %>% 
+  top_n(10, beta) %>% 
+  ggplot(aes(reorder_within(term, beta, topic), beta)) + 
+  geom_col(show.legend = FALSE) +
+  coord_flip()+
+  facet_wrap(~ topic, scales = "free_y") +
+  scale_x_reordered() + 
+  xlab("Term") +
+  theme(
+    axis.text.y = element_text(size = 5),
+    axis.text.x = element_text(size = 5),
+    strip.text = element_text(size = 5))
+```

@@ -1,0 +1,251 @@
+---
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+source("../scripts/setup.R")
+```
+
+
+
+### Supervised Learning 
+
+#Features: DTM and LSA
+```{r}
+# Create the corpus from the dataset character_speech. Within this dataset every line is coupled to the characters (Howard, Leonard, Penny, Raj, and Sheldon).
+character.cp <- corpus(character_speech, text_field = "character_scripts")
+
+#Tokenize the corpus and remove punctuation, symbols, stopwords, and the predetermined words in 'words_to_remove'.
+character.tok <- tokens(character.cp, 
+                        remove_punct = TRUE, 
+                        remove_symbols = TRUE)
+
+character.tok <- tokens_tolower(character.tok) %>%
+  tokens_wordstem() %>% 
+  tokens_remove(stopwords("english")) %>%
+  filter(!word %in% words_to_remove)
+
+# The variable to predict is the character name (Howard, Leonard, Penny, Raj, and Sheldon):
+y <- factor(docvars(character.tok, "character_name"))
+
+#Transform the tokenized corpus into dfm:
+character.dfm <- dfm(character.tok)
+dim(character.dfm)
+```
+
+```{r}
+#Using a LSA to reduce dimensions. We first start with 25 dimensions, but we will later decide which will give the best results.
+character.lsa <- textmodel_lsa(character.dfm, nd=25)
+head(character.lsa$docs)
+
+```
+
+```{r}
+#In the following code we train the classifier. First we combine the target and lsa together in a dataframe. We then take a sample of 80% of this dataframe as the train set. The other 20% will be used as the test set. We then train the classifier with the ranger package. We then predict and show the results in a confusion matrix of the caret package.   
+character.df <- data.frame(Class=y, X=character.lsa$docs)
+index.tr <- sample(size=round(0.8*length(y)), x=c(1:length(y)), replace=FALSE)
+df.tr <- character.df[index.tr,]
+df.te <- character.df[-index.tr,]
+
+character.fit <- ranger(Class ~ ., 
+                     data = df.tr)
+pred.te <- predict(character.fit, df.te)
+
+confusionMatrix(data=pred.te$predictions, reference = df.te$Class) #This gives the confusion matrix, precision, specifity, and sensitivity
+```
+
+
+# Improving the features; Takes really long!
+```{r}
+
+# Now we test which number of dimension should be chosen. 
+nd.vec <- c(2,5,25,50,100, 500, 1000)
+acc.vec <- numeric(length(nd.vec))
+for (j in 1:length(nd.vec)){
+  character.lsa <- textmodel_lsa(character.dfm, nd=nd.vec[j])
+  character.df <- data.frame(Class=y, X=character.lsa$docs)
+  df.tr <- character.df[index.tr,]
+  df.te <- character.df[-index.tr,]
+  
+  character.fit <- ranger(Class ~ ., 
+                       data = df.tr)
+  pred.te <- predict(character.fit, df.te)
+  acc.vec[j] <- confusionMatrix(data=pred.te$predictions, reference = df.te$Class)$overall[1]
+}
+
+acc.vec
+# The different accuracies for number of dimensions 2 ,5, 25, 50, 100, 500, 1000 are respectively 0.2706244, 0.3011970, 0.3422841, 0.3447104, 0.3511808, 0.3612100, 0.3605629. Due to the long run time and the fact the curve is flattening, we choose a number of dimensions of 500, as this has the highest accuracy given.
+# Conclusion: Choose nd = 500
+plot(acc.vec ~ nd.vec, type='b')
+
+```
+
+
+```{r}
+## Comparing the dfm to the tf-idf: 
+character.tfidf <- dfm_tfidf(character.dfm)
+character.lsa <- textmodel_lsa(character.tfidf, nd=500)
+
+df <- data.frame(Class=y, X=character.lsa$docs)
+df.tr <- character.df[index.tr,]
+df.te <- character.df[-index.tr,]
+character.fit <- ranger(Class ~ ., 
+                     data = df.tr)
+pred.te <- predict(character.fit, df.te)
+confusionMatrix(data=pred.te$predictions, reference = df.te$Class)
+```
+```{r}
+
+# Now we test which number of dimension should be chosen comparing it with the tf-idf. 
+nd.vec <- c(2,5,25,50,100, 500, 1000)
+acc.vec <- numeric(length(nd.vec))
+for (j in 1:length(nd.vec)){
+  character.tfidf <- dfm_tfidf(character.dfm)
+  character.lsa <- textmodel_lsa(character.tfidf, nd=nd.vec[j])
+  character.df <- data.frame(Class=y, X=character.lsa$docs)
+  df.tr <- character.df[index.tr,]
+  df.te <- character.df[-index.tr,]
+  
+  character.fit <- ranger(Class ~ ., 
+                       data = df.tr)
+  pred.te <- predict(character.fit, df.te)
+  acc.vec[j] <- confusionMatrix(data=pred.te$predictions, reference = df.te$Class)$overall[1]
+}
+
+acc.vec
+# For the dfm the different accuracies for number of dimensions 2 ,5, 25, 50, 100, 500, 1000 were respectively 0.2706244, 0.3011970, 0.3422841, 0.3447104, 0.3511808, 0.3612100, 0.3605629. These are now 0.2712714 0.2994177 0.3571660 0.3602394 0.3600776 0.3600776 0.3586218. Now it turns out the best number of dimensions is 50, both for tf-idf as compared to the dfm.
+
+# Conclusion: Choose nd = 50
+plot(acc.vec ~ nd.vec, type='b')
+
+```
+
+## Word Embedding with glove
+```{r}
+character.fcm <- fcm(character.tok, 
+           context = "window",
+           count = "weighted",
+           window=1,
+           weights = 1/(1:1),
+           tri = FALSE)
+glove <- GlobalVectors$new(rank = 50, x_max = 1)
+
+word_vectors_main <- glove$fit_transform(character.fcm, n_iter = 150) # We choose 150 as number of iterations, as the loss does decrease, but the runtime becomes to extensive, compared to the improvement. So we make the arbitrary decision to keep the number of iterations at 150.
+# Increasing the rank from 25 to 50 (with 371 iterations) decreases the loss from 0.600 to 0.0339.
+
+# Increasing the window from 5 to 10 causes a increase in the loss. The same goes when we increase it to 6, albeit a small increase in loss.
+# 
+
+```
+
+The script works. How does this influence the results?
+```{r}
+
+word_vectors_context <- glove$components
+character.glove <- word_vectors_main + t(word_vectors_context)
+
+ndoc <- length(character.tok) # number of documents
+centers <- matrix(nr=ndoc, nc=50) # nc should be equal to the rank of glove
+for (i in 1:ndoc){
+  words_in_i <- character.glove[character.tok[[i]],, drop=FALSE]
+  centers[i,] <- apply(words_in_i,2,mean)
+}
+row.names(centers) <- names(character.tok)
+
+#any(is.na(words_in_i))
+
+character.df <- data.frame(Class=y, X=centers)
+df.tr <- character.df[index.tr,]
+df.te <- character.df[-index.tr,]
+character.fit <- ranger(Class ~ ., 
+                     data = df.tr[complete.cases(df.tr),])
+pred.te <- predict(character.fit, df.te[complete.cases(df.te),])
+confusionMatrix(data=pred.te$predictions, reference = df.te[complete.cases(df.te),]$Class)
+
+```
+
+
+In this case we add the length of the sentences, by using log (which they did in the example of week 8) it decreases the accuracy.
+Without the accuracy is a bit improved.
+```{r}
+character.tfidf <- dfm_tfidf(character.dfm)
+character.lsa <- textmodel_lsa(character.tfidf, nd=25)
+
+character.df <- data.frame(Class=y, X=character.lsa$docs)
+character.df <- cbind(character.df,
+            length = sapply(character.tok, length))
+df.tr <- character.df[index.tr,]
+df.te <- character.df[-index.tr,]
+character.fit <- ranger(Class ~ ., 
+                     data = df.tr[complete.cases(df.tr),], 
+                     importance = "impurity")
+pred.te <- predict(character.fit, df.te[complete.cases(df.te),])
+confusionMatrix(data=pred.te$predictions, reference = df.te[complete.cases(df.te),]$Class)
+```
+
+
+Further improvement based on adding the centroids (and the extra feature from above is used). This results gives the highest accuracy so far.
+```{r}
+
+character2.df <- cbind(character.df, Cent=centers) ## add the centroid features to the tf-idf-lsa, retweet, length features.
+df.tr <- character2.df[index.tr,]
+df.te <- character2.df[-index.tr,]
+character.fit <- ranger(Class ~ ., 
+                     data = df.tr[complete.cases(df.tr),], 
+                     importance = "impurity")
+pred.te <- predict(character.fit, df.te[complete.cases(df.te),])
+confusionMatrix(data=pred.te$predictions, reference = df.te[complete.cases(df.te),]$Class)
+
+```
+
+
+# Trying code to put in sentences to predict
+```{r}
+char_pred <- data.frame(Predicted_sentence = c("Put here the sentence you want to predict"))
+char_pred <- do.call("rbind", replicate(5, char_pred, simplify = FALSE))
+
+
+
+char_pred.cp <- corpus(char_pred, text_field = "Predicted_sentence")
+
+char_pred.tok <- tokens(char_pred.cp, 
+                        remove_punct = TRUE, 
+                        remove_symbols = TRUE)
+
+char_pred.tok <- tokens_tolower(char_pred.tok) %>% tokens_wordstem() %>% #due to wordstemming it seems that the character.tok file get some nan values and incomplete sentences.
+  tokens_remove(stopwords("english"))
+
+char_pred.dfm <- dfm(char_pred.tok)
+dim(char_pred.dfm)
+
+#char_pred.tfidf <- dfm_tfidf(char_pred.dfm)
+#char_pred.lsa <- textmodel_lsa(char_pred.tfidf, nd=25)
+
+#char_pred.lsa <- textmodel_lsa(char_pred.dfm, nd=25)
+#head(char_pred.tfidf$docs) #In original file this was $docs, see what works.
+
+z <- c("Howard", "Leonard", "Penny", "Raj", "Sheldon")
+char_pred.df <- data.frame(Class=z, X=char_pred.lsa$docs)
+char_pred.df <- cbind(character.df)
+
+character_prediction <- predict(character.fit, char_pred.dfm)
+```
+
+
+## Random Forest 
+```{r}
+# randomForest
+pred_randomForest <- predict(ames_randomForest, ames_test)
+head(pred_randomForest)
+##        1        2        3        4        5        6 
+## 128266.7 153888.0 264044.2 379186.5 212915.1 210611.4
+
+# ranger
+pred_ranger <- predict(character.fit, ames_test)
+head(pred_ranger$predictions)
+## [1] 128440.6 154160.1 266428.5 389959.6 225927.0 214493.1
+
+```
+
