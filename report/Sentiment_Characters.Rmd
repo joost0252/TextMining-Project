@@ -7,8 +7,7 @@ output:
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 source("../scripts/setup.R")
 ```
-
-####################################### Sentiment Analysis by Characters ###############################################
+## Sentiment Analysis by Characters 
 
 ```{r}
 char.cp <- corpus(character_speech$character_scripts)
@@ -181,9 +180,29 @@ char.sent2 %>%
   labs(y = NULL,  x = "Season", fill = NULL, title = "Negative-Positive Ratio in all seasons by using bing lexicon")
 ```
 
+```{r}
+char.sent2 %>% 
+  group_by(season) %>% 
+  mutate(seq = row_number()) %>% 
+  ungroup() %>% 
+  unnest_tokens(word, main_character_script) %>% 
+  anti_join(stop_words) %>% 
+  filter(!word %in% tolower(character_name)) %>% 
+  inner_join(get_sentiments(lexicon = "bing")) %>% 
+  count(season, index = seq %/% 50, sentiment) %>% 
+  spread(sentiment, n, fill = 0) %>%
+  mutate(sentiment = positive - negative) %>% 
+  ggplot(aes(index, sentiment, fill = factor(season))) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(paste0("Season ",season)~., ncol = 2, scales = "free_x")+
+  theme_dark()+
+  theme(plot.title = element_text(hjust = 0.5, size = 20, face = "bold"))+
+  labs(x = "Index", y = "Sentiment", title = "Negative-Positive Distribution in all seasons by using afinn lexicon")
+```
+
 ## Total sentiment score
 ```{r}
-install.packages('base64')
+#install.packages('base64')
 
 char.sent3 <-
   inner_join(
@@ -197,11 +216,11 @@ char.sent3 %>%
   ungroup() %>% 
   mutate(Neg = if_else(total < 0, TRUE, FALSE)) %>% 
   ggplot()+
-  geom_path(aes(season, total, color = character_name), size = 1.2)+
+  geom_path(aes(char.sent2$season, total, color = char.sent3$character_name), size = 1.2)+
   theme_minimal()+
   theme(legend.position = "bottom")+
-  scale_x_continuous(breaks = scales::pretty_breaks(n = 10))+
-  scale_color_manual(values = c("#EA181E", "#00B4E8", "#FABE0F", "seagreen2", "orchid", "royalblue"))+
+  scale_x_continuous(breaks = scales::pretty_breaks(n = 50))+
+  scale_color_manual(values = c("#EA181E", "#00B4E8", "#FABE0F", "seagreen2", "orchid"))+
   labs(x = "Season", color = NULL, y = "Total Sentiment Score")+
   annotation_custom(img, ymin = 350, ymax = 400, xmin = 1, xmax = 4)
 ```
