@@ -134,7 +134,7 @@ char.dfm %>% textstat_lexdiv() %>%
 ```{r}
 char.sent %>% 
   group_by(character_name) %>% 
-  ggplot(aes(season, fill = character_name)) +
+  ggplot(aes(sentiment, fill = character_name)) +
   geom_bar(show.legend = FALSE) +
   facet_wrap(character_name~.) +
   theme_dark() +
@@ -173,13 +173,21 @@ tidy_bing %>%
 
 ## Total sentiment score
 ```{r}
-character_speech %>% 
+install.packages('base64')
+
+char.sent2 <-
+  inner_join(
+    char.tk, 
+    get_sentiments("afinn"),
+    by = c("word" = "word"))
+
+char.sent2 %>% 
   group_by(season, character_name) %>% 
   summarise(total = sum(value), .groups = 'drop') %>% 
   ungroup() %>% 
   mutate(Neg = if_else(total < 0, TRUE, FALSE)) %>% 
   ggplot()+
-  geom_path(aes(season, total, color = characters_names), size = 1.2)+
+  geom_path(aes(season, total, color = character_name), size = 1.2)+
   theme_minimal()+
   theme(legend.position = "bottom")+
   scale_x_continuous(breaks = scales::pretty_breaks(n = 10))+
