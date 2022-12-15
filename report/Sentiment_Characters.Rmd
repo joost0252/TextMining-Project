@@ -155,13 +155,13 @@ head(get_sentiments(lexicon = "bing"))
 ```
 
 ```{r}
-char.sent3 <-
+char.sent2 <-
   inner_join(
     char.tk, 
     get_sentiments("bing"),
     by = c("word" = "word"))
 
-char.sent3 %>% 
+char.sent2 %>% 
   group_by(character_name) %>% 
   group_by(season, character_name) %>% 
   count(sentiment) %>%
@@ -185,13 +185,13 @@ char.sent3 %>%
 ```{r}
 install.packages('base64')
 
-char.sent2 <-
+char.sent3 <-
   inner_join(
     char.tk, 
     get_sentiments("afinn"),
     by = c("word" = "word"))
 
-char.sent2 %>% 
+char.sent3 %>% 
   group_by(season, character_name) %>% 
   summarise(total = sum(value), .groups = 'drop') %>% 
   ungroup() %>% 
