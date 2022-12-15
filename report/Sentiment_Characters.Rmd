@@ -150,17 +150,27 @@ char.sent %>%
 ```
 
 ## Negative-Positive Ratio in all seasons by using bing lexicon
+```{r echo=FALSE, include=FALSE}
+head(get_sentiments(lexicon = "bing"))
+```
+
 ```{r}
-tidy_bing %>% 
+char.sent3 <-
+  inner_join(
+    char.tk, 
+    get_sentiments("bing"),
+    by = c("word" = "word"))
+
+char.sent3 %>% 
   group_by(character_name) %>% 
-  group_by(season, author) %>% 
+  group_by(season, character_name) %>% 
   count(sentiment) %>%
   ungroup() %>%
   ggplot(aes(season, n, fill = sentiment)) +
   geom_col(position = "fill") +
   geom_text(aes(label = n), position = position_fill(0.5), color = "white")+
   coord_flip()+
-  facet_wrap(author~.)+
+  facet_wrap(character_name~.)+
   theme_dark()+
   theme(
     legend.position = "bottom",
