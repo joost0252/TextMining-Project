@@ -4,8 +4,38 @@ source("../scripts/setup.R")
 ```
 
 
+# Conclusion 
+
+
 # Reference 
 
 https://saifmohammad.com/WebPages/NRC-Emotion-Lexicon.htm
 
 http://corpustext.com/reference/sentiment_afinn.html
+
+
+# Appendix 1 : Glimpse of the data set 'data_scripts.csv'. 
+
+Here is a glimpse of the first row, to have an idea of how the data set looks like : 
+
+<br> 
+
+```{r pick_annexe1, ref.label=c('chunck_annexe1'), include=FALSE}
+
+```
+
+<br> 
+
+
+
+# Appendix 2 : Glimpse of the data set 'character_speech.csv'. 
+
+Here is a glimpse of the two first row, to have an idea of how the data set looks like : 
+
+<br> 
+
+```{r pick_annexe2, ref.label=c('chunck_annexe2'), include=FALSE}
+
+```
+
+<br> 
