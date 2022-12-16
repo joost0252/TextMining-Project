@@ -3,38 +3,45 @@ output:
   html_document: default
   pdf_document: default
 ---
-```{r, echo = FALSE, message = FALSE, warning = FALSE}
+```{r, echo = FALSE, message = FALSE, warning = FALSE, include=FALSE}
 source("../scripts/setup.R")
 ```
-### Part 2 : Exploratory Data Analysis (EDA)
 
-```{r echo=FALSE}
-data_scripts <- read.csv("../data/series_scripts.csv")
+
+```{r echo=FALSE, include=FALSE}
 season_scripts <- read.csv("../data/season_scripts.csv")
+character_speech <- read.csv("../data/character_speech.csv")
 ```
 
 
-# Tokenization and cleaning of the data 
-We define the corpus for our analysis. The corpus will be the scripts column in our data set as it contains all the texts that must be analysed. Once defined, we clean the texts by removing the numbers, the punctuation, the symbols, and the separators. 
+# Part 2 : Exploratory Data Analysis (EDA)
 
-In our scripts, we can see the main characters that are _Sheldon_, _Leonard_, _Penny_, _Howard_ and _Raj_. They appear in each seasons' episodes. Therefore, we remove their name for the following explanatory data analysis because it will otherwise bias our results. 
-
-We have created a variable _'characters_names'_ grouping the names of all the characters recurring during the series because these are, logically, the words that come up most often and this is not the purpose of our analysis here. It is the same with the words grouped in the variables _'words_to_remove'_, which are themselves linked to the stage directions or do not bring any added value. 
-
-## OK if remove this paragraph ? 
-(((We noticed that the term _'Amy'_ and _'Bernadette'_ appears the most. These are characters that appear towards the end of the series. The term 'scene' is also normal that it appears a lot, because at the beginning of each script and every time characters change of scene, the term 'scene' is written.
-Therefore, we also remove these terms for the following analysis.)))
+In this part, we perform an Exploratory Data Analysis. We will clean and infer some first results based on our data sets. 
 
 
-```{r echo=FALSE}
+## EDA for the seasons analysis 
+### Tokenization and cleaning of the data 
+
+As we know that we want to conduct a sentiment analysis on the the seasons of the series, we first define the corpus for our analysis. The corpus will be the *agg_scripts* column in our *season_scripts* data set as it contains all the texts that must be analysed. Once defined, we clean the texts by removing the numbers, the punctuation, the symbols, the separators and the stop words appearing in the English language. 
+
+In our scripts, we can see the main characters that are _Sheldon_, _Leonard_, _Penny_, _Howard_ and _Raj_. They appear in each seasons' episodes. Therefore, we remove their name for the following explanatory data analysis since it will otherwise bias our results. 
+
+We have created a variable _'characters_names'_ grouping the names of all the recurring characters during the series. Indeed, these are, logically, the words that come up the most often and this is not the purpose of our analysis here. It is the same with the words grouped in the variables _'words_to_remove'_, which are themselves linked to the stage directions or do not bring any added value. 
+
+In here, we also perform the lemmatisation which is replacing some vocabulary by removing the inflectional endings and only keep the base or the corresponding form from the dictionary of word. It will give the lemma of each word from that dictionary. 
+
+
+```{r echo=FALSE, include=FALSE}
+#Define the corpus 
 season.cp <- corpus(season_scripts$agg_script)
 
+#Tokenization 
 season.tk <- tokens(
   season.cp,
-  remove_numbers = TRUE, 
-  remove_punct = TRUE,
-  remove_symbols = TRUE,
-  remove_separators = TRUE)
+  remove_numbers = TRUE, #Remove numbers
+  remove_punct = TRUE, #Remove punctuation 
+  remove_symbols = TRUE, #Remove symbols 
+  remove_separators = TRUE) #Remove separators
 
 
 #Remove possessive apostrophe ('s), such that words as Leonard's are not skipped in the next part of the code
@@ -43,11 +50,8 @@ season.tk <- tokens_replace(
     types(season.tk),
     stringi::stri_replace_all_regex(types(season.tk), "['\\p{Pf}][s]", ""))
 
-season.tk <- tokens_replace(season.tk,
-  pattern = hash_lemmas$token,
-  replacement = hash_lemmas$lemma)
 
-
+#Define the characters' name and non-useful words for our analysis to remove 
 characters_names <- c("sheldon","leonard","penny","howard","raj", "amy", 
                       "bernadette", "emily", "cooper", "stuart", "lucy",
                       "arthur","rostenkowski","bert","mike","james","lorvis",
@@ -57,34 +61,46 @@ characters_names <- c("sheldon","leonard","penny","howard","raj", "amy",
                       "zack", "wil", "kurt","toby", "amelia","nathan",
                       "beverley","haley","mandy","adam","barry","mark","rebecca","randall",
                       "colonel","priya","Elizabeth","Katee","halley","alice","stan","valentine",
-                      "jimmy","wyatt","kim","koothrapalli")
+                      "jimmy","wyatt","kim","koothrapalli", "bethany")
 
 words_to_remove <- c("scene", "series", "episode","pilot", "yeah","uh","hey",
                     "gonna","knock","dr","apartment","um","wanna","door","Time shift","corridor")
 
+#Remove stopwords and our defined vectors 
 season.tk <- season.tk %>% 
   tokens_tolower() %>%
   tokens_remove(stop_words$word) %>%
   tokens_remove(c(characters_names, words_to_remove)) 
 
+#Lemmatisation 
+season.tk_lemma <- tokens_replace(season.tk,
+                                  pattern = hash_lemmas$token,
+                                  replacement = hash_lemmas$lemma)
+
 ```
 
-# The Document-Term Matrix, the TF-IDF and the global frequencies 
+
+### The Document-Term Matrix, the TF-IDF and the global frequencies 
 
 We use the TF-IDF method to look at the specificity of the terms through seasons. It allocates a weight to the most frequent words and translate a relevance of terms in the corpus. With the following graph, we can see that the most frequent term, is by far _'Time'_. Indeed with the frequency matrix, we can see that _'Time'_ appears more than 900 times in the whole show. 
 
 ```{r echo=FALSE}
 ## Compute the DTM
 season.dfm <- dfm(season.tk)
+season.dfm_lemma <- dfm(season.tk_lemma)
 
 ## Compute the TF-IDF 
 season.tfidf <- dfm_tfidf(season.dfm)  
+season.tfidf_lemma <- dfm_tfidf(season.dfm_lemma)  
+
 
 ## Compute the global frequencies
 season.freq <- textstat_frequency(season.dfm)
+season.freq_lemma <- textstat_frequency(season.dfm_lemma)
+
 
 ## We take the top 40 terms that appear the most
-season.freq %>% 
+season.freq_lemma %>%
   top_n(40, frequency) %>%
   ggplot(aes(
     x = reorder(feature, frequency),
@@ -95,19 +111,22 @@ season.freq %>%
   ylab("term") + 
   ggtitle("Top 40 most frequent words")
 ```
-We observe that the most frequent terms are part of the feeling lexical field. For instance the words _'feel'_, _'love'_, _'fine'_. With only this first representation, we can observe a positive pattern in the show. 
 
-## Cloud of words 
+We observe that the most frequent terms are part of the feeling lexical field. For instance the words _'love'_, _'feel'_, _'fine'_. With only this first representation, we can think of a positive pattern in the show. 
+
+### Cloud of words 
 The bigger the word, the more frequently it appears. The most frequent words seems to be "time", "guy", "love", "feel", etc. Does this means that the seasons have mostly positive sentiments ? We will analyse that throughout our report. 
 
 ```{r echo=FALSE}
-textplot_wordcloud(season.dfm)
+textplot_wordcloud(season.dfm_lemma)
 ```
 
-## The 10 most frequent words per season
-Here, we plot the 10 most frequent words per season. It is not really relevant because _'time'_ and _'guy'_ are always predominant through all the corpus. It looks logical to have them appearing individually.
 
-```{r echo=FALSE}
+### The 10 most frequent words per season
+
+Then, we plot the 10 most frequent words per season and observe that it did not bring much information. Therefore we did not print the graph here, but it is available in the Annex 3. Indeed, it is not really relevant because _'time'_ and _'guy'_ are always predominant through all the corpus and for each season, the plot was telling us the same thing. It looks logical to have them appearing individually.
+
+```{r chunck_annexe3, echo=FALSE}
 season.dfm %>% 
   tidy() %>% 
   top_n(10, count) %>% 
@@ -115,17 +134,19 @@ season.dfm %>%
   geom_bar(stat = "Identity") + 
   coord_flip() +
   theme(axis.text.y = element_text(size = 5),
-        axis.ticks.y = element_blank())  + 
+        axis.ticks.y = element_blank()) +
   facet_wrap(~ season_scripts$season, ncol = 2) + 
   ggtitle("Top 10 TF per season")
 ```
 
-## The TF-IDF per season
-Again, here we plot the 10 most specific words per season. In the season 1 the term 'feel' is very specific. While in the season 4 the most specific term is 'alright'.If we look at season 10 the name Hailey is very specific to this season, we can guess that this character is very important in the final story telling. 
 
-## Does not work
+### The TF-IDF per season
+
+Again, here we plot the 10 most specific words per season. In the season 1 the term _'gablehouser'_ is very specific. While in the season 4 the most specific term is _'sheldon_bot'_, we could imagine that they were trying to build a robot on Sheldon. If we look at season 10 the verb _'born'_ is very specific to this season, we can guess maybe an important event happened there. 
+
+
 ```{r echo=FALSE}
-season.tfidf %>% 
+season.tfidf_lemma %>% 
   tidy() %>% 
   top_n(10, count) %>% 
   ggplot(aes(x = term, y = count)) + 
@@ -136,11 +157,13 @@ season.tfidf %>%
   facet_wrap(~ season_scripts$season, ncol = 2) + 
   ggtitle("Top 10 TF-IDF per season")
 ```
-# Exploratory Data analysis 
-On this plot, we cannot see very clearly as there are a lot of terms. But we see that "time", "guys" are indeed very frequent as seen previously and that "gablehouser" is very specific to one particular season. It is season 1 and 2 with research. In the show it is actually a character Dr. Eric Gablehauser, he does not appear in the show after the 2 first season. 
+
+### Representation of the term frequencies 
+
+On this plot, we cannot see very clearly as there are a lot of terms. But we see that "time", "guys" are indeed very frequent as seen previously and that "gablehouser" and "sheldon-bot" are very specific to one particular season each. For the term "gablehouser", it is season 1 after research. In the show it is actually a character Dr. Eric Gablehauser, he does not appear in the show after the 2 first season and we did not notice him before to remove it with the other characters' name. 
 
 ```{r echo=FALSE}
-season.freq %>% 
+season.freq_lemma %>% 
   ggplot(aes(x=log10(docfreq),
              y=log10(frequency))) + 
   geom_text(aes(label=feature),
@@ -148,81 +171,84 @@ season.freq %>%
             size=3) + 
   xlab("Season log-frequency") + 
   ylab("log-frequency") + 
-  ggtitle("Representation of the frequencies agains the  frequencies")
+  ggtitle("Representation of the frequencies against the frequencies")
 ```
 
-## Lexical diversity 
-We compute the lexical diversity of the scripts and we see that the season, especially the last (7,8,9,10) do not have very diverse lexical. Indeed the TTR is equal to 0,25, which means that in a sequence of 4 words, 3 words are the same and only 1 is different. 
+### Lexical diversity 
+We compute the lexical diversity of the scripts and we see that the season, especially the last (8, 10, 7, 9) do not have very diverse lexical. Indeed the TTR is equal to 0.25, which means that in a sequence of 4 words, 3 words are the same and only 1 is different. The season with the richest lexical seems to be the season 2 iwth a TTR score almost 0.5 .
 
-```{r echo=FALSE}
-season.dfm %>% textstat_lexdiv()
+```{r echo=FALSE, include=FALSE}
+season.dfm_lemma %>% textstat_lexdiv() 
 ```
 
 ```{r echo=FALSE}
-season.dfm %>% textstat_lexdiv() %>%
+season.dfm_lemma %>% textstat_lexdiv() %>%
   arrange(desc(TTR)) %>%
-  slice(1:10) %>% #plot only the top 10
   ggplot(aes(reorder(document, -TTR),
              TTR)) + 
   geom_bar(stat = "identity") + 
   xlab("Seasons") + 
   ggtitle("Plot of the 10 top Token-Type-Ratio") 
 ```
-Here, season 2 has the richest diversity, with a score of almost 0,5. 
 
-## Keyness analysis 
+
+### Keyness analysis 
 
 We made a Keyness analysis, to understand what is the ration of the terms in the target compared to others in the rest of the corpus. 
 
-- In the first graph, we analysis season 5 as the target. The reference is the rest of the corpus, and we observe that the word _'jimmy'_ is the most used in the script of season 5 compared to the rest. 
+- In the first graph, we analysis season 5 as the target. The reference is the rest of the corpus, and we observe that the word _'siri'_ is the most used in the script of season 5 compared to the rest. 
 
 - In the second graph, we analysis season 7 as the target. The reference is the rest of the corpus, and we observe that the word _'element'_ is the most used in the script of season 7 compared to the rest. 
 
 ```{r echo=FALSE}
 ## text5
-season.keyness <- textstat_keyness(season.dfm, target = "text5")
+season.keyness <- textstat_keyness(season.dfm_lemma, target = "text5")
 
 textplot_keyness(season.keyness)
 
 ## text7
-season.keyness <- textstat_keyness(season.dfm, target = "text7")
+season.keyness <- textstat_keyness(season.dfm_lemma, target = "text7")
 
 textplot_keyness(season.keyness)
 ```
 
+### Co-occurence analysis 
 
-## Co-occurence analysis 
-Next, we decided to create a co-occurence matrix to have an overview on which word often appears together. 
+Next, we decided to create a co-occurrence matrix to have an overview on which word often appears together. 
+
 ```{r echo=FALSE, include=FALSE}
 #Table for co-occurance for all features
-season.co <- fcm(season.tk, 
+season.co <- fcm(season.tk_lemma, 
                 context = "document", 
                 tri = FALSE)
 season.co
 ```
 
 
-Because it is very difficult to see when we have too many words, we decided to restrict the co-occurence matrix to terms that co-occur more than 300 times together.
+Because it is very difficult to see when we have too many words, we decided to restrict the co-occurrence matrix to terms that co-occur more than 300 times together.
 
-```{r}
+```{r echo=FALSE, include=FALSE}
 #Table for co-occurrence for features with more than 300 co-occurrences
-index <- season.freq %>% 
+index <- season.freq_lemma %>% 
   filter(frequency > 300) %>% 
   data.frame() %>% 
   select(feature)
+
 season.co <- season.co[index$feature, index$feature]
+
 season.co
 ```
-Here is a representation of how many times the most frequent words co-occur together in all the corpus. For example, _'time'_ and _'guy'_ co-occur 99'510 times together in the corpus, which means that they are used in the same context in the script. 
 
-Below, we plot a co-occurrence graph. Each connection means that the two words appear together more than 400 times. We cannot see really well as many links are made.
 
-## Is this graph really meaningful ?
+The representation matrix helps us to understand how many times the most frequent words co-occur together in all the corpus. For example, _'time'_ and _'guy'_ co-occur 138'402 times together in the corpus, which means that they are used in the same context in the script. 
+
+Below is a plot of the co-occurrence graph. Each connection means that the two words appear together more than 30000 times. We see that at the center we have the terms _'time'_, _'talk'_, _'guy'_ which means that these words often appear along with the others. 
+
+
 ```{r echo=FALSE}
-#Co-occurrence graph with every line being 400 occurrences. I believe we can do some more data cleaning, as these words take
-#a lot of occurrences, while it problably wont help for our sentiment analysis
-season.co[season.co <= 400] <- 0
-season.co[season.co > 400] <- 1
+#Co-occurrence graph with every line being 30000 occurrences.
+season.co[season.co <= 30000] <- 0
+season.co[season.co > 30000] <- 1
 network <- graph_from_adjacency_matrix(
   season.co,
   mode = "undirected",
@@ -230,3 +256,73 @@ network <- graph_from_adjacency_matrix(
 plot(network,
      layout = layout_with_kk)
 ```
+
+
+
+
+
+## EDA for the character analysis 
+
+### Tokenization and cleaning of the data 
+As with the season data we decided to make a tokenization and to do some pre-process cleaning of the data. Indeed, we removed all the numbers, punctuation, symbols, separators, stopwords, the same vector containing the characters' names and the vector containing the words we judged not insightful for our analysis. Then we conducted a lemmatisation.
+
+```{r echo=FALSE}
+#Define the corpus 
+char.cp <- corpus(character_speech$character_scripts)
+
+#Tokenization 
+char.tk <- tokens(
+  char.cp,
+  remove_numbers = TRUE, #remove numbers 
+  remove_punct = TRUE, #remove punctuation 
+  remove_symbols = TRUE, #remove symbols
+  remove_separators = TRUE) #remove separators
+
+
+#Remove possessive apostrophe ('s), such that words as Leonard's are not skipped in the next part of the code
+char.tk <- tokens_replace(
+    char.tk, 
+    types(char.tk),
+    stringi::stri_replace_all_regex(types(char.tk), "['\\p{Pf}][s]", ""))
+
+#Remove stopwords and the created previously vectors of terms 
+char.tk <- char.tk %>% 
+  tokens_tolower() %>%
+  tokens_remove(stop_words$word) %>%
+  tokens_remove(c(characters_names, words_to_remove)) 
+
+char.tk_lemma <- tokens_replace(char.tk,
+  pattern = hash_lemmas$token,
+  replacement = hash_lemmas$lemma)
+
+## Compute the DTM
+char.dfm <- dfm(char.tk)
+char.dfm_lemma <- dfm(char.tk_lemma)
+
+## Compute the TF-IDF 
+char.tfidf <- dfm_tfidf(char.dfm)  
+char.tfidf_lemma <- dfm_tfidf(char.dfm_lemma)  
+
+
+## Compute the global frequencies
+char.freq <- textstat_frequency(char.dfm)
+char.freq_lemma <- textstat_frequency(char.dfm_lemma)
+
+```
+
+
+### The 10 most frequent words per character => Not working ??
+
+```{r echo=FALSE}
+char.dfm_lemma %>% 
+  tidy() %>% 
+  top_n(10, count) %>% 
+  ggplot(aes(x = term, y = count)) + 
+  geom_bar(stat = "Identity") + 
+  coord_flip() +
+  theme(axis.text.y = element_text(size = 5),
+        axis.ticks.y = element_blank())  + 
+  facet_wrap( ~ character_speech$character_name, ncol = 2) + 
+  ggtitle("Top 10 TF per character")
+```
+
