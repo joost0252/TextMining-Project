@@ -129,7 +129,7 @@ char.sent2 %>%
   labs(x = "Index", y = "Sentiment", title = "Negative-Positive Distribution in all seasons by using afinn lexicon")
 ```
 
-## Total sentiment score
+## Total sentiment score --> Not working ???
 ```{r}
 #install.packages('base64')
 
