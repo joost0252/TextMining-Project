@@ -5,5 +5,5 @@ date: "`r format(Sys.time(), '%d %B, %Y')`"
 output: html_document
 ---
 
-```{r child = c('intro.Rmd', 'data.Rmd', 'eda.Rmd', 'analysis.Rmd', 'concl.Rmd')}
+```{r child = c('intro.Rmd', 'data.Rmd', 'eda.Rmd', 'Sentiment_Season.Rmd', 'Similarities_TopicModelling.Rmd', 'Sentiment_Characters.Rmd', 'ML.Rmd', 'concl.Rmd')}
 ```

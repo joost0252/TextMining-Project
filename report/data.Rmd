@@ -8,11 +8,19 @@ output:
 source("../scripts/setup.R")
 ```
 
-# Webscraping 
+
+```{r}
+options(knitr.table.format = "latex")
+```
+
+# Overview of the data set used. 
+
+## Web-scraping 
+
 The data we are using within this project is coming from the website "Big Bang Theory Transcripts". It is accessible in the following link : 
 [https://bigbangtrans.wordpress.com/](https://bigbangtrans.wordpress.com/series-1-episode-1-pilot-episode/)
 
-Once we webscraped the data, we create a csv file to stock them. Therefore, whenever we want to work with them again, we do not need to webscrap again. We will directly be able to use the file we created. 
+We decided to web-scrap the data and to create csv files to stock them. Indeed, it is easier for us to get the data and have it locally on our files so that whenever we want to work with them again, we do not need to web-scrap again. We will directly be able to use the files we created. 
 
 ```{r include=FALSE}
 ## DO NOT UN-COMMENT THE CODE UNLESS THERE ARE ANY WEBSCRAPING MODIFICATION TO DO
@@ -213,14 +221,20 @@ Once we webscraped the data, we create a csv file to stock them. Therefore, when
 ```
 
 
-# Download created data file 
-We see that our data set has 231 rows and 3 columns:
+## Description of the data sets we created.  
 
--   *document* : represent the index and tells us which document it is.
--   *title* : contains the title of the script. It tells us the series and episode number
--   *script* : contains the whole script for each corresponding episode. Note that the end-line symbol is '\\'. 
+We crated many different files as we want to make several analysis. 
 
-```{r echo=FALSE}
+### "series_scripts.csv"
+The first csv file is called "series_scripts.csv". It is available in the "data" folder of our project. This data set contains 231 rows and 3 columns:
+
+- Each row represent the script of one episode. In this series of 10 seasons, there is a total of 231 episodes. 
+- The column *document* : represent the index and tells us which document it is. The information are in character class. 
+- The column *title* : contains the title of the script. It tells us the series and episode number. The information are in character class. 
+- The column *script* : contains the whole script for each corresponding episode. Note that we decided to use the symbol '$\\$' for the end-line. This indeed is helpful so that we manage to put the whole script in one cell. The information are in character class. 
+
+
+```{r echo=FALSE, include=FALSE}
 data_scripts <- read.csv("../data/series_scripts.csv")
 
 summary(data_scripts)%>%
@@ -229,20 +243,26 @@ summary(data_scripts)%>%
 ```
 
 
-Here is a glimpse on how the data set looks like : 
+There is a glimpse of the first row, to have an idea of how the data set looks like in the Annexe 1.  
 
-```{r echo=FALSE }
+```{r chunck_annexe1, echo=FALSE }
 data_scripts[1:1, ] %>%
-  kbl(caption = "The 1 first row of the data set") %>%
+  kbl(caption = "The 1 first row of the data set *data scripts.csv* ") %>%
   kable_classic(full_width = T, html_font = "Cambria", font_size = 7) %>%
   kable_styling(latex_options = "HOLD_position")
 ```
 
 
-# Aggregate the data by season 
-We realise that the analysis per episode can fast become tedious and less meaningful, we decide to aggregate the episodes by season. This way we get all the scripts of each season's episode on one concatenated string. 
+### "season_scripts.csv"
 
-```{r echo=FALSE}
+We created a second csv file named "season_scripts.csv". Indeed, we quickly realized that the analysis per episode would fast become tedious and less meaningful. Therefore, we decided to aggregate the episodes by season. This way we get all the scripts of each season's episode on one concatenated string.
+
+This data set contains 10 rows, each row representing one season and 2 columns: 
+
+- The column *season* : indicate the season number.
+- The column *agg_script* : contains all the aggregated scripts per season. It means that there is the script of each episode of one season within one cell of the dataframe. 
+
+```{r echo=FALSE, include=FALSE}
 ### Analysis by season and not by episode, should we make an average ?)
 # Add a row indicating the season number
 data_scripts$season <- c(
@@ -258,20 +278,42 @@ data_scripts$season <- c(
   10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10)
 ```
 
-```{r echo=FALSE}
+```{r echo=FALSE, include=FALSE}
 season_scripts <- aggregate(data_scripts$script, list(data_scripts$season),
                             paste, collapse="")
 names(season_scripts) <- c("season", "agg_script")
 ```
 
-```{r echo=FALSE}
+```{r echo=FALSE, include=FALSE}
 write.csv(season_scripts, "../data/season_scripts.csv", row.names = FALSE)
 ```
 
 
-# Tidy the "character_speech" data to have the column and information as we want 
+Since the table is quite long and even one row is very long to output, we did not add an annex of the data frame output. We will recommend you to directly go on the csv file if an overview of the data set is needed.
 
-```{r}
+```{r echo=FALSE, include=FALSE}
+season_scripts[1:1, ] %>%
+  kbl(caption = "The 1 first row of the data set *season scripts.csv* ") %>%
+  kable_classic(full_width = T, html_font = "Cambria", font_size = 7) %>%
+  kable_styling(latex_options = "HOLD_position")
+```
+
+
+
+### The various files 'character_speech'
+We created 10 other files based on the web-scraping. Indeed, we decided to have one file per season because we wanted to have one row new row each time a character is speaking. 
+
+It means that each file has a different length depending on how many time there is a change of interlocutor. However, each file has the following column structured: 
+
+- One column *season* : indicate the season number the script line is referring to. 
+- One column *main_character_script* : is the whole script line with the name of the person speaking 
+- One column *character_name* : contains the name of the person speaking the line 
+- One column *character_scripts* : contains the script line of the interlocutor
+
+Then we combined all these rows to have one main file named 'character_speech.csv'. A glimps of the two first row is available in the Annexe 2. 
+
+
+```{r echo=TRUE,include=FALSE}
 ## re-import the data
 character_speech_1 <- read.csv("../data/character_speech_1.csv")
 character_speech_2 <- read.csv("../data/character_speech_2.csv")
@@ -361,7 +403,12 @@ write.csv(character_speech , "../data/character_speech.csv", row.names = FALSE)
 ```
 
 
-
+```{r chunck_annexe2, echo=FALSE}
+character_speech[1:2, ] %>%
+  kbl(caption = "The 2 first row of the data set *character speech.csv* ") %>%
+  kable_classic(full_width = T, html_font = "Cambria", font_size = 7) %>%
+  kable_styling(latex_options = "HOLD_position")
+```
 
 
 
