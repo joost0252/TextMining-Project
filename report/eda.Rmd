@@ -1,7 +1,7 @@
 ---
 output:
-  html_document: default
   pdf_document: default
+  html_document: default
 ---
 ```{r, echo = FALSE, message = FALSE, warning = FALSE, include=FALSE}
 source("../scripts/setup.R")
@@ -188,6 +188,11 @@ season.dfm_lemma %>% textstat_lexdiv() %>%
              TTR)) + 
   geom_bar(stat = "identity") + 
   xlab("Seasons") + 
+  scale_x_discrete(labels=c("text1" = "season1", "text2" = "season2",
+                            "text3" = "season3", "text4" = "season4", 
+                            "text5" = "season5", "text6" = "season6",
+                            "text7" = "season7", "text8" = "season8",
+                            "text9" = "season9", "text10" = "season10")) +
   ggtitle("Plot of the 10 top Token-Type-Ratio") 
 ```
 
@@ -267,9 +272,9 @@ plot(network,
 As with the season data we decided to make a tokenization and to do some pre-process cleaning of the data. Indeed, we removed all the numbers, punctuation, symbols, separators, stopwords, the same vector containing the characters' names and the vector containing the words we judged not insightful for our analysis. Then we conducted a lemmatisation.
 
 ```{r echo=FALSE}
-#Aggregation of the script per person 
-agg_tbl <- character_speech %>% 
-  group_by(character_name) %>% 
+#Aggregation of the script per person so that we can use facet_wrap
+agg_tbl <- character_speech %>%
+  group_by(character_name) %>%
   summarise(character_scripts = paste(character_scripts, collapse = ","))
 
 
@@ -317,20 +322,99 @@ char.freq_lemma <- textstat_frequency(char.dfm_lemma)
 ```
 
 
-### The 10 most frequent words per character => Not working ??
+### The 10 most frequent words per character 
+
+We show here the most used words per character. We see that leonard often uses the word _'love'_ and Penny often uses the word _'fine'_. Our first idea could be that Leonard is a very positive person, if the word _'love'_ is often pronounced by him.
 
 ```{r echo=FALSE}
 
-char.dfm%>% 
-  tidy() %>% 
-  top_n(10, count) %>% 
-  ggplot(aes(x = term, y = count)) + 
-  geom_bar(stat = "Identity") + 
+char.dfm_to_plot <- char.dfm_lemma %>%
+  textstat_frequency(n = 10,  force = TRUE)
+
+
+char_dfm_plot <- ggplot(data = char.dfm_to_plot,
+                          aes(x = factor(nrow(char.dfm_to_plot):1),
+                          y = frequency)) +
+  geom_bar(stat = "Identity") +
+  facet_wrap(~agg_tbl$character_name) +
+  ggtitle("Top 10 TF per character") +
   coord_flip() +
-  theme(axis.text.y = element_text(size = 10),
-        axis.ticks.y = element_blank())+
-  facet_wrap( agg_tbl$character_name, ncol = 2) + 
-  ggtitle("Top 10 TF per character")
+  scale_x_discrete(breaks = factor(nrow(char.dfm_to_plot):1),
+                   labels = char.dfm_to_plot$feature) +
+  labs(x = NULL, y = "term-frequency")
+
+char_dfm_plot
+
+
+#char.dfm_df <- convert(char.dfm, to = "data.frame")
 
 ```
+
+
+### The TF-IDF per character
+
+Next we want to have an idea of what word is specific to which character. Therefore we plot the 10 most specific terms per character. 
+Interestingly, the terms are very similar, but the allocation to the character is slightly different. From this plot, it seems that the word _'remarkable'_ are quite specific to the character Howard. While the terms _'lord'_ and _'beverage'_ are quite specific to Leonard. Maybe Penny has a tick word which is _'hee'_, as it is quite very specific to her. 
+
+```{r echo=FALSE}
+
+char.tfidf_to_plot <- char.tfidf_lemma %>%
+  textstat_frequency(n = 10,  force = TRUE)
+
+# plot TF-IDF per character
+char_tfidf_plot <- ggplot(data = char.tfidf_to_plot,
+                          aes(x = factor(nrow(char.tfidf_to_plot ):1),
+                          y = frequency)) +
+  geom_bar(stat = "Identity") +
+  facet_wrap(~agg_tbl$character_name) +
+  ggtitle("Top 10 TF-IDF per character") +
+  coord_flip() +
+  scale_x_discrete(breaks = factor(nrow(char.tfidf_to_plot ):1),
+                   labels = char.tfidf_to_plot$feature) +
+  labs(x = NULL, y = "tf-idf")
+
+char_tfidf_plot
+```
+
+
+### Representation of the term frequencies 
+
+This plot allows us to confirm our first insight.  Again, we have alreasy seen previously in the season analysis that terms such as _'time'_, _'guy'_ and _'talk'_ are very frequent throughout the whole seasons and here they are present throughout each character so they are not specific to anyone. On the contrary, we see words such as _'hee'_ and _'remarkable'_ are very specific to a certain character.
+
+
+```{r echo=FALSE}
+char.freq_lemma %>% 
+  ggplot(aes(x=log10(docfreq),
+             y=log10(frequency))) + 
+  geom_text(aes(label=feature),
+            position=position_jitter(),
+            size=3) + 
+  xlab("Character log-frequency") + 
+  ylab("log-frequency") + 
+  ggtitle("Representation of the frequencies against the frequencies")
+```
+
+
+### Lexical diversity 
+We compute the lexical diversity of each character. It seems that Raj has the most diverse lexical with a Token-Type-Ratio of a bit mit more than 0.3. Indeed, in the series, he sometimes even speak in Hindi. Surprisingly, Sheldon has the less diverse vocabulary with a TTR of less 0.25, we were expecting more since he seemed to be the most well-known character of the series.
+
+
+```{r echo=FALSE, include=FALSE}
+char.dfm_lemma %>% textstat_lexdiv() 
+```
+
+```{r echo=FALSE}
+char.dfm_lemma %>% textstat_lexdiv() %>%
+  arrange(desc(TTR)) %>%
+  ggplot(aes(reorder(document, -TTR),
+             TTR)) + 
+  geom_bar(stat = "identity") + 
+  xlab("Characters") + 
+  scale_x_discrete(labels=c("text1" = "Howard", "text2" = "Leonard",
+                            "text3" = "Penny", "text4" = "Raj", 
+                            "text5" = "Sheldon")) +
+  ggtitle("Plot of the 10 top Token-Type-Ratio of the characters") 
+```
+
+For the EDA of the character, we did not judge relevant to perform a co-occurrence analysis as the script is the same regardless if it is separated per season or per characters. 
 
