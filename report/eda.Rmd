@@ -6,7 +6,7 @@ output:
 ```{r, echo = FALSE, message = FALSE, warning = FALSE}
 source("../scripts/setup.R")
 ```
-
+### Part 2 : Exploratory Data Analysis (EDA)
 
 ```{r echo=FALSE}
 data_scripts <- read.csv("../data/series_scripts.csv")
