@@ -13,21 +13,18 @@ source("../scripts/setup.R")
 In this part, we want to compare the similarities of the scripts between the season. We decided to use the 3 similarities measure to compute the similarity matrix: Jaccard similarity, Cosine distance, and Euclidean distance. 
 
 ```{r echo=FALSE}
-season.dfm <- dfm(season.tk)
-season.tfidf <- dfm_tfidf(season.dfm)
-
 season.jac <- textstat_simil(
-  season.tfidf,
+  season.tfidf_lemma,
   method = "jaccard",
   margin = "documents")
 
 season.cos <- textstat_simil(
-  season.tfidf,
+  season.tfidf_lemma,
   method = "cosine",
   margin = "documents")
 
 season.euc <- textstat_dist(
-  season.tfidf,
+  season.tfidf_lemma,
   method = "euclidean",
   margin = "documents")
 ```
@@ -109,12 +106,12 @@ data.frame(
 ## Similarities between words
 We use the cosine distance measure to determine the similarities between words. 
 ```{r}
-season.feat <- textstat_frequency(season.dfm) %>%
+season.feat <- textstat_frequency(season.dfm_lemma) %>%
   filter(rank <= 50) 
 season.feat$feature
 
 season.euc <- textstat_simil(
-  season.dfm[, season.feat$feature],
+  season.dfm_lemma[, season.feat$feature],
   method = "cosine",
   margin = "feature")
 
@@ -170,8 +167,7 @@ ggplot(data = season.fcm.mat,
   ylab("")
 ```
 
-## Cluster dendrogram
-# Problem: we have all the stop word within the cluster 
+## Cluster dendrogram 
 ```{r}
 season.inv_occ <- 
   280 - as.matrix(
@@ -193,10 +189,10 @@ head(season.lsa$features)
 ```
 
 ```{r}
-season.freq <- ntoken(season.tk) # row-sum of the DTM. Are you convinced it is the document length?
-data.frame(season.freq,
+season.freq_lemma <- ntoken(season.tk) # row-sum of the DTM. Are you convinced it is the document length?
+data.frame(season.freq_lemma,
            dim1 = season.lsa$docs[, 1]) %>% 
-  ggplot(aes(season.freq, dim1)) + 
+  ggplot(aes(season.freq_lemma, dim1)) + 
   geom_point() + 
   xlab("Number of tokens") + 
   ylab("LSA dim. 1")
