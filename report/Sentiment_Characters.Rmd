@@ -9,57 +9,7 @@ source("../scripts/setup.R")
 ```
 ## Sentiment Analysis by Characters 
 
-```{r}
-char.cp <- corpus(character_speech$character_scripts)
-
-char.tk <- tokens(
-  char.cp,
-  remove_numbers = TRUE, 
-  remove_punct = TRUE,
-  remove_symbols = TRUE,
-  remove_separators = TRUE)
-
-
-#Remove possessive apostrophe ('s), such that words as Leonard's are not skipped in the next part of the code
-char.tk <- tokens_replace(
-    char.tk, 
-    types(char.tk),
-    stringi::stri_replace_all_regex(types(char.tk), "['\\p{Pf}][s]", ""))
-
-
-words_to_remove <- c("scene", "series", "episode","pilot", "yeah","uh","hey",
-                    "gonna","knock","dr","apartment","um","wanna","door","Time shift","corridor")
-
-characters_names <- c("sheldon","leonard","penny","howard","raj", "amy", 
-                      "bernadette", "emily", "cooper", "stuart", "lucy",
-                      "arthur","rostenkowski","bert","mike","james","lorvis",
-                      "dan","dr","beverly","isabella","williams","lesley",
-                      "missy","dave","claire","meemaw", "mary","leslie","lalita",
-                      "dennis","alfred", "susan", "ramona", "christie","gallo",
-                      "zack", "wil", "kurt","toby", "amelia","nathan",
-                      "beverley","haley","mandy","adam","barry","mark","rebecca","randall",
-                      "colonel","priya","Elizabeth","Katee","halley","alice","stan","valentine",
-                      "jimmy","wyatt","kim","koothrapalli")
-
-char.tk <- char.tk %>% 
-  tokens_tolower() %>%
-  tokens_remove(stop_words$word) %>%
-  tokens_remove(c(characters_names, words_to_remove)) 
-
-char.tk <- tokens_replace(char.tk,
-  pattern = hash_lemmas$token,
-  replacement = hash_lemmas$lemma)
-
-## Compute the DTM
-char.dfm <- dfm(char.tk)
-
-## Compute the TF-IDF 
-char.tfidf <- dfm_tfidf(char.dfm)  
-
-## Compute the global frequencies
-char.freq <- textstat_frequency(char.dfm)
-```
-
+# Top 10 TF-IDF by character
 ```{r echo=FALSE}
 char.dfm %>% 
   tidy() %>% 
@@ -125,27 +75,6 @@ char.dfm %>% textstat_lexdiv() %>%
   geom_bar(stat = "identity") + 
   xlab("character_name") + 
   ggtitle("Plot of the 10 top Token-Type-Ratio") 
-```
-
-
-## Sentiments of each characters by using nrc lexicon 
-
-```{r}
-char.sent %>% 
-  group_by(character_name) %>% 
-  ggplot(aes(sentiment, fill = character_name)) +
-  geom_bar(show.legend = FALSE) +
-  facet_wrap(character_name~.) +
-  theme_dark() +
-  theme(
-    strip.text = element_text(face = "bold"),
-    plot.title = element_text(hjust = 0.5, size = 20, face = "bold")
-  ) +
-  labs(fill = NULL, 
-       x = NULL, 
-       y = "Sentiment Frequency", 
-       title = "Sentiments of each characters by using nrc lexicon") +
-  scale_fill_manual(values = c( "chartreuse1", "#FABE0F","cyan3", "darkorchid3", "palevioletred1"))
 ```
 
 ## Negative-Positive Ratio in all seasons by using bing lexicon
