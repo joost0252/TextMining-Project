@@ -175,7 +175,7 @@ char.sent2 %>%
     legend.position = "bottom",
     plot.title = element_text(hjust = 0.5, size = 20, face = "bold")
     )+
-  scale_fill_manual(values = c("#EA181E", "#00B4E8"))+
+  scale_fill_manual(values = c("#EA181E", "chartreuse3"))+
   scale_x_continuous(breaks = scales::pretty_breaks(n = 10))+
   labs(y = NULL,  x = "Season", fill = NULL, title = "Negative-Positive Ratio in all seasons by using bing lexicon")
 ```
