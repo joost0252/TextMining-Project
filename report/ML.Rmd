@@ -12,12 +12,15 @@ source("../scripts/setup.R")
 
 ### Supervised Learning 
 
+
 #Features: DTM and LSA
+
+First we create the corpus from the data set "character_speech". Within this data set every line is coupled to the characters (Howard, Leonard, Penny, Raj, and Sheldon). Then we tokenize the corpus and remove punctuation, symbols, stop words, and the predetermined words in 'words_to_remove'.The variable y is the character name (Howard, Leonard, Penny, Raj, and Sheldon) and is the variable we want to predict. After this we create a DFM from the tokenized corpus of the characters and their corresponding speech.
+
 ```{r}
-# Create the corpus from the dataset character_speech. Within this dataset every line is coupled to the characters (Howard, Leonard, Penny, Raj, and Sheldon).
 character.cp <- corpus(character_speech, text_field = "character_scripts")
 
-#Tokenize the corpus and remove punctuation, symbols, stopwords, and the predetermined words in 'words_to_remove'.
+
 character.tok <- tokens(character.cp, 
                         remove_punct = TRUE, 
                         remove_symbols = TRUE)
@@ -25,9 +28,9 @@ character.tok <- tokens(character.cp,
 character.tok <- tokens_tolower(character.tok) %>%
   tokens_wordstem() %>% 
   tokens_remove(stopwords("english")) %>%
-  filter(!word %in% words_to_remove)
+  tokens_remove(words_to_remove)
 
-# The variable to predict is the character name (Howard, Leonard, Penny, Raj, and Sheldon):
+# :
 y <- factor(docvars(character.tok, "character_name"))
 
 #Transform the tokenized corpus into dfm:
@@ -37,13 +40,14 @@ dim(character.dfm)
 
 ```{r}
 #Using a LSA to reduce dimensions. We first start with 25 dimensions, but we will later decide which will give the best results.
-character.lsa <- textmodel_lsa(character.dfm, nd=25)
-head(character.lsa$docs)
+#character.lsa <- textmodel_lsa(character.dfm, nd=1200)
+#head(character.lsa$docs)
 
 ```
+In the following code we train the classifier. First we combine the target and LSA together in a data frame. We then take a sample of 80% of this data frame as the train set. The other 20% will be used as the test set. We then train the classifier with the ranger package. We then predict and show the results in a confusion matrix of the caret package. It can be noted that the base rate (here called "No Information Rate") is 0.2946. With an accuracy of 0.3572, it can be concluded that it does better than it would by random sampling. In the next couple of paragraphs we look at further improving the model and its accuracy. 
 
 ```{r}
-#In the following code we train the classifier. First we combine the target and lsa together in a dataframe. We then take a sample of 80% of this dataframe as the train set. The other 20% will be used as the test set. We then train the classifier with the ranger package. We then predict and show the results in a confusion matrix of the caret package.   
+ 
 character.df <- data.frame(Class=y, X=character.lsa$docs)
 index.tr <- sample(size=round(0.8*length(y)), x=c(1:length(y)), replace=FALSE)
 df.tr <- character.df[index.tr,]
@@ -51,19 +55,24 @@ df.te <- character.df[-index.tr,]
 
 character.fit <- ranger(Class ~ ., 
                      data = df.tr)
-pred.te <- predict(character.fit, df.te)
+pred.te <- predict(character.fit, df.te, seed = 1234)
 
 confusionMatrix(data=pred.te$predictions, reference = df.te$Class) #This gives the confusion matrix, precision, specifity, and sensitivity
 ```
 
 
-# Improving the features; Takes really long!
+# Improving the features:
+
+First, we transform the DFM to LSA and we try to see for which number of dimensions the model gives the highest accuracy. A maximum number of 1000 dimensions is chosen, as with these dimensions the run time is already very long and the accuracy does not seem to increase significantly after 1000 dimensions.
+
+The different accuracies for the number of dimensions 2 ,5, 25, 50, 100, 500, 1000 are respectively 0.2568748, 0.3073439, 0.3324167, 0.3421223, 0.3472986, 0.3532837, and 0.3608864. Due to the long run time and the fact that the accuracy curve is flattening, we choose a number of dimensions of 100, as this has a relative high accuracy, while taken the run time into account. We thus choose for a number of 100 dimensions (nd = 500) for the DFM and LSA.
 ```{r}
 
 # Now we test which number of dimension should be chosen. 
 nd.vec <- c(2,5,25,50,100, 500, 1000)
-acc.vec <- numeric(length(nd.vec))
+accdfm.vec <- numeric(length(nd.vec))
 for (j in 1:length(nd.vec)){
+  set.seed(1234)
   character.lsa <- textmodel_lsa(character.dfm, nd=nd.vec[j])
   character.df <- data.frame(Class=y, X=character.lsa$docs)
   df.tr <- character.df[index.tr,]
@@ -71,37 +80,26 @@ for (j in 1:length(nd.vec)){
   
   character.fit <- ranger(Class ~ ., 
                        data = df.tr)
-  pred.te <- predict(character.fit, df.te)
-  acc.vec[j] <- confusionMatrix(data=pred.te$predictions, reference = df.te$Class)$overall[1]
+  pred.te <- predict(character.fit, df.te, seed = 1234)
+  accdfm.vec[j] <- confusionMatrix(data=pred.te$predictions, reference = df.te$Class)$overall[1]
 }
 
-acc.vec
-# The different accuracies for number of dimensions 2 ,5, 25, 50, 100, 500, 1000 are respectively 0.2706244, 0.3011970, 0.3422841, 0.3447104, 0.3511808, 0.3612100, 0.3605629. Due to the long run time and the fact the curve is flattening, we choose a number of dimensions of 500, as this has the highest accuracy given.
-# Conclusion: Choose nd = 500
-plot(acc.vec ~ nd.vec, type='b')
+print(accdfm.vec)
+# 
+plot(accdfm.vec ~ nd.vec, type='b')
 
 ```
 
+Second, we now make the choice to try to further improve the model by first transforming the DFM into a TF-IDF. As we did in the paragraph above, we again try to figure out for which number of dimensions the model gives the best accuracy. The resulting accuracies are 0.2622129, 0.2887415, 0.3442252, 0.3487544, 0.3529602, 0.3539308, and 0.3560336 for respectively the number of dimension 2, 5, 25, 50, 100, 500, 1000.
 
-```{r}
-## Comparing the dfm to the tf-idf: 
-character.tfidf <- dfm_tfidf(character.dfm)
-character.lsa <- textmodel_lsa(character.tfidf, nd=500)
-
-df <- data.frame(Class=y, X=character.lsa$docs)
-df.tr <- character.df[index.tr,]
-df.te <- character.df[-index.tr,]
-character.fit <- ranger(Class ~ ., 
-                     data = df.tr)
-pred.te <- predict(character.fit, df.te)
-confusionMatrix(data=pred.te$predictions, reference = df.te$Class)
-```
+After running several scenarios with different dimensions, we again choose to use 100 dimensions, as more dimensions will increase the run time immensely, while the improvement on the accuracy is minimal. Furthermore, we choose to use the tf-idf, as this outperforms the dfm by a small margin.
 ```{r}
 
 # Now we test which number of dimension should be chosen comparing it with the tf-idf. 
 nd.vec <- c(2,5,25,50,100, 500, 1000)
 acc.vec <- numeric(length(nd.vec))
 for (j in 1:length(nd.vec)){
+  set.seed(1234)
   character.tfidf <- dfm_tfidf(character.dfm)
   character.lsa <- textmodel_lsa(character.tfidf, nd=nd.vec[j])
   character.df <- data.frame(Class=y, X=character.lsa$docs)
@@ -110,19 +108,35 @@ for (j in 1:length(nd.vec)){
   
   character.fit <- ranger(Class ~ ., 
                        data = df.tr)
-  pred.te <- predict(character.fit, df.te)
+  pred.te <- predict(character.fit, df.te, seed = 1234)
   acc.vec[j] <- confusionMatrix(data=pred.te$predictions, reference = df.te$Class)$overall[1]
 }
 
-acc.vec
-# For the dfm the different accuracies for number of dimensions 2 ,5, 25, 50, 100, 500, 1000 were respectively 0.2706244, 0.3011970, 0.3422841, 0.3447104, 0.3511808, 0.3612100, 0.3605629. These are now 0.2712714 0.2994177 0.3571660 0.3602394 0.3600776 0.3600776 0.3586218. Now it turns out the best number of dimensions is 50, both for tf-idf as compared to the dfm.
+print(acc.vec)
 
-# Conclusion: Choose nd = 50
+
 plot(acc.vec ~ nd.vec, type='b')
 
 ```
 
+We now rerun the model with the chosen dimensions, so we can further improve on the accuracy with word embedding
+```{r}
+## Comparing the dfm to the tf-idf: 
+character.tfidf <- dfm_tfidf(character.dfm)
+character.lsa <- textmodel_lsa(character.tfidf, nd=100)
+
+df <- data.frame(Class=y, X=character.lsa$docs)
+df.tr <- character.df[index.tr,]
+df.te <- character.df[-index.tr,]
+character.fit <- ranger(Class ~ ., 
+                     data = df.tr)
+pred.te <- predict(character.fit, df.te, seed = 1234)
+confusionMatrix(data=pred.te$predictions, reference = df.te$Class)
+```
+
 ## Word Embedding with glove
+
+We choose 100 as number of iterations, as the loss does decrease, but the run time becomes to extensive, compared to the improvement. So we make the arbitrary decision to keep the number of iterations at 100. Increasing the rank from 25 to 50 (with 371 iterations) decreases the loss from 0.600 to 0.0339. Using a rank of 500 gives a loss of zero. Interesting to see however is that the accuracy decreases for this value for the rank. Increasing the window from 5 to 10 causes a increase in the loss. The same goes when we increase it to 6, albeit a small increase in loss.
 ```{r}
 character.fcm <- fcm(character.tok, 
            context = "window",
@@ -130,48 +144,42 @@ character.fcm <- fcm(character.tok,
            window=1,
            weights = 1/(1:1),
            tri = FALSE)
-glove <- GlobalVectors$new(rank = 50, x_max = 1)
+glove <- GlobalVectors$new(rank = 100, x_max = 1)
 
-word_vectors_main <- glove$fit_transform(character.fcm, n_iter = 150) # We choose 150 as number of iterations, as the loss does decrease, but the runtime becomes to extensive, compared to the improvement. So we make the arbitrary decision to keep the number of iterations at 150.
-# Increasing the rank from 25 to 50 (with 371 iterations) decreases the loss from 0.600 to 0.0339.
-
-# Increasing the window from 5 to 10 causes a increase in the loss. The same goes when we increase it to 6, albeit a small increase in loss.
-# 
-
+word_vectors_main <- glove$fit_transform(character.fcm, n_iter = 100) 
 ```
 
-The script works. How does this influence the results?
+We see that with the use of GloVe we can improve the accuracy of the model, as it returns an accuracy of 0.3571 for a rank of 50. If we increase the rank to 100, this will improve the accuracy even further to an accuracy of 0.3633. Again, due to excessive run time we choose not to increase the rank any further.
 ```{r}
 
 word_vectors_context <- glove$components
 character.glove <- word_vectors_main + t(word_vectors_context)
 
 ndoc <- length(character.tok) # number of documents
-centers <- matrix(nr=ndoc, nc=50) # nc should be equal to the rank of glove
+centers <- matrix(nr=ndoc, nc=100) 
 for (i in 1:ndoc){
   words_in_i <- character.glove[character.tok[[i]],, drop=FALSE]
   centers[i,] <- apply(words_in_i,2,mean)
 }
 row.names(centers) <- names(character.tok)
 
-#any(is.na(words_in_i))
-
 character.df <- data.frame(Class=y, X=centers)
 df.tr <- character.df[index.tr,]
 df.te <- character.df[-index.tr,]
 character.fit <- ranger(Class ~ ., 
                      data = df.tr[complete.cases(df.tr),])
-pred.te <- predict(character.fit, df.te[complete.cases(df.te),])
+pred.te <- predict(character.fit, df.te[complete.cases(df.te),], seed = 1234)
 confusionMatrix(data=pred.te$predictions, reference = df.te[complete.cases(df.te),]$Class)
+
+
 
 ```
 
 
-In this case we add the length of the sentences, by using log (which they did in the example of week 8) it decreases the accuracy.
-Without the accuracy is a bit improved.
+In this case we add the length of the sentences, it decreases the accuracy to 0.3585. This can be explained 
 ```{r}
 character.tfidf <- dfm_tfidf(character.dfm)
-character.lsa <- textmodel_lsa(character.tfidf, nd=25)
+character.lsa <- textmodel_lsa(character.tfidf, nd=100)
 
 character.df <- data.frame(Class=y, X=character.lsa$docs)
 character.df <- cbind(character.df,
@@ -181,12 +189,14 @@ df.te <- character.df[-index.tr,]
 character.fit <- ranger(Class ~ ., 
                      data = df.tr[complete.cases(df.tr),], 
                      importance = "impurity")
-pred.te <- predict(character.fit, df.te[complete.cases(df.te),])
+pred.te <- predict(character.fit, df.te[complete.cases(df.te),], seed = 1234)
 confusionMatrix(data=pred.te$predictions, reference = df.te[complete.cases(df.te),]$Class)
+
+# The length of the of the sentences of the characters is not a good predictor and decreases the accuracy.
 ```
 
 
-Further improvement based on adding the centroids (and the extra feature from above is used). This results gives the highest accuracy so far.
+Adding the centers will increase the accuracy, namely to 0.368. Thus, we get further improvement based on adding the centroids (and the extra feature length is also added, I have to remove this one.). This results gives the highest accuracy.
 ```{r}
 
 character2.df <- cbind(character.df, Cent=centers) ## add the centroid features to the tf-idf-lsa, retweet, length features.
@@ -195,8 +205,10 @@ df.te <- character2.df[-index.tr,]
 character.fit <- ranger(Class ~ ., 
                      data = df.tr[complete.cases(df.tr),], 
                      importance = "impurity")
-pred.te <- predict(character.fit, df.te[complete.cases(df.te),])
+pred.te <- predict(character.fit, df.te[complete.cases(df.te),], seed = 1234)
 confusionMatrix(data=pred.te$predictions, reference = df.te[complete.cases(df.te),]$Class)
+
+# 
 
 ```
 
