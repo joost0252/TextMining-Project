@@ -4,15 +4,14 @@ output:
   html_document: default
 ---
 
-```{r, echo = FALSE, message = FALSE,warning=F}
+```{r, echo = FALSE, message = FALSE,warning=F, include=FALSE}
 source("../scripts/setup.R")
 ```
 
 
-```{r}
+```{r, echo=FALSE, include=FALSE}
 options(knitr.table.format = "latex")
 ```
-### Part 1 : Data preparation
 
 # Overview of the data set used. 
 
@@ -244,9 +243,9 @@ summary(data_scripts)%>%
 ```
 
 
-There is a glimpse of the first row, to have an idea of how the data set looks like in the Annexe 1.  
+We do not show how the data look like in here, simply because the *scripts* column contains a lot of text and if would take way too much place in the report. You are invited to open the csv files if you want to get an overview. 
 
-```{r chunck_annexe1, echo=FALSE }
+```{r chunck_annexe1, echo=FALSE, include=FALSE}
 data_scripts[1:1, ] %>%
   kbl(caption = "The 1 first row of the data set *data scripts.csv* ") %>%
   kable_classic(full_width = T, html_font = "Cambria", font_size = 7) %>%
@@ -311,7 +310,7 @@ It means that each file has a different length depending on how many time there 
 - One column *character_name* : contains the name of the person speaking the line 
 - One column *character_scripts* : contains the script line of the interlocutor
 
-Then we combined all these rows to have one main file named 'character_speech.csv'. A glimps of the two first row is available in the Annexe 2. 
+Then we combined all these rows to have one main file named 'character_speech.csv'. The two first rows are printed below so you can have an overview of this dataset.
 
 
 ```{r echo=TRUE,include=FALSE}

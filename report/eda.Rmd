@@ -124,7 +124,7 @@ textplot_wordcloud(season.dfm_lemma)
 
 ### The 10 most frequent words per season
 
-Then, we plot the 10 most frequent words per season and observe that it did not bring much information. Therefore we did not print the graph here, but it is available in the Annex 3. Indeed, it is not really relevant because _'time'_ and _'guy'_ are always predominant through all the corpus and for each season, the plot was telling us the same thing. It looks logical to have them appearing individually.
+Then, we plot the 10 most frequent words per season and observe that it did not bring much information. Therefore we did not show the output of the graph here. Indeed, it is not really relevant because _'time'_ and _'guy'_ are always predominant through all the corpus and for each season, the plot was telling us the same thing. It looks logical to have them appearing individually.
 
 ```{r chunck_annexe3, echo=FALSE}
 season.dfm %>% 
