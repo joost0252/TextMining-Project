@@ -267,8 +267,14 @@ plot(network,
 As with the season data we decided to make a tokenization and to do some pre-process cleaning of the data. Indeed, we removed all the numbers, punctuation, symbols, separators, stopwords, the same vector containing the characters' names and the vector containing the words we judged not insightful for our analysis. Then we conducted a lemmatisation.
 
 ```{r echo=FALSE}
+#Aggregation of the script per person 
+agg_tbl <- character_speech %>% 
+  group_by(character_name) %>% 
+  summarise(character_scripts = paste(character_scripts, collapse = ","))
+
+
 #Define the corpus 
-char.cp <- corpus(character_speech$character_scripts)
+char.cp <- corpus(agg_tbl$character_scripts)
 
 #Tokenization 
 char.tk <- tokens(
@@ -314,15 +320,17 @@ char.freq_lemma <- textstat_frequency(char.dfm_lemma)
 ### The 10 most frequent words per character => Not working ??
 
 ```{r echo=FALSE}
-char.dfm_lemma %>% 
+
+char.dfm%>% 
   tidy() %>% 
   top_n(10, count) %>% 
   ggplot(aes(x = term, y = count)) + 
   geom_bar(stat = "Identity") + 
   coord_flip() +
-  theme(axis.text.y = element_text(size = 5),
-        axis.ticks.y = element_blank())  + 
-  facet_wrap( ~ character_speech$character_name, ncol = 2) + 
+  theme(axis.text.y = element_text(size = 10),
+        axis.ticks.y = element_blank())+
+  facet_wrap( agg_tbl$character_name, ncol = 2) + 
   ggtitle("Top 10 TF per character")
+
 ```
 
