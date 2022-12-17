@@ -8,6 +8,7 @@ output:
 source("../scripts/setup.R")
 ```
 
+# Part 3.3 : Topic modelling 
 
 ## Similarities between season scripts
 In this part, we want to compare the similarities of the scripts between the season. We decided to use the 3 similarities measure to compute the similarity matrix: Jaccard similarity, Cosine distance, and Euclidean distance. 
