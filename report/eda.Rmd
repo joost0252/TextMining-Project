@@ -61,7 +61,7 @@ characters_names <- c("sheldon","leonard","penny","howard","raj", "amy",
                       "zack", "wil", "kurt","toby", "amelia","nathan",
                       "beverley","haley","mandy","adam","barry","mark","rebecca","randall",
                       "colonel","priya","Elizabeth","Katee","halley","alice","stan","valentine",
-                      "jimmy","wyatt","kim","koothrapalli", "koothrappali", "lee", “wolowitz", "bethany")
+                      "jimmy","wyatt","kim","koothrapalli", "koothrappali", "lee", "wolowitz", "bethany")
 
 words_to_remove <- c("scene", "series", "episode","pilot", "yeah","uh","hey",
                     "gonna","knock","dr","apartment","um","wanna","door","Time shift","corridor")
