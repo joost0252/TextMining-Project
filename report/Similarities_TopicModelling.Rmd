@@ -272,6 +272,7 @@ Topic 2 is associated positively to "baby", "feel" and "love" and negatively wit
 # Topic 3
 w.top3
 ```
+Topic 3 is associated positively to "time", "gablehouser" and "enter" and negatively with "ring", "past" and "feel".
 
 ```{r}
 biplot(
@@ -299,7 +300,7 @@ biplot(
 ## LDA using quanteda
 ```{r}
 set.seed(1234) #To create reproducible results
-season.lda <- textmodel_lda(x = season.tf, k = 10)
+season.lda <- textmodel_lda(x = season.tf, k = 5)
 seededlda::terms(season.lda, 5)
 ```
 
@@ -319,7 +320,7 @@ phi.long <- melt(
 
 phi.long %>% 
   group_by(Topic) %>% 
-  top_n(10, Phi) %>% 
+  top_n(5, Phi) %>% 
   ggplot(aes(reorder_within(Term, Phi, Topic), Phi)) + 
   geom_col(show.legend = FALSE) +
   coord_flip() +
@@ -357,10 +358,9 @@ theta.long %>%
 ```{r}
 ## 10 longest documents
 ## ntoken compute the lengths. They are sorted in decreasing order. 
-## We take the 12 first
-n.doc <- 12
+n.doc <- 10
 doc.list <- names(
-  sort(ntoken(season.tk), decreasing = TRUE)[1:n.doc])
+  sort(ntoken(season.tk_lemma), decreasing = TRUE)[1:n.doc])
 doc.list
 
 
@@ -383,6 +383,7 @@ theta.long %>%
 rev(sort(colSums(season.lda$theta)/sum(season.lda$theta)))
 ```
 
+# Not working
 ```{r}
 season.codo <- fcm(
   season.tf, 
