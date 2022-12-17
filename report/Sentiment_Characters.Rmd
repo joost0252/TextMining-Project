@@ -33,14 +33,12 @@ char.sent <-
     get_sentiments("nrc"),
     by = c("word" = "word"))
 
-head(char.sent, 10) %>% 
-  flextable() %>%
-  autofit()
-
+#head(char.sent, 10) %>% 
+  #flextable() %>%
+  #autofit()
 ```
 
 ```{r}
-## Long format
 char.sent %>% 
   group_by(character_name, sentiment) %>% 
   summarize(n = n()) %>%
@@ -53,19 +51,8 @@ char.sent %>%
   facet_wrap(~character_name) + 
   coord_flip()
 ```
+First, we see in this graph that Sheldon seems to be the most 'intense' character. In the sense that he is the one who uses the most words that can be categorized by a feeling. Then we notice an identical pattern in all the characters. Indeed, we have a prevalence of positive words then negative and on the contrary less words related to the feelings 'trust' and 'disgust'.
 
-```{r echo=FALSE}
-char.dfm %>% textstat_lexdiv()
-
-char.dfm %>% textstat_lexdiv() %>%
-  arrange(desc(TTR)) %>%
-  slice(1:10) %>% #plot only the top 10
-  ggplot(aes(reorder(document, -TTR),
-             TTR)) + 
-  geom_bar(stat = "identity") + 
-  xlab("character_name") + 
-  ggtitle("Plot of the 10 top Token-Type-Ratio") 
-```
 
 ## Negative-Positive Ratio in all seasons by using bing lexicon
 ```{r echo=FALSE, include=FALSE}
