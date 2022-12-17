@@ -287,8 +287,8 @@ sentiment_by(season.script.senti)
 sentiment_by(season.script.senti) %>% 
   mutate(Doc = docnames(season.cp)) %>%
   ggplot(aes(x = reorder(Doc, ave_sentiment),
-             y = scale(ave_sentiment))) + 
-  ylab("Scaled Avg sentiment") +
+             y = ave_sentiment)) + 
+  ylab("Avg sentiment") +
   geom_bar(stat = "identity") + 
   coord_flip() + 
   xlab("") 
