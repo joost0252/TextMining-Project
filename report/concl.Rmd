@@ -5,7 +5,15 @@ source("../scripts/setup.R")
 
 
 # Conclusion 
+Given the context of this series, we could have expected a much more scientific vocabulary. But we realized that it fits a lot in the codes of American sitcoms that puts forward the relationships between the characters, the dramas, and the typical subjects that we can expect from people of their age. 
 
+Concerning the characters, Sheldon is the star of the show and this is felt in the analysis. He is always the one who talks the most and is the most intense.
+
+# Limits:
+- Maybe a problems in webscrappinf for season 2 and 6
+
+# Futur work: 
+- 
 
 # Reference 
 
