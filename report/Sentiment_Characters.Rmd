@@ -53,6 +53,7 @@ char.sent %>%
 ```
 First, we see in this graph that Sheldon seems to be the most 'intense' character. In the sense that he is the one who uses the most words that can be categorized by a feeling. Then we notice an identical pattern in all the characters. Indeed, we have a prevalence of positive words then negative and on the contrary less words related to the feelings 'trust' and 'disgust'.
 
+Since in the previous analysis negative and positive feelings predominate, we wanted to try to use another dictionary. This is a General purpose English sentiment lexicon that categorizes words in a binary fashion, either positive or negative.
 
 ## Negative-Positive Ratio in all seasons by using bing lexicon
 ```{r echo=FALSE, include=FALSE}
@@ -85,7 +86,11 @@ char.sent2 %>%
   scale_x_continuous(breaks = scales::pretty_breaks(n = 10))+
   labs(y = NULL,  x = "Season", fill = NULL, title = "Negative-Positive Ratio in all seasons by using bing lexicon")
 ```
+We obtain a surprising result considering our previous findings. Indeed, we notice that the 'negative' represents a major part in all the characters. This is contradictory with the results of the nrc lexicon (why ?). 
+We also notice that Sheldon is the most negative character and Penny the most 'positive' character. This analysis is consistent with our previous results.
+Also, we can imagine that some seasons are more or less pleasant for our characters. For example, Raj seems to have used more 'positive' words in season 9 and Leonard in season 2 while Sheldon uses more negative than positive words in seasons 1, 3 and 7.
 
+# Do we keep this graph ? I personnaly don't think it brings a a higher value in our analysis 
 ```{r}
 char.sent2 %>% 
   group_by(season) %>% 
