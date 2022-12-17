@@ -152,6 +152,7 @@ season.sent2 %>%
   ylab("Mean Sentiment Score") +
   xlab("")
 ```
+From this analysis we can observe that the second half of the show, except for season 7, has a more positive score. We can suppose that the characters tend to become more positive and maybe less sarcastic as the series goes on  
 
 ## Quanteda analysis
 ```{r echo=FALSE}
@@ -213,10 +214,84 @@ ggplot(season.sent1,
   coord_flip()
 ```
 
+
 ## Valence-Shifters analysis
 
 ```{r echo=FALSE, include=FALSE}
 hash_sentiment_jockers_rinker
 hash_valence_shifters
 ```
+
+Valence shifters are words that alter or intensify the meaning of the polarized words and include negators and amplifiers. 
+
+x. Valence shifter
+y. Number key value corresponding to:
+
+Valence Shifter	Value
+Negator	1
+Amplifier (intensifier)	2
+De-amplifier (downtoner)	3
+Adversative Conjunction	4
+
+```{r echo=FALSE, include=FALSE}
+
+sentiment(season_scripts$agg_script)
+sentiment_by(season_scripts$agg_script, by = NULL)
+profanity(season_scripts$agg_script)
+
+
+season_with_pol <- season_scripts %>% 
+  get_sentences() %>% 
+  sentiment() %>% 
+  mutate(polarity_level = ifelse(sentiment < 0.2, "Negative",
+                                 ifelse(sentiment > 0.2, "Positive","Neutral")))
+           
+season_with_pol %>% filter(polarity_level == "Negative") %>% View()
+
+# Look in an html file every script with sentiments appearing  
+#season_scripts$agg_script %>% 
+  #get_sentences() %>% 
+  #sentiment_by() %>% #View()
+  #highlight()
+
+```
+
+```{r echo=FALSE} 
+season_scripts$agg_script %>% 
+  get_sentences() %>% 
+  sentiment_by(by = NULL) %>% #View()
+  ggplot() + geom_density(aes(ave_sentiment))
+```
+We can see with this density graph, the average sentiment on the wole season, with the valence shifters. It tends on average to be superior to 0, the mean around 0.8.
+
+# Valence shifter approach on each season 
+```{r echo=FALSE, include=FALSE}
+season.script.text <- get_sentences(season_scripts)
+season.script.senti <- sentiment(season.script.text) 
+```
+
+```{r echo=FALSE}
+season.script.senti %>% group_by(element_id) %>% 
+  ggplot(aes(x = sentence_id, y = sentiment)) + 
+  geom_line() +  
+  facet_wrap(~ element_id, scale="free_x")
+
+```
+The analysis is possible by going through each sentence. Looking at season 9 for instance, the end of the show looks to be very positive with an increasing trend. The pattern shows that sometimes we have high peaks like in season 4. And sometimes very low peaks but it remains well distributed. Indeed if we take a look at season 10, we have 4 drops in the negative and it looks to appear every 1000 sentences. 
+
+```{r echo=FALSE, include=FALSE}
+sentiment_by(season.script.senti)
+```
+
+```{r echo=FALSE}
+sentiment_by(season.script.senti) %>% 
+  mutate(Doc = docnames(season.cp)) %>%
+  ggplot(aes(x = reorder(Doc, ave_sentiment),
+             y = scale(ave_sentiment))) + 
+  ylab("Scaled Avg sentiment") +
+  geom_bar(stat = "identity") + 
+  coord_flip() + 
+  xlab("") 
+```
+With this barplot, we can once again identify the scaled average sentiment and see that the most positive season is 10 and the least positive season is 2. The main difference with the valence shifter shows that season 10 is way more positive with this analysis compared to the previous one. It shows how important we must consider this aspect. 
 
