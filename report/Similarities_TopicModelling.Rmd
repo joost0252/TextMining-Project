@@ -91,7 +91,7 @@ plot(season.hc)
 season.clust <- cutree(season.hc, k = 3)
 season.clust
 
-season.km <- kmeans(season.tfidf, centers = 3)
+season.km <- kmeans(season.tfidf_lemma, centers = 3)
 season.km$cluster
 
 
@@ -105,12 +105,14 @@ Not surprisingly here, we find the same characteristics for seasons 4, 2 and 6 a
 
 ## Similarities between words
 We use the cosine distance measure to determine the similarities between words. 
+#(Euclidean doesn't work and jaccard is very similar so idk which one to take ? + Not useful)
 ```{r}
+# Cosine
 season.feat <- textstat_frequency(season.dfm_lemma) %>%
   filter(rank <= 50) 
 season.feat$feature
 
-season.euc <- textstat_simil(
+season.cos <- textstat_simil(
   season.dfm_lemma[, season.feat$feature],
   method = "cosine",
   margin = "feature")
@@ -132,6 +134,59 @@ ggplot(data = season.cos.mat, aes(x=Var1, y=Var2, fill=value)) +
   xlab("") + 
   ylab("")
 
+
+# Jaccard
+#season.feat2 <- textstat_frequency(season.dfm_lemma) %>%
+  #filter(rank <= 50) 
+#season.feat$feature
+
+#season.jac <- textstat_simil(
+  #season.dfm_lemma[, season.feat$feature],
+  #method = "jaccard",
+  #margin = "feature")
+
+#season.jac.mat <- melt(as.matrix(season.euc)) # Convert the object to matrix then to data frame 
+
+#ggplot(data = season.jac.mat, aes(x=Var1, y=Var2, fill=value)) +
+  #scale_fill_gradient2(
+    #low = "blue",
+    #high = "red",
+    #mid = "white",
+    #midpoint = 0.5,
+    #limit = c(0, 1),
+    #name = "jaccard") +
+  #geom_tile() + 
+  #theme(
+    #axis.text.x = element_text(angle = 45, hjust = 1, size = 5),
+    #axis.text.y = element_text(size = 5)) +
+  #xlab("") + 
+  #ylab("")
+  
+# Cosine
+#season.feat <- textstat_frequency(season.tf) %>%
+  #filter(rank <= 40) 
+#season.feat$feature
+
+#season.cos <- textstat_simil(
+  #season.tf[, season.feat$feature],
+  #method = "cosine",
+  #margin = "feature")
+#season.cos.mat <- melt(as.matrix(season.cos)) # Convert the object to matrix then to data frame 
+
+#ggplot(data = season.cos.mat, aes(x=Var1, y=Var2, fill=value)) +
+  #scale_fill_gradient2(
+    #low = "blue",
+    #high = "red",
+    #mid = "white",
+    #midpoint = 0.5,
+    #limit = c(0, 1),
+    #name = "Cosine") +
+  #geom_tile() + 
+  #theme(
+    #axis.text.x = element_text(angle = 45, hjust = 1, size = 5),
+    #axis.text.y = element_text(size = 5)) +
+  #xlab("") + 
+  #ylab("")
 ```
 
 ## Clustering words
@@ -140,7 +195,7 @@ season.hcw <- hclust(as.dist(1 - season.cos))
 plot(season.hcw)
 ```
 
-## Co-occurences --> Doesn't work
+## Co-occurences --> Still not working 
 ```{r}
 season.fcm <- fcm(season.tk, 
                  window = 3, 
@@ -167,7 +222,7 @@ ggplot(data = season.fcm.mat,
   ylab("")
 ```
 
-## Cluster dendrogram 
+## Cluster dendrogram --> Not working
 ```{r}
 season.inv_occ <- 
   280 - as.matrix(
@@ -177,9 +232,9 @@ plot(season.hc)
 ```
 
 
-## LSA on TF
+# Term-Topic Analysis
 ```{r}
-season.tf <- dfm(season.tk)
+season.tf <- dfm(season.tk_lemma)
 season.lsa <- textmodel_lsa(x = season.tf, nd = 10) 
 head(season.lsa$docs)
 ```
@@ -189,7 +244,7 @@ head(season.lsa$features)
 ```
 
 ```{r}
-season.freq_lemma <- ntoken(season.tk) # row-sum of the DTM. Are you convinced it is the document length?
+season.freq_lemma <- ntoken(season.tk_lemma)  
 data.frame(season.freq_lemma,
            dim1 = season.lsa$docs[, 1]) %>% 
   ggplot(aes(season.freq_lemma, dim1)) + 
@@ -197,6 +252,7 @@ data.frame(season.freq_lemma,
   xlab("Number of tokens") + 
   ylab("LSA dim. 1")
 ```
+We see that Dimension 1 is negatively correlated with the document length.
 
 ```{r}
 n.terms <- 5
@@ -207,13 +263,13 @@ w.top2 <- c(w.order[1:n.terms], rev(rev(w.order)[1:n.terms]))
 w.order <- sort(season.lsa$features[,3], decreasing = TRUE)
 w.top3 <- c(w.order[1:n.terms], rev(rev(w.order)[1:n.terms]))
 
-```
-
-```{r}
+# Topic 2
 w.top2
 ```
+Topic 2 is associated positively to "baby", "feel" and "love" and negatively with "ring", "night" and "mother".
 
 ```{r}
+# Topic 3
 w.top3
 ```
 
@@ -240,12 +296,6 @@ biplot(
   ylab = "Dim 3")
 ```
 
-
-## LSA on TF_IDF ?? Do we want to do that ?
-```{r}
-
-```
-
 ## LDA using quanteda
 ```{r}
 set.seed(1234) #To create reproducible results
@@ -261,7 +311,6 @@ seededlda::topics(season.lda)
 seededlda::topics(season.lda) %>% table()
 ```
 
-## Term-Topic Analysis
 ```{r}
 phi.long <- melt(
   season.lda$phi,
