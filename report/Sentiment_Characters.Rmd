@@ -154,3 +154,36 @@ char.sent3 %>%
   annotation_custom(img, ymin = 350, ymax = 400, xmin = 1, xmax = 4)
 ```
 
+
+# Valence shifter approach on each character 
+```{r echo=FALSE, include=FALSE}
+character.speech.text <- get_sentences(agg_tbl)
+character.speech.senti <- sentiment(character.speech.text) 
+```
+
+```{r echo=FALSE}
+character.speech.senti %>% group_by(character_name) %>% 
+  ggplot(aes(x = sentence_id, y = sentiment)) + 
+  geom_line() +  
+  facet_wrap(~ character_name, scale="free_x")
+
+```
+The analysis is possible by going through each sentence. The most 'instense' character is Sheldon, he appears to be very expressive in the positive like in the negative. However we can guess that he tends to be less and less negative through the end of the show. The lowest peaks are a little bit less frequent. 
+
+```{r echo=FALSE, include=FALSE}
+sentiment_by(character.speech.senti)
+```
+
+```{r echo=FALSE}
+docnames(char.cp) <- c('Howard', 'Leonard', 'Penny', 'Raj', 'Sheldon')
+
+sentiment_by(character.speech.senti) %>% 
+  mutate(characters_names = docnames(char.cp)) %>%
+  ggplot(aes(x = reorder(characters_names, ave_sentiment),
+             y = ave_sentiment)) + 
+  ylab("Avg sentiment") +
+  geom_bar(stat = "identity") + 
+  coord_flip() + 
+  xlab("") 
+```
+With this barplot, we can once again identify the average sentiment and see that the most positive character is Penny with an average of 0.13, followed by Leonard. The least positive character is Sheldon.
