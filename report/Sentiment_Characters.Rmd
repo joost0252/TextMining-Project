@@ -7,8 +7,7 @@ output:
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 source("../scripts/setup.R")
 ```
-
-## Sentiment Analysis by Characters 
+# Part 3.2 : Sentiment Analysis by character
 After the analysis of the script according to the seasons, we wanted to see how the five main characters (Sheldon, Leonard, Penny, Raj and Howard) of the show impact the script of the show through a sentiment analysis. 
 
 We use a data set with which an observation is given for a character according to the sentence he says.  Thus, we can use again here the 'nrc' lexicon and have an idea of the dispersions of the feelings for each of our characters.
