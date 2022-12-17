@@ -7,21 +7,12 @@ output:
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 source("../scripts/setup.R")
 ```
-## Sentiment Analysis by Characters 
 
-# Top 10 TF-IDF by character
-```{r echo=FALSE}
-char.dfm %>% 
-  tidy() %>% 
-  top_n(10, count) %>% 
-  ggplot(aes(x = term, y = count)) + 
-  geom_bar(stat = "Identity") + 
-  coord_flip() +
-  theme(axis.text.y = element_text(size = 5),
-        axis.ticks.y = element_blank())  + 
-  facet_wrap( ~character_speech$character_name, ncol = 2) + 
-  ggtitle("Top 10 TF per character")
-```
+## Sentiment Analysis by Characters 
+After the analysis of the script according to the seasons, we wanted to see how the five main characters (Sheldon, Leonard, Penny, Raj and Howard) of the show impact the script of the show through a sentiment analysis. 
+
+We use a data set with which an observation is given for a character according to the sentence he says.  Thus, we can use again here the 'nrc' lexicon and have an idea of the dispersions of the feelings for each of our characters.
+# (Should we do the graph with the agg_tbl ?)
 
 ```{r}
 char.tb <- as_tibble(data.frame(character_speech))
@@ -128,32 +119,6 @@ char.sent2 %>%
   theme(plot.title = element_text(hjust = 0.5, size = 20, face = "bold"))+
   labs(x = "Index", y = "Sentiment", title = "Negative-Positive Distribution in all seasons by using afinn lexicon")
 ```
-
-## Total sentiment score --> Not working ???
-```{r}
-#install.packages('base64')
-
-char.sent3 <-
-  inner_join(
-    char.tk, 
-    get_sentiments("afinn"),
-    by = c("word" = "word"))
-
-char.sent3 %>% 
-  group_by(season, character_name) %>% 
-  summarise(total = sum(value), .groups = 'drop') %>% 
-  ungroup() %>% 
-  mutate(Neg = if_else(total < 0, TRUE, FALSE)) %>% 
-  ggplot()+
-  geom_path(aes(char.sent2$season, total, color = char.sent3$character_name), size = 1.2)+
-  theme_minimal()+
-  theme(legend.position = "bottom")+
-  scale_x_continuous(breaks = scales::pretty_breaks(n = 50))+
-  scale_color_manual(values = c("#EA181E", "#00B4E8", "#FABE0F", "seagreen2", "orchid"))+
-  labs(x = "Season", color = NULL, y = "Total Sentiment Score")+
-  annotation_custom(img, ymin = 350, ymax = 400, xmin = 1, xmax = 4)
-```
-
 
 # Valence shifter approach on each character 
 ```{r echo=FALSE, include=FALSE}
