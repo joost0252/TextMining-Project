@@ -7,7 +7,9 @@ output:
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 source("../scripts/setup.R")
 ```
+# Part 3 : Ananlysis 
 
+## Part 3.1 Sentiment Analysis by season
 ```{r echo=FALSE}
 data_scripts <- read.csv("../data/series_scripts.csv")
 season_scripts <- read.csv("../data/season_scripts.csv")
