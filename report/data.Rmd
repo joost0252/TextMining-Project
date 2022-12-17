@@ -13,7 +13,7 @@ source("../scripts/setup.R")
 options(knitr.table.format = "latex")
 ```
 
-# Overview of the data set used. 
+# Part 1 : Data preparation, overview of the data set used. 
 
 ## Web-scraping 
 
