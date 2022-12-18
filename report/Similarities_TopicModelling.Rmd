@@ -8,7 +8,7 @@ output:
 source("../scripts/setup.R")
 ```
 
-# Part 3.3 : Topic modelling 
+# Part 3.3.1 : Topic Modelling 
 
 ## Similarities between season scripts
 In this part, we want to compare the similarities of the scripts between the season. We decided to use the 3 similarities measure to compute the similarity matrix: Jaccard similarity, Cosine distance, and Euclidean distance. The best/explanatory method in our case seems to be the Euclidean one and we will therefore concentrate on it for the following.
@@ -196,15 +196,17 @@ plot(season.hcw)
 ```
 
 
-# Term-Topic Analysis
+## Part 3.3.2 : Term-Topic Analysis
+
+We want to analyze the topics of the season scripts using LSA and LDA.
+
+# Maybe we can put in into include = FALSE
 ```{r echo=FALSE}
 season.tf <- dfm(season.tk_lemma)
 season.lsa <- textmodel_lsa(x = season.tf, nd = 10) 
 head(season.lsa$docs)
-```
-
-```{r echo=FALSE}
 head(season.lsa$features)
+head(season.lsa$sk)
 ```
 
 ```{r echo=FALSE, include=FALSE}
@@ -216,8 +218,9 @@ data.frame(season.freq_lemma,
   xlab("Number of tokens") + 
   ylab("LSA dim. 1")
 ```
-We see that Dimension 1 is negatively correlated with the document length.
+As the first dimension is often linked to the document length, we wanted to verify that this was the case. And indeed, the dimension 1 is negatively correlated with the document length.
 
+Then we did an analysis of topics 2 and 3.
 ```{r echo=FALSE, include=FALSE}
 n.terms <- 5
 ## For Dimension 2
@@ -229,16 +232,14 @@ w.top3 <- c(w.order[1:n.terms], rev(rev(w.order)[1:n.terms]))
 
 # Topic 2
 w.top2
-```
-Topic 2 is associated positively to "baby", "feel" and "love" and negatively with "ring", "night" and "mother".
-
-```{r echo=FALSE, include=FALSE}
 # Topic 3
 w.top3
 ```
-Topic 3 is associated positively to "time", "gablehouser" and "enter" and negatively with "ring", "past" and "feel".
+- Topic 2 is associated positively to "baby", "feel" and "love" and negatively with "ring", "night" and "mother".
+- Topic 3 is associated positively to "time", "gablehouser" and "enter" and negatively with "ring", "past" and "feel".
 
-```{r echo=FALSE}
+In order to visually represent the relationship between topics 2 and 3, seasons and words, we perform an LSA-based biplot. Because of the large number of terms, the interpretation is difficult. Below, you can see the chart to the terms that are mostly related to the dimensions 2 and 3
+```{r echo=FALSE, include=FALSE}
 biplot(
   y = season.lsa$docs[, 2:3],
   x = season.lsa$features[, 2:3],
@@ -260,22 +261,22 @@ biplot(
   xlab = "Dim 2",
   ylab = "Dim 3")
 ```
+The biplot shows that Topic 2 is associated with seasons 7,8,9 and 10 and with the words “love”, “baby”, “happy","guy" and anti-associated with season 3 and with the words “ring”, “friend”, “mother”. Topic 3 is associated with seasons 1 and 4 and with words “enter”, “gablehouser”, “machine” and anti-associated with “ring”, “fine”, “day”. 
 
 ## LDA using quanteda
+We now turn to an LDA. We started with 10 topics and then eliminated the non-miningful ones until we get to choose 5 topics. These topics are related to the words below. 
 ```{r echo=FALSE}
 set.seed(1234) #To create reproducible results
 season.lda <- textmodel_lda(x = season.tf, k = 5)
 seededlda::terms(season.lda, 5)
 ```
-
+# I think we can remove this one since we have the graph juste after
 ```{r echo=FALSE}
 seededlda::topics(season.lda)
-```
-
-```{r echo=FALSE, include=FALSE}
 seededlda::topics(season.lda) %>% table()
 ```
-
+## Term-Topic Analysis
+The "phi" provides the probabilities of selecting a term given that it is a given topic. For a given topic, the largest phi provide the terms that are most associated with the topic.
 ```{r echo=FALSE}
 phi.long <- melt(
   season.lda$phi,
@@ -295,9 +296,10 @@ phi.long %>%
     axis.text.y = element_text(size = 5),
     strip.text = element_text(size = 5))
 ```
-
+Here we plot the 5 largest probability terms within each subject. Despite the fact that these terms have the ighest probability to appears in this topic, their phi values are relatively low and therefore they are only slightly more common than the other terms.
 
 ## Topic-Document Analysis
+The "theta" provides the probabilities (i.e., proportions) of the topics within each document (season). 
 ```{r echo=FALSE}
 set.seed(1234)
 theta.long <- melt(
@@ -318,27 +320,9 @@ theta.long %>%
     axis.text.y = element_text(size = 5),
     strip.text = element_text(size = 5))
 ```
-
-```{r echo=FALSE}
-## 10 longest documents
-## ntoken compute the lengths. They are sorted in decreasing order. 
-n.doc <- 10
-doc.list <- names(
-  sort(ntoken(season.tk_lemma), decreasing = TRUE)[1:n.doc])
-doc.list
+This graph shows us that Topic 5 is present at more than 50% in all seasons. Topic 1 is more related to season 4, Topic 2 to seasons 1,2,3, Topic 3 to seasons 5,6,8 and Topic 4 to seasons 9 and 10. It seems to be a chronological link between the topics and the seasons.
 
 
-theta.long %>% 
-  filter(Doc %in% doc.list) %>%  
-  ggplot(aes(reorder_within(Topic, Theta, Doc), Theta)) + 
-  geom_col(show.legend = FALSE) +
-  coord_flip()+
-  facet_wrap(~ Doc, scales = "free_y") +
-  scale_x_reordered() + 
-  xlab("Document") +
-   theme(
-    axis.text.y = element_text(size = 5),
-    strip.text = element_text(size = 5))
-```
+
 
 
