@@ -223,7 +223,7 @@ We decided to web-scrap the data and to create csv files to stock them. Indeed, 
 
 ## Description of the data sets we created.  
 
-We crated many different files as we want to make several analysis. 
+We created many different files as we want to make several analysis. 
 
 ### "series_scripts.csv"
 The first csv file is called "series_scripts.csv". It is available in the "data" folder of our project. This data set contains 231 rows and 3 columns:
