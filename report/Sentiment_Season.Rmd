@@ -83,7 +83,7 @@ season.sent %>%
 ```
 
 To compare the documents, each season, we rescale them by their length (i.e. the frequencies of sentiments are computed, by document):
-```{r}
+```{r echo = FALSE}
 #totals by document
 season.sent.doc.total <- 
   season.sent %>% 
