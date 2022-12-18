@@ -63,8 +63,7 @@ head(season.sent, 10) %>%
   autofit()
 ```
 
-Here, we show the overall sentiment per season. It seems that season 2 and 6 has very few sentiments.
-## Problem: graph is the same everywhere
+## Sentiment Analyis
 ```{r echo=FALSE}
 table(season.sent$season, 
       season.sent$sentiment)
@@ -83,7 +82,7 @@ season.sent %>%
   coord_flip()
 ```
 
-To compare the documents, we rescale them by their length (i.e. the frequencies of sentiments are computed, by document):
+To compare the documents, each season, we rescale them by their length (i.e. the frequencies of sentiments are computed, by document):
 ```{r}
 #totals by document
 season.sent.doc.total <- 
@@ -110,9 +109,7 @@ left_join(
   facet_wrap(~ season) + 
   coord_flip()
 ```
-
-
-By re-scaling, we see that all seasons follow the same pattern, meaning that they are mainly positive and reflecting the sentiment of trust while very few of disgust sentiments appear.
+By re-scaling, we see that all seasons follow the same pattern, meaning that they are mainly positive and reflecting the sentiment of trust while very few of disgust sentiments appear. We can understand that the pattern is rather recurrent based on the consistency on the characters humors and mood. Also if the comedy works well, the directors will follow the same process over and over the season. The feeling of trust is also well present which might reflect the friendship aspect. Indeed it is the main component of the show. 
 
 #### AFINN dictionary
 Now, on this part, we will us the AFINN dictionary. This dictionary contains a list of English words manually rated for valence with an integer between -5 (very negative) and +5 (very positive) by Finn Årup Nielsen.
@@ -157,7 +154,7 @@ season.sent2 %>%
 From this analysis we can observe that the second half of the show, except for season 7, has a more positive score. We can suppose that the characters tend to become more positive and maybe less sarcastic as the series goes on  
 
 ## Quanteda analysis
-```{r echo=FALSE}
+```{r echo=FALSE, include=FALSE}
 season.cp <- corpus(season_scripts$agg_script)
 summary(season.cp)
 
@@ -207,7 +204,7 @@ season.sent1 <- tokens_lookup(
 
 From another dictionary named 'data_dictionary_LSD2015', we see pretty much the same analysis. 
 
-```{r}
+```{r echo=FALSE, include=FALSE}
 ggplot(season.sent1,
        aes(x = document,
            y = count,
