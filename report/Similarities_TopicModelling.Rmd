@@ -77,7 +77,7 @@ ggplot(
     name = "Euclidean") +
   geom_tile() + xlab("") + ylab("")
 ```
-From the Euclidean co-occurence matrix plot, it seems that season 4 is close to every other seasons. On the contrary, season 6 and season 2 are quite distant (but we know that there may be a problem in webscrapping).
+From the Euclidean co-occurence matrix plot, it seems that season 4 is close to every other seasons. On the contrary, season 6 and season 2 are more distant (but we know that there may be a problem in webscrapping).
 
 ## Clustering 
 Then, to create a cluster, we decide to focus on the Euclidean distance only.
@@ -105,7 +105,6 @@ Not surprisingly here, we find the same characteristics for seasons 4, 2 and 6 a
 
 ## Similarities between words
 We use the cosine distance measure to determine the similarities between words. 
-#(Euclidean doesn't work and jaccard is very similar so idk which one to take ? + Not useful)
 ```{r echo=FALSE, include=FALSE}
 # Cosine
 season.feat <- textstat_frequency(season.dfm_lemma) %>%
@@ -194,7 +193,8 @@ ggplot(data = season.cos.mat, aes(x=Var1, y=Var2, fill=value)) +
 season.hcw <- hclust(as.dist(1 - season.cos))
 plot(season.hcw)
 ```
-
+We decided to represent the similarities of words with a cluster dendogram rather than a matrix. With the matrix the the interpretation is harder to read. The method used here in the cluster distance is 1 - Similarities (cosine). 
+As a result : _'feel'_ and _'happy'_ are really close. However when we compare _'live'_, _'baby'_ and _'night'_ and _'friend'_ are very distant. Indeed if it refers to 'baby' as a child, I guess it is not used in the same scene as 'night with friend'. 
 
 ## Part 3.3.2 : Term-Topic Analysis
 
