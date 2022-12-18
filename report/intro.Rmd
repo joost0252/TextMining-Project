@@ -27,7 +27,7 @@ In our case, it would be a question of understanding the framing of the TV show,
 + Part 3 : Analysis
   + 3.1 Sentiment Analysis by season
   + 3.2 Sentiment Analysis by character
-  + 3.3 Topic Modelling 
+  + 3.3 Similarities and Topic Modelling 
 + Part 4 : Machine Learning
   + Supervised learning analysis
   + Unsupervised learning analysis
