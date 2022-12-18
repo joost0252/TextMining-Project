@@ -15,8 +15,7 @@ source("../scripts/setup.R")
 
 ## Features: DTM and LSA
 
-First we create the corpus from the data set "character_speech". Within this data set every line is coupled to the characters (Howard, Leonard, Penny, Raj, and Sheldon). 
-The variable y is the character name (Howard, Leonard, Penny, Raj, and Sheldon) and is the variable we want to predict. After this we create a DFM from the tokenized corpus of the characters and their corresponding speech.
+First we create the corpus from the data set "character_speech". Within this data set every line is coupled to the characters (Howard, Leonard, Penny, Raj, and Sheldon). The variable y is the character name (Howard, Leonard, Penny, Raj, and Sheldon) and is the variable we want to predict. This prediction is based on the previously mentioned lines in the script. After this we create a DFM from the tokenized corpus of the characters and their corresponding speech.
 
 ```{r echo=FALSE, include=FALSE}
 set.seed(1234)
@@ -42,9 +41,9 @@ character.dfm <- dfm(character.tok)
 dim(character.dfm)
 ```
 
-Next, we train the classifier. First we combine the target and LSA together in a data frame. We then take a sample of 80% of this data frame as the train set. The other 20% will be used as the test set. We then train the classifier with the ranger package. We then predict and show the results in a confusion matrix of the caret package. It can be noted that the base rate (here called "No Information Rate") is 0.2946. With an accuracy of 0.3572, it can be concluded that it does better than it would by random sampling. In the next couple of paragraphs we look at further improving the model and its accuracy. 
+Next, we train the classifier. First we combine the target variable and LSA together in a data frame. We then take a sample of 80% of this data frame as the train set. The other 20% will be used as the test set. We then train the classifier with the ranger package. We then predict and show the results in a confusion matrix of the caret package. It can be noted that the base rate (here called "No Information Rate") is 0.2946. With an accuracy of 0.3572, it can be concluded that it does better than it would by random sampling. However, it also can be said that this accuracy is quite low. Therefore, in the next couple of paragraphs we look at further improving the model and its accuracy. 
 
-```{r echo=FALSE}
+```{r echo=FALSE, cache=TRUE}
 set.seed(1234)
 # Create lsa from the dfm
 character.lsa <- textmodel_lsa(character.dfm, nd=25)
@@ -68,9 +67,9 @@ confusionMatrix(data=pred.te$predictions, reference = df.te$Class) #This gives t
 
 ## Improving the features:
 
-First, we transform the DFM to LSA and we try to see for which number of dimensions the model gives the highest accuracy. A maximum number of 1000 dimensions is chosen, as with these dimensions the run time is already very long and the accuracy does not seem to increase significantly after 1000 dimensions.
+First, we transform the DFM to LSA, as we did in the previous paragraph. However, now we try to see for which number of dimensions the model gives the highest accuracy. A maximum number of 1000 dimensions is chosen, as with these dimensions the run time is already very long and the accuracy does not seem to increase significantly after 1000 dimensions.
 
-The different accuracies for the number of dimensions 2 ,5, 25, 50, 100, 500, 1000 are respectively 0.2568748, 0.3073439, 0.3324167, 0.3421223, 0.3472986, 0.3532837, and 0.3608864. Due to the long run time and the fact that the accuracy curve is flattening, we choose a number of dimensions of 100, as this has a relative high accuracy, while taken the run time into account. We thus choose for a number of 100 dimensions (nd = 500) for the DFM and LSA.
+The different accuracies for the number of dimensions 2 ,5, 25, 50, 100, 500, 1000 are respectively 0.2597865, 0.3128437, 0.3303138, 0.3377548, 0.3513426, 0.3581365, and 0.3568424. Due to the long run time and the fact that the accuracy curve is flattening, we choose a number of dimensions of 100, as this has a relative high accuracy, while taken the run time into account. We thus choose for a number of 100 dimensions (nd = 100) for the DFM and LSA.
 
 ```{r echo=FALSE, cache=TRUE}
 set.seed(1234)
@@ -104,9 +103,9 @@ plot(accdfm.vec ~ nd.vec, type='b',
 ```
 
 
-Second, we now make the choice to try to further improve the model by first transforming the DFM into a TF-IDF. As we did in the paragraph above, we again try to figure out for which number of dimensions the model gives the best accuracy. The resulting accuracies are 0.2622129, 0.2887415, 0.3442252, 0.3487544, 0.3529602, 0.3539308, and 0.3560336 for respectively the number of dimension 2, 5, 25, 50, 100, 500, 1000.
+Second, we now make the choice to try to further improve the model by first transforming the DFM into a TF-IDF. As we did in the paragraph above, we again try to figure out for which number of dimensions the model gives the best accuracy. The resulting accuracies are 0.2761242, 0.3023293, 0.3485927, 0.3489162, 0.3558719, 0.3587836, and 0.3536072 for respectively the number of dimension 2, 5, 25, 50, 100, 500, 1000.
 
-After running several scenarios with different dimensions, we again choose to use 100 dimensions, as more dimensions will increase the run time immensely, while the improvement on the accuracy is minimal. Furthermore, we choose to use the tf-idf, as this outperforms the dfm by a small margin.
+After running several scenarios with different dimensions, we again choose to use 100 dimensions, as more dimensions will increase the run time immensely, while the improvement on the accuracy is minimal. Furthermore, we choose to use the tf-idf, as this outperforms the dfm by a small margin, namely 0.3513426 for the dfm and 0.3558719 for the tf-idf.
 
 ```{r echo=FALSE, cache=TRUE}
 set.seed(1234)
@@ -133,7 +132,7 @@ for (j in 1:length(nd.vec)){
 
 
 ```{r echo=FALSE}
-print(acc.vec)
+#print(acc.vec)
 
 # Plot the accuracies
 plot(acc.vec ~ nd.vec, type='b',
@@ -142,7 +141,7 @@ plot(acc.vec ~ nd.vec, type='b',
      main="Plot of the accuracy value with TF-IDF against the number of dimension")
 ```
 
-We now rerun the model with the chosen dimensions, so we can further improve on the accuracy with word embedding
+We now rerun the model with the chosen dimensions, so we can further improve on the accuracy with word embedding.
 
 ```{r echo=FALSE, cache=TRUE}
 # We now run the model again, but this time with the chosen dimensions from the previous results.
@@ -163,7 +162,9 @@ confusionMatrix(data=pred.te$predictions, reference = df.te$Class)
 
 ## Word Embedding with glove
 
-We choose 100 as number of iterations, as the loss does decrease, but the run time becomes too extensive, compared to the improvement. So we make the arbitrary decision to keep the number of iterations at 100. Increasing the rank from 25 to 50 (with 371 iterations) decreases the loss from 0.600 to 0.0339. Using a rank of 500 gives a loss of zero. Interesting to see however is that the accuracy decreases for this value for the rank. Increasing the window from 5 to 10 causes a increase in the loss. The same goes when we increase it to 6, albeit a small increase in loss.
+We choose 100 as number of iterations, as the loss does decrease with more iterations, but the run time becomes too extensive, compared to the improvement made with every additional iteration. So we make the arbitrary decision to keep the number of iterations at 100. Increasing the rank from 25 to 50 (with 100 iterations) decreases the loss from 0.0202 to 0.0051 and an accuracy of 0.3569 and 0.3692 respectively. Using a rank of 100 gives a loss of zero and an accuracy of 0.3614. It is thus interesting to see that the accuracy decreases for this value of 100 for the rank, while the loss decreases. As a rank of 50 returns the highest accuracy for the chosen values for the rank, we use this value in our further analysis. 
+
+For a window of 1, giving a loss of 0.0052  and accuracy of 0.3692 with a rank of 50. As the paragraph above has shown, a lower loss does not mean a higher accuracy, we thus compute both the loss and the accuracy for each window. Increasing the window to 5 gives a loss 0.0354 and an accuracy of 0.365. Decreasing the the window to 3 gives a loss of 0.0253 and an accuracy of 0.3687. Again, we decrease the window to 2 which shows a loss 0.0168 of and an accuracy of 0.3685. Again, the difference is accuracy is small, however as a window of 1 results in the highest accuracy, we chose this as our base for the further improvements with GloVe.
 
 ```{r echo=FALSE, cache=TRUE}
 set.seed(1234)
@@ -175,13 +176,9 @@ character.fcm <- fcm(character.tok,
            weights = 1/(1:1),
            tri = FALSE)
 # Create the globe vectors
-glove <- GlobalVectors$new(rank = 100, x_max = 1)
+glove <- GlobalVectors$new(rank = 50, x_max = 1)
 word_vectors_main <- glove$fit_transform(character.fcm, n_iter = 100) 
 ```
-
-
-We see that with the use of GloVe we can improve the accuracy of the model, as it returns an accuracy of 0.3571 for a rank of 50. If we increase the rank to 100, this will improve the accuracy even further to an accuracy of 0.3633. Again, due to excessive run time we choose not to increase the rank any further.
-
 
 ```{r echo=FALSE, cache=TRUE}
 set.seed(1234)
@@ -212,7 +209,7 @@ confusionMatrix(data=pred.te$predictions, reference = df.te[complete.cases(df.te
 ```
 
 
-We tried another case which is to add the length of the sentences, it decreases the accuracy to 0.3585. The explanation for this might be for the fact that each character has similar average lengths of lines of the script.
+We tried another case where we add the length of the sentences. However, it decreases the accuracy to 0.3596. The explanation for this might be for the fact that each character has similar average lengths of lines of the script, as it is a very large corpus we are working with.
 
 
 ```{r echo=FALSE, cache=TRUE}
@@ -235,7 +232,7 @@ confusionMatrix(data=pred.te$predictions, reference = df.te[complete.cases(df.te
 ```
 
 
-Also, it seems that adding the centers will decrease the accuracy, namely to 0.3625. Thus, we get no further improvement based on combining the centers from the GloVe model and the tf-idf.
+Also, it seems that adding the centers will decrease the accuracy, namely to 0.3621. Thus, we get no further improvement based on combining the centers from the GloVe model and the tf-idf, compared to the GloVe model by itself.
 
 
 ```{r echo=FALSE, cache=TRUE}
@@ -350,7 +347,7 @@ character_prediction <- predict(character.fit, char_pred.dfm)
 ```
 
 
-Concluding from the previously run code, it can be said that using the GloVe model by itself gives the highest accuracy. Two things should be noted however, namely that the difference in accuracy does not change a lot with the different methods. Furthermore, although the accuracy is higher than the base rate, it does not increase significantly. An explanation might be due to the fact that it are fictional characters, which differ in the show by personality, but not a lot by vocabulary as seen in the Exploratory Data Analysis with the token-to-ratio graph. In other words, as most scenes in the series are based on conversations between the characters, similar topics and words will be discusses by the characters. This causes the same kind of distinctive words to be used by multiple characters.
+Concluding from the previously run code, it can be said that using the GloVe model by itself gives the highest accuracy. Two things should be noted however, namely that the difference in accuracy does not change a lot with the different methods. Furthermore, although the accuracy is higher than the base rate, it does not increase significantly. An explanation might be due to the fact that it are fictional characters, which differ in the show by personality, but not a lot by vocabulary as seen in the Exploratory Data Analysis with the token-to-ratio graph. In other words, as most scenes in the series are based on conversations between the characters, similar topics and words will be discusses by the characters. This causes the same kind of distinctive words to be used by multiple characters. Also, since Penny is perceived as the less intelligent character within the series, we would have expect the models to be able to predict Penny pretty well. However, from the confusion matrices it can be concluded that this is not the case.
 
 
 
