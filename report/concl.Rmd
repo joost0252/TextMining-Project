@@ -17,7 +17,7 @@ The second half of the show, except for season 7, has a more positive score. We 
 - Maybe a problems in webscrappinf for season 2 and 6
 
 # Futur work: 
-- 
+- Machine Learning 
 
 # Reference 
 
