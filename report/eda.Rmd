@@ -117,7 +117,7 @@ We observe that the most frequent terms are part of the feeling lexical field. F
 ### Cloud of words 
 The bigger the word, the more frequently it appears. The most frequent words seems to be "time", "guy", "love", "feel", etc. Does this means that the seasons have mostly positive sentiments ? We will analyse that throughout our report. 
 
-```{r echo=FALSE}
+```{r echo=FALSE, include=FALSE}
 textplot_wordcloud(season.dfm_lemma)
 ```
 

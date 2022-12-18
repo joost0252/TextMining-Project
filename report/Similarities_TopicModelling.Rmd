@@ -77,12 +77,12 @@ ggplot(
     name = "Euclidean") +
   geom_tile() + xlab("") + ylab("")
 ```
-From the Euclidean co-occurence matrix plot, it seems that season 4 is quite close to every other seasons. On the contrary, season 6 and season 2 are quite distant (but we know that there may be a problem in webscrapping).
+From the Euclidean co-occurence matrix plot, it seems that season 4 is very far away to every other seasons. On the contrary, season 6 and season 2 are quite distant (but we know that there may be a problem in webscrapping).
 
 ## Clustering 
 Then, to create a cluster, we decide to focus on the Euclidean distance only.
 
-```{r}
+```{r echo=FALSE}
 season.hc <- hclust(as.dist(season.euc))
 ## crude.hc <- hclust(as.dist(1 - crude.jac)) # use this line for Jaccard
 ## crude.hc <- hclust(as.dist(1 - crude.cos)) # use this line for Cosine
@@ -106,7 +106,7 @@ Not surprisingly here, we find the same characteristics for seasons 4, 2 and 6 a
 ## Similarities between words
 We use the cosine distance measure to determine the similarities between words. 
 #(Euclidean doesn't work and jaccard is very similar so idk which one to take ? + Not useful)
-```{r}
+```{r echo=FALSE, include=FALSE}
 # Cosine
 season.feat <- textstat_frequency(season.dfm_lemma) %>%
   filter(rank <= 50) 
@@ -190,60 +190,24 @@ ggplot(data = season.cos.mat, aes(x=Var1, y=Var2, fill=value)) +
 ```
 
 ## Clustering words
-```{r}
+```{r echo=FALSE}
 season.hcw <- hclust(as.dist(1 - season.cos))
 plot(season.hcw)
 ```
 
-## Co-occurences --> Still not working 
-```{r}
-season.fcm <- fcm(season.tk, 
-                 window = 3, 
-                 tri = FALSE)
-season.fcm <- (season.fcm + t(season.fcm))/2 ## make the co-occurrence matrix symmetrical
-
-season.fcm.mat <- melt(
-  as.matrix(
-    season.fcm[season.feat$feature, season.feat$feature]),
-  varnames = c("Var1", "Var2")) 
-ggplot(data = season.fcm.mat, 
-       mapping = aes(x = Var1, y = Var2, fill = value)) +
-  scale_fill_gradient2(
-    low = "blue",
-    high = "red",
-    mid = "white",
-    midpoint = 140,
-    limit = c(0, 280),
-    name = "Co-occurrence") +
-  geom_tile() + 
-  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 5),
-        axis.text.y = element_text(size = 5)) +
-  xlab("") +
-  ylab("")
-```
-
-## Cluster dendrogram --> Not working
-```{r}
-season.inv_occ <- 
-  280 - as.matrix(
-    season.fcm[season.feat$feature, season.feat$feature]) ## 280 is the max co-occurrence here
-season.hc <- hclust(as.dist(season.inv_occ))
-plot(season.hc)
-```
-
 
 # Term-Topic Analysis
-```{r}
+```{r echo=FALSE}
 season.tf <- dfm(season.tk_lemma)
 season.lsa <- textmodel_lsa(x = season.tf, nd = 10) 
 head(season.lsa$docs)
 ```
 
-```{r}
+```{r echo=FALSE}
 head(season.lsa$features)
 ```
 
-```{r}
+```{r echo=FALSE, include=FALSE}
 season.freq_lemma <- ntoken(season.tk_lemma)  
 data.frame(season.freq_lemma,
            dim1 = season.lsa$docs[, 1]) %>% 
@@ -254,7 +218,7 @@ data.frame(season.freq_lemma,
 ```
 We see that Dimension 1 is negatively correlated with the document length.
 
-```{r}
+```{r echo=FALSE, include=FALSE}
 n.terms <- 5
 ## For Dimension 2
 w.order <- sort(season.lsa$features[, 2], decreasing = TRUE)
@@ -268,13 +232,13 @@ w.top2
 ```
 Topic 2 is associated positively to "baby", "feel" and "love" and negatively with "ring", "night" and "mother".
 
-```{r}
+```{r echo=FALSE, include=FALSE}
 # Topic 3
 w.top3
 ```
 Topic 3 is associated positively to "time", "gablehouser" and "enter" and negatively with "ring", "past" and "feel".
 
-```{r}
+```{r echo=FALSE}
 biplot(
   y = season.lsa$docs[, 2:3],
   x = season.lsa$features[, 2:3],
@@ -284,7 +248,7 @@ biplot(
   ylab = "Dim 3")
 ```
 
-```{r}
+```{r echo=FALSE}
 w.subset <- 
   season.lsa$features[
     c(unique(c(names(w.top2), names(w.top3)))), 2:3]
@@ -298,21 +262,21 @@ biplot(
 ```
 
 ## LDA using quanteda
-```{r}
+```{r echo=FALSE}
 set.seed(1234) #To create reproducible results
 season.lda <- textmodel_lda(x = season.tf, k = 5)
 seededlda::terms(season.lda, 5)
 ```
 
-```{r}
+```{r echo=FALSE}
 seededlda::topics(season.lda)
 ```
 
-```{r}
+```{r echo=FALSE, include=FALSE}
 seededlda::topics(season.lda) %>% table()
 ```
 
-```{r}
+```{r echo=FALSE}
 phi.long <- melt(
   season.lda$phi,
   varnames = c("Topic", "Term"),
@@ -334,7 +298,7 @@ phi.long %>%
 
 
 ## Topic-Document Analysis
-```{r}
+```{r echo=FALSE}
 set.seed(1234)
 theta.long <- melt(
   season.lda$theta,
@@ -355,7 +319,7 @@ theta.long %>%
     strip.text = element_text(size = 5))
 ```
 
-```{r}
+```{r echo=FALSE}
 ## 10 longest documents
 ## ntoken compute the lengths. They are sorted in decreasing order. 
 n.doc <- 10
@@ -378,99 +342,3 @@ theta.long %>%
 ```
 
 
-## LDA diagnostics
-```{r}
-rev(sort(colSums(season.lda$theta)/sum(season.lda$theta)))
-```
-
-# Not working
-```{r}
-season.codo <- fcm(
-  season.tf, 
-  context = "document",
-  count = "boolean",
-  tri = FALSE) # co-document frequencies
-term.mat <- seededlda::terms(season.lda, 5)
-Coh <- rep(0, 10)
-names(Coh) <- paste0("Topic", 1:10)
-for (k in 1:10) {
-  D.mat <- t(season.codo[term.mat[,k], term.mat[,k]])
-  D.vec <- season.tf %>% 
-    textstat_frequency %>% 
-    filter(feature %in% term.mat[, k]) %>% 
-    data.frame %>%
-    select(feature, docfreq)
-  for (m in 2:5){
-    for (l in 1:(m - 1)) {
-      vm <- term.mat[m, k]
-      vl <- term.mat[l, k]
-      Coh[k] <- Coh[k] + log((D.mat[vm, vl] + 1) / filter(D.vec, feature == vl)$docfreq)
-    }
-  }
-}
-rev(sort(Coh))
-```
-
-```{r}
-as.matrix(season.codo[term.mat[, 3], term.mat[, 3]])
-```
-
-```{r}
-as.matrix(season.codo[term.mat[, 5], term.mat[, 5]])
-```
-
-```{r}
-excl <- rep(0, 10)
-names(excl) <- paste0("Topic", 1:10)
-for (k in 1:10) {
-  for (i in 1:length(term.mat[,k])) {
-    term.phi <- filter(phi.long, Term == term.mat[i,k])
-    excl[k] <- excl[k] + filter(term.phi, Topic == "topic1")$Phi / sum(term.phi$Phi)
-  }
-  excl[k] <- excl[k] / length(term.mat[, k])
-}
-rev(sort(excl))
-```
-The most exclusive topic is Topic 1, with five top terms are more specific to it.
-
-
-## LDA with Topic Model
-```{r}
-season.LDA <- LDA(
-  convert(season.tf, to = "topicmodels"), k = 10)
-topicmodels::terms(season.LDA, 5)
-```
-
-```{r}
-topicmodels::topics(season.LDA)
-```
-
-```{r}
-topicmodels::topics(season.LDA) %>% table()
-```
-
-```{r}
-topic_diagnostics(
-  topic_model = season.LDA, 
-  dtm_data = convert(season.tf, to = "topicmodels"))
-```
-
-```{r}
-beta.long <- tidy(
-  season.LDA,
-  matrix = "beta") # equivalent to melt (with this package)
-
-beta.long %>% 
-  group_by(topic) %>% 
-  top_n(10, beta) %>% 
-  ggplot(aes(reorder_within(term, beta, topic), beta)) + 
-  geom_col(show.legend = FALSE) +
-  coord_flip()+
-  facet_wrap(~ topic, scales = "free_y") +
-  scale_x_reordered() + 
-  xlab("Term") +
-  theme(
-    axis.text.y = element_text(size = 5),
-    axis.text.x = element_text(size = 5),
-    strip.text = element_text(size = 5))
-```

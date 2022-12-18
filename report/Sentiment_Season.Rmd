@@ -276,7 +276,8 @@ season.script.senti <- sentiment(season.script.text)
 season.script.senti %>% group_by(element_id) %>% 
   ggplot(aes(x = sentence_id, y = sentiment)) + 
   geom_line() +  
-  facet_wrap(~ element_id, scale="free_x")
+  facet_wrap(~ element_id, scale="free_x") + 
+  xlab("Sentence timeline")
 
 ```
 The analysis is possible by going through each sentence. Looking at season 9 for instance, the end of the show looks to be very positive with an increasing trend. The pattern shows that sometimes we have high peaks like in season 4. And sometimes very low peaks but it remains well distributed. Indeed if we take a look at season 10, we have 4 drops in the negative and it looks to appear every 1000 sentences. 

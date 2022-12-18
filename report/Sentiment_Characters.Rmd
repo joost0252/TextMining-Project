@@ -13,7 +13,7 @@ After the analysis of the script according to the seasons, we wanted to see how 
 We use a data set with which an observation is given for a character according to the sentence he says.  Thus, we can use again here the 'nrc' lexicon and have an idea of the dispersions of the feelings for each of our characters.
 # (Should we do the graph with the agg_tbl ?)
 
-```{r}
+```{r echo=FALSE}
 char.tb <- as_tibble(data.frame(character_speech))
 
 char.tk <- unnest_tokens(
@@ -38,7 +38,7 @@ char.sent <-
   #autofit()
 ```
 
-```{r}
+```{r echo=FALSE}
 char.sent %>% 
   group_by(character_name, sentiment) %>% 
   summarize(n = n()) %>%
@@ -60,7 +60,7 @@ Since in the previous analysis negative and positive feelings predominate, we wa
 head(get_sentiments(lexicon = "bing"))
 ```
 
-```{r}
+```{r echo=FALSE}
 char.sent2 <-
   inner_join(
     char.tk, 
@@ -100,7 +100,8 @@ character.speech.senti <- sentiment(character.speech.text)
 character.speech.senti %>% group_by(character_name) %>% 
   ggplot(aes(x = sentence_id, y = sentiment)) + 
   geom_line() +  
-  facet_wrap(~ character_name, scale="free_x")
+  facet_wrap(~ character_name, scale="free_x") + 
+  xlab("Sentence timeline")
 
 ```
 The analysis is possible by going through each sentence. The most 'instense' character is Sheldon, he appears to be very expressive in the positive like in the negative. However we can guess that he tends to be less and less negative through the end of the show. The lowest peaks are a little bit less frequent. 
