@@ -1,0 +1,2513 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+]{article}
+\usepackage{amsmath,amssymb}
+\usepackage{lmodern}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\newlength{\cslhangindent}
+\setlength{\cslhangindent}{1.5em}
+\newlength{\csllabelwidth}
+\setlength{\csllabelwidth}{3em}
+\newlength{\cslentryspacingunit} % times entry-spacing
+\setlength{\cslentryspacingunit}{\parskip}
+\newenvironment{CSLReferences}[2] % #1 hanging-ident, #2 entry spacing
+ {% don't indent paragraphs
+  \setlength{\parindent}{0pt}
+  % turn on hanging indent if param 1 is 1
+  \ifodd #1
+  \let\oldpar\par
+  \def\par{\hangindent=\cslhangindent\oldpar}
+  \fi
+  % set entry spacing
+  \setlength{\parskip}{#2\cslentryspacingunit}
+ }%
+ {}
+\usepackage{calc}
+\newcommand{\CSLBlock}[1]{#1\hfill\break}
+\newcommand{\CSLLeftMargin}[1]{\parbox[t]{\csllabelwidth}{#1}}
+\newcommand{\CSLRightInline}[1]{\parbox[t]{\linewidth - \csllabelwidth}{#1}\break}
+\newcommand{\CSLIndent}[1]{\hspace{\cslhangindent}#1}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{wrapfig}
+\usepackage{float}
+\usepackage{colortbl}
+\usepackage{pdflscape}
+\usepackage{tabu}
+\usepackage{threeparttable}
+\usepackage{threeparttablex}
+\usepackage[normalem]{ulem}
+\usepackage{makecell}
+\usepackage{xcolor}
+\usepackage{multicol}
+\usepackage{hhline}
+\usepackage{hyperref}
+\ifLuaTeX
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same} % disable monospaced font for URLs
+\hypersetup{
+  pdftitle={Text Mining},
+  pdfauthor={Elodie Shoeiline Kwan, Joost Dijkstra, Katia Voltz and Nina Bidet},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+\title{Text Mining}
+\author{Elodie Shoeiline Kwan, Joost Dijkstra, Katia Voltz and Nina
+Bidet}
+\date{18 December, 2022}
+
+\begin{document}
+\maketitle
+
+Teacher : Boldi - Baumgartner Fall Semester 2022
+
+Elodie Shoeiline Kwan, Joost Dijkstra, Katia Voltz and Nina Bidet
+
+\hypertarget{introduction}{%
+\section{Introduction}\label{introduction}}
+
+We decided to analyze a TV series for this text mining project. In
+particular, one of the most successful comedies of the last years: The
+Big Bang Theory. We looked at the script of the 10 seasons of this
+series to make a detailed analysis, and try to understand, without
+having seen the series, the general framework that emerges. Our
+objective is to produce a detailed report based on an original database.
+
+\hypertarget{overview}{%
+\subsection{Overview}\label{overview}}
+
+Data set web-scraped from
+\href{https://bigbangtrans.wordpress.com/series-1-episode-1-pilot-episode/}{https://bigbangtrans.wordpress.com/}.
+
+\hypertarget{project-objectives}{%
+\subsection{Project objectives}\label{project-objectives}}
+
+Our goal is to use the relevant text mining - machine learning tools,
+with supervised and unsupervised learning methods to characterize our
+data frame. In our case, it would be a question of understanding the
+framing of the TV show, with sentiments analysis, vocabulary richness,
+and topics analysis.
+
+\hypertarget{structure-of-the-report}{%
+\subsection{Structure of the report}\label{structure-of-the-report}}
+
+\begin{itemize}
+\tightlist
+\item
+  Introduction
+\item
+  Part 1 : Data preparation
+\item
+  Part 2 : Exploratory Data Analysis (EDA)
+\item
+  Part 3 : Analysis
+
+  \begin{itemize}
+  \tightlist
+  \item
+    3.1 Sentiment Analysis by season
+  \item
+    3.2 Sentiment Analysis by character
+  \item
+    3.3 Similarities and Topic Modelling
+  \end{itemize}
+\item
+  Part 4 : Machine Learning
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Supervised learning analysis
+  \item
+    Unsupervised learning analysis
+  \item
+  \end{itemize}
+\item
+  Conclusion
+\end{itemize}
+
+\hypertarget{related-work}{%
+\subsection{Related work}\label{related-work}}
+
+\begin{itemize}
+\tightlist
+\item
+  Text mining and Machine learning course and exercises
+\end{itemize}
+
+\hypertarget{part-1-data-preparation-overview-of-the-data-set-used.}{%
+\section{Part 1 : Data preparation, overview of the data set
+used.}\label{part-1-data-preparation-overview-of-the-data-set-used.}}
+
+\hypertarget{web-scraping}{%
+\subsection{Web-scraping}\label{web-scraping}}
+
+The data we are using within this project is coming from the website
+``Big Bang Theory Transcripts''. It is accessible in the following link
+:
+\href{https://bigbangtrans.wordpress.com/series-1-episode-1-pilot-episode/}{https://bigbangtrans.wordpress.com/}
+
+We decided to web-scrap the data and to create csv files to stock them.
+Indeed, it is easier for us to get the data and have it locally on our
+files so that whenever we want to work with them again, we do not need
+to web-scrap again. We will directly be able to use the files we
+created.
+
+\hypertarget{description-of-the-data-sets-we-created.}{%
+\subsection{Description of the data sets we
+created.}\label{description-of-the-data-sets-we-created.}}
+
+We crated many different files as we want to make several analysis.
+
+\hypertarget{series_scripts.csv}{%
+\subsubsection{``series\_scripts.csv''}\label{series_scripts.csv}}
+
+The first csv file is called ``series\_scripts.csv''. It is available in
+the ``data'' folder of our project. This data set contains 231 rows and
+3 columns:
+
+\begin{itemize}
+\tightlist
+\item
+  Each row represent the script of one episode. In this series of 10
+  seasons, there is a total of 231 episodes.
+\item
+  The column \emph{document} : represent the index and tells us which
+  document it is. The information are in character class.
+\item
+  The column \emph{title} : contains the title of the script. It tells
+  us the series and episode number. The information are in character
+  class.
+\item
+  The column \emph{script} : contains the whole script for each
+  corresponding episode. Note that we decided to use the symbol `\(\\\)'
+  for the end-line. This indeed is helpful so that we manage to put the
+  whole script in one cell. The information are in character class.
+\end{itemize}
+
+We do not show how the data look like in here, simply because the
+\emph{scripts} column contains a lot of text and if would take way too
+much place in the report. You are invited to open the csv files if you
+want to get an overview.
+
+\hypertarget{season_scripts.csv}{%
+\subsubsection{``season\_scripts.csv''}\label{season_scripts.csv}}
+
+We created a second csv file named ``season\_scripts.csv''. Indeed, we
+quickly realized that the analysis per episode would fast become tedious
+and less meaningful. Therefore, we decided to aggregate the episodes by
+season. This way we get all the scripts of each season's episode on one
+concatenated string.
+
+This data set contains 10 rows, each row representing one season and 2
+columns:
+
+\begin{itemize}
+\tightlist
+\item
+  The column \emph{season} : indicate the season number.
+\item
+  The column \emph{agg\_script} : contains all the aggregated scripts
+  per season. It means that there is the script of each episode of one
+  season within one cell of the dataframe.
+\end{itemize}
+
+Since the table is quite long and even one row is very long to output,
+we did not add an annex of the data frame output. We will recommend you
+to directly go on the csv file if an overview of the data set is needed.
+
+\hypertarget{the-various-files-character_speech}{%
+\subsubsection{The various files
+`character\_speech'}\label{the-various-files-character_speech}}
+
+We created 10 other files based on the web-scraping. Indeed, we decided
+to have one file per season because we wanted to have one row new row
+each time a character is speaking.
+
+It means that each file has a different length depending on how many
+time there is a change of interlocutor. However, each file has the
+following column structured:
+
+\begin{itemize}
+\tightlist
+\item
+  One column \emph{season} : indicate the season number the script line
+  is referring to.
+\item
+  One column \emph{main\_character\_script} : is the whole script line
+  with the name of the person speaking
+\item
+  One column \emph{character\_name} : contains the name of the person
+  speaking the line
+\item
+  One column \emph{character\_scripts} : contains the script line of the
+  interlocutor
+\end{itemize}
+
+Then we combined all these rows to have one main file named
+`character\_speech.csv'. The two first rows are printed below so you can
+have an overview of this dataset.
+
+\begin{table}[H]
+
+\caption{\label{tab:chunck_annexe2}The 2 first row of the data set *character speech.csv* }
+\centering
+\fontsize{7}{9}\selectfont
+\begin{tabu} to \linewidth {>{\raggedright}X>{\raggedleft}X>{\raggedright}X>{\raggedright}X>{\raggedright}X}
+\hline
+  & season & main\_character\_script & character\_name & character\_scripts\\
+\hline
+3 & 1 & Sheldon: So if a photon is directed through a plane with two slits in it and either slit is observed it will not go through both slits. If it’s unobserved it will, however, if it’s observed after it’s left the plane but before it hits its target, it will not have gone through both slits. & Sheldon & So if a photon is directed through a plane with two slits in it and either slit is observed it will not go through both slits. If it’s unobserved it will, however, if it’s observed after it’s left the plane but before it hits its target, it will not have gone through both slits.\\
+\hline
+4 & 1 & Leonard: Agreed, what’s your point? & Leonard & Agreed, what’s your point?\\
+\hline
+\end{tabu}
+\end{table}
+
+\hypertarget{part-2-exploratory-data-analysis-eda}{%
+\section{Part 2 : Exploratory Data Analysis
+(EDA)}\label{part-2-exploratory-data-analysis-eda}}
+
+In this part, we perform an Exploratory Data Analysis. We will clean and
+infer some first results based on our data sets.
+
+\hypertarget{eda-for-the-seasons-analysis}{%
+\subsection{EDA for the seasons
+analysis}\label{eda-for-the-seasons-analysis}}
+
+\hypertarget{tokenization-and-cleaning-of-the-data}{%
+\subsubsection{Tokenization and cleaning of the
+data}\label{tokenization-and-cleaning-of-the-data}}
+
+As we know that we want to conduct a sentiment analysis on the the
+seasons of the series, we first define the corpus for our analysis. The
+corpus will be the \emph{agg\_scripts} column in our
+\emph{season\_scripts} data set as it contains all the texts that must
+be analysed. Once defined, we clean the texts by removing the numbers,
+the punctuation, the symbols, the separators and the stop words
+appearing in the English language.
+
+In our scripts, we can see the main characters that are \emph{Sheldon},
+\emph{Leonard}, \emph{Penny}, \emph{Howard} and \emph{Raj}. They appear
+in each seasons' episodes. Therefore, we remove their name for the
+following explanatory data analysis since it will otherwise bias our
+results.
+
+We have created a variable \emph{`characters\_names'} grouping the names
+of all the recurring characters during the series. Indeed, these are,
+logically, the words that come up the most often and this is not the
+purpose of our analysis here. It is the same with the words grouped in
+the variables \emph{`words\_to\_remove'}, which are themselves linked to
+the stage directions or do not bring any added value.
+
+In here, we also perform the lemmatisation which is replacing some
+vocabulary by removing the inflectional endings and only keep the base
+or the corresponding form from the dictionary of word. It will give the
+lemma of each word from that dictionary.
+
+\hypertarget{the-document-term-matrix-the-tf-idf-and-the-global-frequencies}{%
+\subsubsection{The Document-Term Matrix, the TF-IDF and the global
+frequencies}\label{the-document-term-matrix-the-tf-idf-and-the-global-frequencies}}
+
+We use the TF-IDF method to look at the specificity of the terms through
+seasons. It allocates a weight to the most frequent words and translate
+a relevance of terms in the corpus. With the following graph, we can see
+that the most frequent term, is by far \emph{`Time'}. Indeed with the
+frequency matrix, we can see that \emph{`Time'} appears more than 900
+times in the whole show.
+
+\includegraphics{report_files/figure-latex/unnamed-chunk-15-1.pdf}
+
+We observe that the most frequent terms are part of the feeling lexical
+field. For instance the words \emph{`love'}, \emph{`feel'},
+\emph{`fine'}. With only this first representation, we can think of a
+positive pattern in the show.
+
+\hypertarget{cloud-of-words}{%
+\subsubsection{Cloud of words}\label{cloud-of-words}}
+
+The bigger the word, the more frequently it appears. The most frequent
+words seems to be ``time'', ``guy'', ``love'', ``feel'', etc. Does this
+means that the seasons have mostly positive sentiments ? We will analyse
+that throughout our report.
+
+\hypertarget{the-10-most-frequent-words-per-season}{%
+\subsubsection{The 10 most frequent words per
+season}\label{the-10-most-frequent-words-per-season}}
+
+Then, we plot the 10 most frequent words per season and observe that it
+did not bring much information. Therefore we did not show the output of
+the graph here. Indeed, it is not really relevant because \emph{`time'}
+and \emph{`guy'} are always predominant through all the corpus and for
+each season, the plot was telling us the same thing. It looks logical to
+have them appearing individually.
+
+\hypertarget{the-tf-idf-per-season}{%
+\subsubsection{The TF-IDF per season}\label{the-tf-idf-per-season}}
+
+Again, here we plot the 10 most specific words per season. In the season
+1 the term \emph{`gablehouser'} is very specific. While in the season 4
+the most specific term is \emph{`sheldon\_bot'}, we could imagine that
+they were trying to build a robot on Sheldon. If we look at season 10
+the verb \emph{`born'} is very specific to this season, we can guess
+maybe an important event happened there.
+
+\includegraphics{report_files/figure-latex/unnamed-chunk-17-1.pdf}
+
+\hypertarget{representation-of-the-term-frequencies}{%
+\subsubsection{Representation of the term
+frequencies}\label{representation-of-the-term-frequencies}}
+
+On this plot, we cannot see very clearly as there are a lot of terms.
+But we see that ``time'', ``guys'' are indeed very frequent as seen
+previously and that ``gablehouser'' and ``sheldon-bot'' are very
+specific to one particular season each. For the term ``gablehouser'', it
+is season 1 after research. In the show it is actually a character
+Dr.~Eric Gablehauser, he does not appear in the show after the 2 first
+season and we did not notice him before to remove it with the other
+characters' name.
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'आज' in 'mbcsToSbcs': dot substituted for <e0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'आज' in 'mbcsToSbcs': dot substituted for <a4>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'आज' in 'mbcsToSbcs': dot substituted for <86>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'आज' in 'mbcsToSbcs': dot substituted for <e0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'आज' in 'mbcsToSbcs': dot substituted for <a4>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'आज' in 'mbcsToSbcs': dot substituted for <9c>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'के' in 'mbcsToSbcs': dot substituted for <e0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'के' in 'mbcsToSbcs': dot substituted for <a4>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'के' in 'mbcsToSbcs': dot substituted for <95>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'के' in 'mbcsToSbcs': dot substituted for <e0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'के' in 'mbcsToSbcs': dot substituted for <a5>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'के' in 'mbcsToSbcs': dot substituted for <87>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'नये' in 'mbcsToSbcs': dot substituted for <e0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'नये' in 'mbcsToSbcs': dot substituted for <a4>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'नये' in 'mbcsToSbcs': dot substituted for <a8>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'नये' in 'mbcsToSbcs': dot substituted for <e0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'नये' in 'mbcsToSbcs': dot substituted for <a4>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'नये' in 'mbcsToSbcs': dot substituted for <af>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'नये' in 'mbcsToSbcs': dot substituted for <e0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'नये' in 'mbcsToSbcs': dot substituted for <a5>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'नये' in 'mbcsToSbcs': dot substituted for <87>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'अच्छे' in 'mbcsToSbcs': dot substituted for <e0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'अच्छे' in 'mbcsToSbcs': dot substituted for <a4>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'अच्छे' in 'mbcsToSbcs': dot substituted for <85>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'अच्छे' in 'mbcsToSbcs': dot substituted for <e0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'अच्छे' in 'mbcsToSbcs': dot substituted for <a4>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'अच्छे' in 'mbcsToSbcs': dot substituted for <9a>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'अच्छे' in 'mbcsToSbcs': dot substituted for <e0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'अच्छे' in 'mbcsToSbcs': dot substituted for <a5>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'अच्छे' in 'mbcsToSbcs': dot substituted for <8d>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'अच्छे' in 'mbcsToSbcs': dot substituted for <e0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'अच्छे' in 'mbcsToSbcs': dot substituted for <a4>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'अच्छे' in 'mbcsToSbcs': dot substituted for <9b>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'अच्छे' in 'mbcsToSbcs': dot substituted for <e0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'अच्छे' in 'mbcsToSbcs': dot substituted for <a5>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'अच्छे' in 'mbcsToSbcs': dot substituted for <87>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'संगीत' in 'mbcsToSbcs': dot substituted for <e0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'संगीत' in 'mbcsToSbcs': dot substituted for <a4>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'संगीत' in 'mbcsToSbcs': dot substituted for <b8>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'संगीत' in 'mbcsToSbcs': dot substituted for <e0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'संगीत' in 'mbcsToSbcs': dot substituted for <a4>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'संगीत' in 'mbcsToSbcs': dot substituted for <82>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'संगीत' in 'mbcsToSbcs': dot substituted for <e0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'संगीत' in 'mbcsToSbcs': dot substituted for <a4>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'संगीत' in 'mbcsToSbcs': dot substituted for <97>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'संगीत' in 'mbcsToSbcs': dot substituted for <e0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'संगीत' in 'mbcsToSbcs': dot substituted for <a5>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'संगीत' in 'mbcsToSbcs': dot substituted for <80>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'संगीत' in 'mbcsToSbcs': dot substituted for <e0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'संगीत' in 'mbcsToSbcs': dot substituted for <a4>
+
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'संगीत' in 'mbcsToSbcs': dot substituted for <a4>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'का' in 'mbcsToSbcs': dot substituted for <e0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'का' in 'mbcsToSbcs': dot substituted for <a4>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'का' in 'mbcsToSbcs': dot substituted for <95>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'का' in 'mbcsToSbcs': dot substituted for <e0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'का' in 'mbcsToSbcs': dot substituted for <a4>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'का' in 'mbcsToSbcs': dot substituted for <be>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'घर' in 'mbcsToSbcs': dot substituted for <e0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'घर' in 'mbcsToSbcs': dot substituted for <a4>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'घर' in 'mbcsToSbcs': dot substituted for <98>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'घर' in 'mbcsToSbcs': dot substituted for <e0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'घर' in 'mbcsToSbcs': dot substituted for <a4>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'घर' in 'mbcsToSbcs': dot substituted for <b0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'जो' in 'mbcsToSbcs': dot substituted for <e0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'जो' in 'mbcsToSbcs': dot substituted for <a4>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'जो' in 'mbcsToSbcs': dot substituted for <9c>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'जो' in 'mbcsToSbcs': dot substituted for <e0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'जो' in 'mbcsToSbcs': dot substituted for <a5>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'जो' in 'mbcsToSbcs': dot substituted for <8b>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'भी' in 'mbcsToSbcs': dot substituted for <e0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'भी' in 'mbcsToSbcs': dot substituted for <a4>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'भी' in 'mbcsToSbcs': dot substituted for <ad>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'भी' in 'mbcsToSbcs': dot substituted for <e0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'भी' in 'mbcsToSbcs': dot substituted for <a5>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'भी' in 'mbcsToSbcs': dot substituted for <80>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'तुम्हारे' in 'mbcsToSbcs': dot substituted for <e0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'तुम्हारे' in 'mbcsToSbcs': dot substituted for <a4>
+
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'तुम्हारे' in 'mbcsToSbcs': dot substituted for <a4>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'तुम्हारे' in 'mbcsToSbcs': dot substituted for <e0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'तुम्हारे' in 'mbcsToSbcs': dot substituted for <a5>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'तुम्हारे' in 'mbcsToSbcs': dot substituted for <81>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'तुम्हारे' in 'mbcsToSbcs': dot substituted for <e0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'तुम्हारे' in 'mbcsToSbcs': dot substituted for <a4>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'तुम्हारे' in 'mbcsToSbcs': dot substituted for <ae>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'तुम्हारे' in 'mbcsToSbcs': dot substituted for <e0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'तुम्हारे' in 'mbcsToSbcs': dot substituted for <a5>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'तुम्हारे' in 'mbcsToSbcs': dot substituted for <8d>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'तुम्हारे' in 'mbcsToSbcs': dot substituted for <e0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'तुम्हारे' in 'mbcsToSbcs': dot substituted for <a4>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'तुम्हारे' in 'mbcsToSbcs': dot substituted for <b9>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'तुम्हारे' in 'mbcsToSbcs': dot substituted for <e0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'तुम्हारे' in 'mbcsToSbcs': dot substituted for <a4>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'तुम्हारे' in 'mbcsToSbcs': dot substituted for <be>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'तुम्हारे' in 'mbcsToSbcs': dot substituted for <e0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'तुम्हारे' in 'mbcsToSbcs': dot substituted for <a4>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'तुम्हारे' in 'mbcsToSbcs': dot substituted for <b0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'तुम्हारे' in 'mbcsToSbcs': dot substituted for <e0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'तुम्हारे' in 'mbcsToSbcs': dot substituted for <a5>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'तुम्हारे' in 'mbcsToSbcs': dot substituted for <87>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'नाव' in 'mbcsToSbcs': dot substituted for <e0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'नाव' in 'mbcsToSbcs': dot substituted for <a4>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'नाव' in 'mbcsToSbcs': dot substituted for <a8>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'नाव' in 'mbcsToSbcs': dot substituted for <e0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'नाव' in 'mbcsToSbcs': dot substituted for <a4>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'नाव' in 'mbcsToSbcs': dot substituted for <be>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'नाव' in 'mbcsToSbcs': dot substituted for <e0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'नाव' in 'mbcsToSbcs': dot substituted for <a4>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'नाव' in 'mbcsToSbcs': dot substituted for <b5>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'मंगाई' in 'mbcsToSbcs': dot substituted for <e0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'मंगाई' in 'mbcsToSbcs': dot substituted for <a4>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'मंगाई' in 'mbcsToSbcs': dot substituted for <ae>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'मंगाई' in 'mbcsToSbcs': dot substituted for <e0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'मंगाई' in 'mbcsToSbcs': dot substituted for <a4>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'मंगाई' in 'mbcsToSbcs': dot substituted for <82>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'मंगाई' in 'mbcsToSbcs': dot substituted for <e0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'मंगाई' in 'mbcsToSbcs': dot substituted for <a4>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'मंगाई' in 'mbcsToSbcs': dot substituted for <97>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'मंगाई' in 'mbcsToSbcs': dot substituted for <e0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'मंगाई' in 'mbcsToSbcs': dot substituted for <a4>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'मंगाई' in 'mbcsToSbcs': dot substituted for <be>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'मंगाई' in 'mbcsToSbcs': dot substituted for <e0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'मंगाई' in 'mbcsToSbcs': dot substituted for <a4>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'मंगाई' in 'mbcsToSbcs': dot substituted for <88>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on '김수정' in 'mbcsToSbcs': dot substituted for <ea>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on '김수정' in 'mbcsToSbcs': dot substituted for <b9>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on '김수정' in 'mbcsToSbcs': dot substituted for <80>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on '김수정' in 'mbcsToSbcs': dot substituted for <ec>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on '김수정' in 'mbcsToSbcs': dot substituted for <88>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on '김수정' in 'mbcsToSbcs': dot substituted for <98>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on '김수정' in 'mbcsToSbcs': dot substituted for <ec>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on '김수정' in 'mbcsToSbcs': dot substituted for <a0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on '김수정' in 'mbcsToSbcs': dot substituted for <95>
+\end{verbatim}
+
+\includegraphics{report_files/figure-latex/unnamed-chunk-18-1.pdf}
+
+\hypertarget{lexical-diversity}{%
+\subsubsection{Lexical diversity}\label{lexical-diversity}}
+
+We compute the lexical diversity of the scripts and we see that the
+season, especially the last (8, 10, 7, 9) do not have very diverse
+lexical. Indeed the TTR is equal to 0.25, which means that in a sequence
+of 4 words, 3 words are the same and only 1 is different. The season
+with the richest lexical seems to be the season 2 iwth a TTR score
+almost 0.5 .
+
+\includegraphics{report_files/figure-latex/unnamed-chunk-20-1.pdf}
+
+\hypertarget{keyness-analysis}{%
+\subsubsection{Keyness analysis}\label{keyness-analysis}}
+
+We made a Keyness analysis, to understand what is the ration of the
+terms in the target compared to others in the rest of the corpus.
+
+\begin{itemize}
+\item
+  In the first graph, we analysis season 5 as the target. The reference
+  is the rest of the corpus, and we observe that the word \emph{`siri'}
+  is the most used in the script of season 5 compared to the rest.
+\item
+  In the second graph, we analysis season 7 as the target. The reference
+  is the rest of the corpus, and we observe that the word
+  \emph{`element'} is the most used in the script of season 7 compared
+  to the rest.
+\end{itemize}
+
+\includegraphics{report_files/figure-latex/unnamed-chunk-21-1.pdf}
+\includegraphics{report_files/figure-latex/unnamed-chunk-21-2.pdf}
+
+\hypertarget{co-occurence-analysis}{%
+\subsubsection{Co-occurence analysis}\label{co-occurence-analysis}}
+
+Next, we decided to create a co-occurrence matrix to have an overview on
+which word often appears together.
+
+Because it is very difficult to see when we have too many words, we
+decided to restrict the co-occurrence matrix to terms that co-occur more
+than 300 times together.
+
+The representation matrix helps us to understand how many times the most
+frequent words co-occur together in all the corpus. For example,
+\emph{`time'} and \emph{`guy'} co-occur 138'402 times together in the
+corpus, which means that they are used in the same context in the
+script.
+
+Below is a plot of the co-occurrence graph. Each connection means that
+the two words appear together more than 30000 times. We see that at the
+center we have the terms \emph{`time'}, \emph{`talk'}, \emph{`guy'}
+which means that these words often appear along with the others.
+
+\includegraphics{report_files/figure-latex/unnamed-chunk-24-1.pdf}
+
+\hypertarget{eda-for-the-character-analysis}{%
+\subsection{EDA for the character
+analysis}\label{eda-for-the-character-analysis}}
+
+\hypertarget{tokenization-and-cleaning-of-the-data-1}{%
+\subsubsection{Tokenization and cleaning of the
+data}\label{tokenization-and-cleaning-of-the-data-1}}
+
+As with the season data we decided to make a tokenization and to do some
+pre-process cleaning of the data. Indeed, we removed all the numbers,
+punctuation, symbols, separators, stopwords, the same vector containing
+the characters' names and the vector containing the words we judged not
+insightful for our analysis. Then we conducted a lemmatisation.
+
+\hypertarget{the-10-most-frequent-words-per-character}{%
+\subsubsection{The 10 most frequent words per
+character}\label{the-10-most-frequent-words-per-character}}
+
+We show here the most used words per character. We see that leonard
+often uses the word \emph{`love'} and Penny often uses the word
+\emph{`fine'}. Our first idea could be that Leonard is a very positive
+person, if the word \emph{`love'} is often pronounced by him.
+
+\includegraphics{report_files/figure-latex/unnamed-chunk-26-1.pdf}
+
+\hypertarget{the-tf-idf-per-character}{%
+\subsubsection{The TF-IDF per
+character}\label{the-tf-idf-per-character}}
+
+Next we want to have an idea of what word is specific to which
+character. Therefore we plot the 10 most specific terms per character.
+Interestingly, the terms are very similar, but the allocation to the
+character is slightly different. From this plot, it seems that the word
+\emph{`remarkable'} are quite specific to the character Howard. While
+the terms \emph{`lord'} and \emph{`beverage'} are quite specific to
+Leonard. Maybe Penny has a tick word which is \emph{`hee'}, as it is
+quite very specific to her.
+
+\includegraphics{report_files/figure-latex/unnamed-chunk-27-1.pdf}
+
+\hypertarget{representation-of-the-term-frequencies-1}{%
+\subsubsection{Representation of the term
+frequencies}\label{representation-of-the-term-frequencies-1}}
+
+This plot allows us to confirm our first insight. Again, we have alreasy
+seen previously in the season analysis that terms such as \emph{`time'},
+\emph{`guy'} and \emph{`talk'} are very frequent throughout the whole
+seasons and here they are present throughout each character so they are
+not specific to anyone. On the contrary, we see words such as
+\emph{`hee'} and \emph{`remarkable'} are very specific to a certain
+character.
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'आज' in 'mbcsToSbcs': dot substituted for <e0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'आज' in 'mbcsToSbcs': dot substituted for <a4>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'आज' in 'mbcsToSbcs': dot substituted for <86>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'आज' in 'mbcsToSbcs': dot substituted for <e0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'आज' in 'mbcsToSbcs': dot substituted for <a4>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'आज' in 'mbcsToSbcs': dot substituted for <9c>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'के' in 'mbcsToSbcs': dot substituted for <e0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'के' in 'mbcsToSbcs': dot substituted for <a4>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'के' in 'mbcsToSbcs': dot substituted for <95>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'के' in 'mbcsToSbcs': dot substituted for <e0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'के' in 'mbcsToSbcs': dot substituted for <a5>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'के' in 'mbcsToSbcs': dot substituted for <87>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'नये' in 'mbcsToSbcs': dot substituted for <e0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'नये' in 'mbcsToSbcs': dot substituted for <a4>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'नये' in 'mbcsToSbcs': dot substituted for <a8>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'नये' in 'mbcsToSbcs': dot substituted for <e0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'नये' in 'mbcsToSbcs': dot substituted for <a4>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'नये' in 'mbcsToSbcs': dot substituted for <af>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'नये' in 'mbcsToSbcs': dot substituted for <e0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'नये' in 'mbcsToSbcs': dot substituted for <a5>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'नये' in 'mbcsToSbcs': dot substituted for <87>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'अच्छे' in 'mbcsToSbcs': dot substituted for <e0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'अच्छे' in 'mbcsToSbcs': dot substituted for <a4>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'अच्छे' in 'mbcsToSbcs': dot substituted for <85>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'अच्छे' in 'mbcsToSbcs': dot substituted for <e0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'अच्छे' in 'mbcsToSbcs': dot substituted for <a4>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'अच्छे' in 'mbcsToSbcs': dot substituted for <9a>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'अच्छे' in 'mbcsToSbcs': dot substituted for <e0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'अच्छे' in 'mbcsToSbcs': dot substituted for <a5>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'अच्छे' in 'mbcsToSbcs': dot substituted for <8d>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'अच्छे' in 'mbcsToSbcs': dot substituted for <e0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'अच्छे' in 'mbcsToSbcs': dot substituted for <a4>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'अच्छे' in 'mbcsToSbcs': dot substituted for <9b>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'अच्छे' in 'mbcsToSbcs': dot substituted for <e0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'अच्छे' in 'mbcsToSbcs': dot substituted for <a5>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'अच्छे' in 'mbcsToSbcs': dot substituted for <87>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'संगीत' in 'mbcsToSbcs': dot substituted for <e0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'संगीत' in 'mbcsToSbcs': dot substituted for <a4>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'संगीत' in 'mbcsToSbcs': dot substituted for <b8>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'संगीत' in 'mbcsToSbcs': dot substituted for <e0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'संगीत' in 'mbcsToSbcs': dot substituted for <a4>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'संगीत' in 'mbcsToSbcs': dot substituted for <82>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'संगीत' in 'mbcsToSbcs': dot substituted for <e0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'संगीत' in 'mbcsToSbcs': dot substituted for <a4>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'संगीत' in 'mbcsToSbcs': dot substituted for <97>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'संगीत' in 'mbcsToSbcs': dot substituted for <e0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'संगीत' in 'mbcsToSbcs': dot substituted for <a5>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'संगीत' in 'mbcsToSbcs': dot substituted for <80>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'संगीत' in 'mbcsToSbcs': dot substituted for <e0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'संगीत' in 'mbcsToSbcs': dot substituted for <a4>
+
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'संगीत' in 'mbcsToSbcs': dot substituted for <a4>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'का' in 'mbcsToSbcs': dot substituted for <e0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'का' in 'mbcsToSbcs': dot substituted for <a4>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'का' in 'mbcsToSbcs': dot substituted for <95>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'का' in 'mbcsToSbcs': dot substituted for <e0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'का' in 'mbcsToSbcs': dot substituted for <a4>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'का' in 'mbcsToSbcs': dot substituted for <be>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'घर' in 'mbcsToSbcs': dot substituted for <e0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'घर' in 'mbcsToSbcs': dot substituted for <a4>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'घर' in 'mbcsToSbcs': dot substituted for <98>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'घर' in 'mbcsToSbcs': dot substituted for <e0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'घर' in 'mbcsToSbcs': dot substituted for <a4>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'घर' in 'mbcsToSbcs': dot substituted for <b0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'जो' in 'mbcsToSbcs': dot substituted for <e0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'जो' in 'mbcsToSbcs': dot substituted for <a4>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'जो' in 'mbcsToSbcs': dot substituted for <9c>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'जो' in 'mbcsToSbcs': dot substituted for <e0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'जो' in 'mbcsToSbcs': dot substituted for <a5>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'जो' in 'mbcsToSbcs': dot substituted for <8b>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'भी' in 'mbcsToSbcs': dot substituted for <e0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'भी' in 'mbcsToSbcs': dot substituted for <a4>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'भी' in 'mbcsToSbcs': dot substituted for <ad>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'भी' in 'mbcsToSbcs': dot substituted for <e0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'भी' in 'mbcsToSbcs': dot substituted for <a5>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'भी' in 'mbcsToSbcs': dot substituted for <80>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'तुम्हारे' in 'mbcsToSbcs': dot substituted for <e0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'तुम्हारे' in 'mbcsToSbcs': dot substituted for <a4>
+
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'तुम्हारे' in 'mbcsToSbcs': dot substituted for <a4>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'तुम्हारे' in 'mbcsToSbcs': dot substituted for <e0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'तुम्हारे' in 'mbcsToSbcs': dot substituted for <a5>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'तुम्हारे' in 'mbcsToSbcs': dot substituted for <81>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'तुम्हारे' in 'mbcsToSbcs': dot substituted for <e0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'तुम्हारे' in 'mbcsToSbcs': dot substituted for <a4>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'तुम्हारे' in 'mbcsToSbcs': dot substituted for <ae>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'तुम्हारे' in 'mbcsToSbcs': dot substituted for <e0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'तुम्हारे' in 'mbcsToSbcs': dot substituted for <a5>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'तुम्हारे' in 'mbcsToSbcs': dot substituted for <8d>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'तुम्हारे' in 'mbcsToSbcs': dot substituted for <e0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'तुम्हारे' in 'mbcsToSbcs': dot substituted for <a4>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'तुम्हारे' in 'mbcsToSbcs': dot substituted for <b9>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'तुम्हारे' in 'mbcsToSbcs': dot substituted for <e0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'तुम्हारे' in 'mbcsToSbcs': dot substituted for <a4>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'तुम्हारे' in 'mbcsToSbcs': dot substituted for <be>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'तुम्हारे' in 'mbcsToSbcs': dot substituted for <e0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'तुम्हारे' in 'mbcsToSbcs': dot substituted for <a4>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'तुम्हारे' in 'mbcsToSbcs': dot substituted for <b0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'तुम्हारे' in 'mbcsToSbcs': dot substituted for <e0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'तुम्हारे' in 'mbcsToSbcs': dot substituted for <a5>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'तुम्हारे' in 'mbcsToSbcs': dot substituted for <87>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'नाव' in 'mbcsToSbcs': dot substituted for <e0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'नाव' in 'mbcsToSbcs': dot substituted for <a4>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'नाव' in 'mbcsToSbcs': dot substituted for <a8>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'नाव' in 'mbcsToSbcs': dot substituted for <e0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'नाव' in 'mbcsToSbcs': dot substituted for <a4>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'नाव' in 'mbcsToSbcs': dot substituted for <be>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'नाव' in 'mbcsToSbcs': dot substituted for <e0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'नाव' in 'mbcsToSbcs': dot substituted for <a4>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'नाव' in 'mbcsToSbcs': dot substituted for <b5>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'मंगाई' in 'mbcsToSbcs': dot substituted for <e0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'मंगाई' in 'mbcsToSbcs': dot substituted for <a4>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'मंगाई' in 'mbcsToSbcs': dot substituted for <ae>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'मंगाई' in 'mbcsToSbcs': dot substituted for <e0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'मंगाई' in 'mbcsToSbcs': dot substituted for <a4>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'मंगाई' in 'mbcsToSbcs': dot substituted for <82>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'मंगाई' in 'mbcsToSbcs': dot substituted for <e0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'मंगाई' in 'mbcsToSbcs': dot substituted for <a4>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'मंगाई' in 'mbcsToSbcs': dot substituted for <97>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'मंगाई' in 'mbcsToSbcs': dot substituted for <e0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'मंगाई' in 'mbcsToSbcs': dot substituted for <a4>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'मंगाई' in 'mbcsToSbcs': dot substituted for <be>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'मंगाई' in 'mbcsToSbcs': dot substituted for <e0>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'मंगाई' in 'mbcsToSbcs': dot substituted for <a4>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'मंगाई' in 'mbcsToSbcs': dot substituted for <88>
+\end{verbatim}
+
+\includegraphics{report_files/figure-latex/unnamed-chunk-28-1.pdf}
+
+\hypertarget{lexical-diversity-1}{%
+\subsubsection{Lexical diversity}\label{lexical-diversity-1}}
+
+We compute the lexical diversity of each character. It seems that Raj
+has the most diverse lexical with a Token-Type-Ratio of a bit mit more
+than 0.3. Indeed, in the series, he sometimes even speak in Hindi.
+Surprisingly, Sheldon has the less diverse vocabulary with a TTR of less
+0.25, we were expecting more since he seemed to be the most well-known
+character of the series.
+
+\includegraphics{report_files/figure-latex/unnamed-chunk-30-1.pdf}
+
+For the EDA of the character, we did not judge relevant to perform a
+co-occurrence analysis as the script is the same regardless if it is
+separated per season or per characters.
+
+\hypertarget{part-3-ananlysis}{%
+\section{Part 3 : Ananlysis}\label{part-3-ananlysis}}
+
+\hypertarget{part-3.1-sentiment-analysis-by-season}{%
+\subsection{Part 3.1 Sentiment Analysis by
+season}\label{part-3.1-sentiment-analysis-by-season}}
+
+\hypertarget{sentiment-analysis}{%
+\subsubsection{Sentiment Analysis}\label{sentiment-analysis}}
+
+In this following part, we want to compute the sentiment of each season.
+To do so, we decide to first used the `NRC' dictionary to perform the
+analysis. Then we want to compare our results to another analysis using
+another dictionary, the `afinn' dictionary.
+
+\hypertarget{nrc-dictionary}{%
+\paragraph{NRC dictionary}\label{nrc-dictionary}}
+
+The NRC dictionary contains a list of English words and their
+associations with eight basic emotions and two sentiments (positive or
+negative). These emotions are anger, fear, anticipation, trust,
+surprise, sadness, joy, and disgust. Based on this dictionary, one
+English word can be associated to several emotions. For example, we see
+on the following table that the term `abandon' is associated to several
+emotions (fear, negative, sadness).
+
+For each token in our data scripts, we join the corresponding sentiment
+qualifier in ``nrc'' using the \texttt{inner.join()} function from
+\texttt{dplyr}: Below, you can see the first 10 rows of the dictionary.
+
+\begin{verbatim}
+## Warning: Warning: fonts used in `flextable` are ignored because the `pdflatex`
+## engine is used and not `xelatex` or `lualatex`. You can avoid this warning
+## by using the `set_flextable_defaults(fonts_ignore=TRUE)` command or use a
+## compatible engine by defining `latex_engine: xelatex` in the YAML header of the
+## R Markdown document.
+\end{verbatim}
+
+\providecommand{\docline}[3]{\noalign{\global\setlength{\arrayrulewidth}{#1}}\arrayrulecolor[HTML]{#2}\cline{#3}}
+
+\setlength{\tabcolsep}{0pt}
+
+\renewcommand*{\arraystretch}{1.5}
+
+\begin{longtable}[c]{|p{0.78in}|p{0.77in}|p{1.06in}}
+
+
+
+\hhline{>{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}-}
+
+\multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.78in+0\tabcolsep+0\arrayrulewidth}}{\textcolor[HTML]{000000}{\fontsize{11}{11}\selectfont{season}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedright}p{\dimexpr 0.77in+0\tabcolsep+0\arrayrulewidth}}{\textcolor[HTML]{000000}{\fontsize{11}{11}\selectfont{word}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedright}p{\dimexpr 1.06in+0\tabcolsep+0\arrayrulewidth}!{\color[HTML]{000000}\vrule width 0pt}}{\textcolor[HTML]{000000}{\fontsize{11}{11}\selectfont{sentiment}}} \\
+
+\hhline{>{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}-}\endhead
+
+
+
+\multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.78in+0\tabcolsep+0\arrayrulewidth}}{\textcolor[HTML]{000000}{\fontsize{11}{11}\selectfont{1}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedright}p{\dimexpr 0.77in+0\tabcolsep+0\arrayrulewidth}}{\textcolor[HTML]{000000}{\fontsize{11}{11}\selectfont{bank}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedright}p{\dimexpr 1.06in+0\tabcolsep+0\arrayrulewidth}!{\color[HTML]{000000}\vrule width 0pt}}{\textcolor[HTML]{000000}{\fontsize{11}{11}\selectfont{trust}}} \\
+
+
+
+
+
+\multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.78in+0\tabcolsep+0\arrayrulewidth}}{\textcolor[HTML]{000000}{\fontsize{11}{11}\selectfont{1}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedright}p{\dimexpr 0.77in+0\tabcolsep+0\arrayrulewidth}}{\textcolor[HTML]{000000}{\fontsize{11}{11}\selectfont{agreed}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedright}p{\dimexpr 1.06in+0\tabcolsep+0\arrayrulewidth}!{\color[HTML]{000000}\vrule width 0pt}}{\textcolor[HTML]{000000}{\fontsize{11}{11}\selectfont{positive}}} \\
+
+
+
+
+
+\multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.78in+0\tabcolsep+0\arrayrulewidth}}{\textcolor[HTML]{000000}{\fontsize{11}{11}\selectfont{1}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedright}p{\dimexpr 0.77in+0\tabcolsep+0\arrayrulewidth}}{\textcolor[HTML]{000000}{\fontsize{11}{11}\selectfont{agreed}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedright}p{\dimexpr 1.06in+0\tabcolsep+0\arrayrulewidth}!{\color[HTML]{000000}\vrule width 0pt}}{\textcolor[HTML]{000000}{\fontsize{11}{11}\selectfont{trust}}} \\
+
+
+
+
+
+\multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.78in+0\tabcolsep+0\arrayrulewidth}}{\textcolor[HTML]{000000}{\fontsize{11}{11}\selectfont{1}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedright}p{\dimexpr 0.77in+0\tabcolsep+0\arrayrulewidth}}{\textcolor[HTML]{000000}{\fontsize{11}{11}\selectfont{excuse}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedright}p{\dimexpr 1.06in+0\tabcolsep+0\arrayrulewidth}!{\color[HTML]{000000}\vrule width 0pt}}{\textcolor[HTML]{000000}{\fontsize{11}{11}\selectfont{negative}}} \\
+
+
+
+
+
+\multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.78in+0\tabcolsep+0\arrayrulewidth}}{\textcolor[HTML]{000000}{\fontsize{11}{11}\selectfont{1}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedright}p{\dimexpr 0.77in+0\tabcolsep+0\arrayrulewidth}}{\textcolor[HTML]{000000}{\fontsize{11}{11}\selectfont{prince}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedright}p{\dimexpr 1.06in+0\tabcolsep+0\arrayrulewidth}!{\color[HTML]{000000}\vrule width 0pt}}{\textcolor[HTML]{000000}{\fontsize{11}{11}\selectfont{positive}}} \\
+
+
+
+
+
+\multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.78in+0\tabcolsep+0\arrayrulewidth}}{\textcolor[HTML]{000000}{\fontsize{11}{11}\selectfont{1}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedright}p{\dimexpr 0.77in+0\tabcolsep+0\arrayrulewidth}}{\textcolor[HTML]{000000}{\fontsize{11}{11}\selectfont{prince}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedright}p{\dimexpr 1.06in+0\tabcolsep+0\arrayrulewidth}!{\color[HTML]{000000}\vrule width 0pt}}{\textcolor[HTML]{000000}{\fontsize{11}{11}\selectfont{positive}}} \\
+
+
+
+
+
+\multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.78in+0\tabcolsep+0\arrayrulewidth}}{\textcolor[HTML]{000000}{\fontsize{11}{11}\selectfont{1}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedright}p{\dimexpr 0.77in+0\tabcolsep+0\arrayrulewidth}}{\textcolor[HTML]{000000}{\fontsize{11}{11}\selectfont{bank}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedright}p{\dimexpr 1.06in+0\tabcolsep+0\arrayrulewidth}!{\color[HTML]{000000}\vrule width 0pt}}{\textcolor[HTML]{000000}{\fontsize{11}{11}\selectfont{trust}}} \\
+
+
+
+
+
+\multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.78in+0\tabcolsep+0\arrayrulewidth}}{\textcolor[HTML]{000000}{\fontsize{11}{11}\selectfont{1}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedright}p{\dimexpr 0.77in+0\tabcolsep+0\arrayrulewidth}}{\textcolor[HTML]{000000}{\fontsize{11}{11}\selectfont{fill}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedright}p{\dimexpr 1.06in+0\tabcolsep+0\arrayrulewidth}!{\color[HTML]{000000}\vrule width 0pt}}{\textcolor[HTML]{000000}{\fontsize{11}{11}\selectfont{trust}}} \\
+
+
+
+
+
+\multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.78in+0\tabcolsep+0\arrayrulewidth}}{\textcolor[HTML]{000000}{\fontsize{11}{11}\selectfont{1}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedright}p{\dimexpr 0.77in+0\tabcolsep+0\arrayrulewidth}}{\textcolor[HTML]{000000}{\fontsize{11}{11}\selectfont{time}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedright}p{\dimexpr 1.06in+0\tabcolsep+0\arrayrulewidth}!{\color[HTML]{000000}\vrule width 0pt}}{\textcolor[HTML]{000000}{\fontsize{11}{11}\selectfont{anticipation}}} \\
+
+
+
+
+
+\multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.78in+0\tabcolsep+0\arrayrulewidth}}{\textcolor[HTML]{000000}{\fontsize{11}{11}\selectfont{1}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedright}p{\dimexpr 0.77in+0\tabcolsep+0\arrayrulewidth}}{\textcolor[HTML]{000000}{\fontsize{11}{11}\selectfont{wait}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedright}p{\dimexpr 1.06in+0\tabcolsep+0\arrayrulewidth}!{\color[HTML]{000000}\vrule width 0pt}}{\textcolor[HTML]{000000}{\fontsize{11}{11}\selectfont{anticipation}}} \\
+
+\hhline{>{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}-}
+
+
+
+\end{longtable}
+
+\hypertarget{sentiment-analyis}{%
+\subsection{Sentiment Analyis}\label{sentiment-analyis}}
+
+\includegraphics{report_files/figure-latex/unnamed-chunk-35-1.pdf}
+
+To compare the documents, each season, we rescale them by their length
+(i.e.~the frequencies of sentiments are computed, by document):
+\includegraphics{report_files/figure-latex/unnamed-chunk-36-1.pdf} By
+re-scaling, we see that all seasons follow the same pattern, meaning
+that they are mainly positive and reflecting the sentiment of trust
+while very few of disgust sentiments appear. We can understand that the
+pattern is rather recurrent based on the consistency on the characters
+humors and mood. Also if the comedy works well, the directors will
+follow the same process over and over the season. The feeling of trust
+is also well present which might reflect the friendship aspect. Indeed
+it is the main component of the show.
+
+\hypertarget{afinn-dictionary}{%
+\paragraph{AFINN dictionary}\label{afinn-dictionary}}
+
+Now, on this part, we will us the AFINN dictionary. This dictionary
+contains a list of English words manually rated for valence with an
+integer between -5 (very negative) and +5 (very positive) by Finn Årup
+Nielsen.
+
+We see on the below table that the word `abandoned' has a value of -2
+which means that it is relatively negative.
+
+\begin{table}[H]
+
+\caption{\label{tab:unnamed-chunk-37}The 6 first row of AFINN dictionary }
+\centering
+\fontsize{7}{9}\selectfont
+\begin{tabu} to \linewidth {>{\raggedright}X>{\raggedleft}X}
+\hline
+word & value\\
+\hline
+abandon & -2\\
+\hline
+abandoned & -2\\
+\hline
+abandons & -2\\
+\hline
+abducted & -2\\
+\hline
+abduction & -2\\
+\hline
+abductions & -2\\
+\hline
+\end{tabu}
+\end{table}
+
+We see there on the table below that the seasons 3, 2 and 7 are
+categorized as relatively negative with season 3 being the most
+negative.
+
+\begin{verbatim}
+## Warning: Warning: fonts used in `flextable` are ignored because the `pdflatex`
+## engine is used and not `xelatex` or `lualatex`. You can avoid this warning
+## by using the `set_flextable_defaults(fonts_ignore=TRUE)` command or use a
+## compatible engine by defining `latex_engine: xelatex` in the YAML header of the
+## R Markdown document.
+\end{verbatim}
+
+\providecommand{\docline}[3]{\noalign{\global\setlength{\arrayrulewidth}{#1}}\arrayrulecolor[HTML]{#2}\cline{#3}}
+
+\setlength{\tabcolsep}{0pt}
+
+\renewcommand*{\arraystretch}{1.5}
+
+\begin{longtable}[c]{|p{0.78in}|p{1.14in}}
+
+
+
+\hhline{>{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}-}
+
+\multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.78in+0\tabcolsep+0\arrayrulewidth}}{\textcolor[HTML]{000000}{\fontsize{11}{11}\selectfont{season}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 1.14in+0\tabcolsep+0\arrayrulewidth}!{\color[HTML]{000000}\vrule width 0pt}}{\textcolor[HTML]{000000}{\fontsize{11}{11}\selectfont{Score}}} \\
+
+\hhline{>{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}-}\endhead
+
+
+
+\multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.78in+0\tabcolsep+0\arrayrulewidth}}{\textcolor[HTML]{000000}{\fontsize{11}{11}\selectfont{3}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 1.14in+0\tabcolsep+0\arrayrulewidth}!{\color[HTML]{000000}\vrule width 0pt}}{\textcolor[HTML]{000000}{\fontsize{11}{11}\selectfont{-0.04703390}}} \\
+
+
+
+
+
+\multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.78in+0\tabcolsep+0\arrayrulewidth}}{\textcolor[HTML]{000000}{\fontsize{11}{11}\selectfont{2}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 1.14in+0\tabcolsep+0\arrayrulewidth}!{\color[HTML]{000000}\vrule width 0pt}}{\textcolor[HTML]{000000}{\fontsize{11}{11}\selectfont{-0.01577287}}} \\
+
+
+
+
+
+\multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.78in+0\tabcolsep+0\arrayrulewidth}}{\textcolor[HTML]{000000}{\fontsize{11}{11}\selectfont{7}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 1.14in+0\tabcolsep+0\arrayrulewidth}!{\color[HTML]{000000}\vrule width 0pt}}{\textcolor[HTML]{000000}{\fontsize{11}{11}\selectfont{0.02644320}}} \\
+
+
+
+
+
+\multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.78in+0\tabcolsep+0\arrayrulewidth}}{\textcolor[HTML]{000000}{\fontsize{11}{11}\selectfont{4}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 1.14in+0\tabcolsep+0\arrayrulewidth}!{\color[HTML]{000000}\vrule width 0pt}}{\textcolor[HTML]{000000}{\fontsize{11}{11}\selectfont{0.10514457}}} \\
+
+
+
+
+
+\multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.78in+0\tabcolsep+0\arrayrulewidth}}{\textcolor[HTML]{000000}{\fontsize{11}{11}\selectfont{1}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 1.14in+0\tabcolsep+0\arrayrulewidth}!{\color[HTML]{000000}\vrule width 0pt}}{\textcolor[HTML]{000000}{\fontsize{11}{11}\selectfont{0.11864407}}} \\
+
+
+
+
+
+\multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.78in+0\tabcolsep+0\arrayrulewidth}}{\textcolor[HTML]{000000}{\fontsize{11}{11}\selectfont{10}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 1.14in+0\tabcolsep+0\arrayrulewidth}!{\color[HTML]{000000}\vrule width 0pt}}{\textcolor[HTML]{000000}{\fontsize{11}{11}\selectfont{0.19701493}}} \\
+
+
+
+
+
+\multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.78in+0\tabcolsep+0\arrayrulewidth}}{\textcolor[HTML]{000000}{\fontsize{11}{11}\selectfont{5}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 1.14in+0\tabcolsep+0\arrayrulewidth}!{\color[HTML]{000000}\vrule width 0pt}}{\textcolor[HTML]{000000}{\fontsize{11}{11}\selectfont{0.23056402}}} \\
+
+
+
+
+
+\multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.78in+0\tabcolsep+0\arrayrulewidth}}{\textcolor[HTML]{000000}{\fontsize{11}{11}\selectfont{8}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 1.14in+0\tabcolsep+0\arrayrulewidth}!{\color[HTML]{000000}\vrule width 0pt}}{\textcolor[HTML]{000000}{\fontsize{11}{11}\selectfont{0.30131827}}} \\
+
+
+
+
+
+\multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.78in+0\tabcolsep+0\arrayrulewidth}}{\textcolor[HTML]{000000}{\fontsize{11}{11}\selectfont{6}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 1.14in+0\tabcolsep+0\arrayrulewidth}!{\color[HTML]{000000}\vrule width 0pt}}{\textcolor[HTML]{000000}{\fontsize{11}{11}\selectfont{0.31364829}}} \\
+
+
+
+
+
+\multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 0.78in+0\tabcolsep+0\arrayrulewidth}}{\textcolor[HTML]{000000}{\fontsize{11}{11}\selectfont{9}}} & \multicolumn{1}{!{\color[HTML]{000000}\vrule width 0pt}>{\raggedleft}p{\dimexpr 1.14in+0\tabcolsep+0\arrayrulewidth}!{\color[HTML]{000000}\vrule width 0pt}}{\textcolor[HTML]{000000}{\fontsize{11}{11}\selectfont{0.34000728}}} \\
+
+\hhline{>{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}->{\arrayrulecolor[HTML]{666666}\global\arrayrulewidth=2pt}-}
+
+
+
+\end{longtable}
+
+\includegraphics{report_files/figure-latex/unnamed-chunk-39-1.pdf} From
+this analysis we can observe that the second half of the show, except
+for season 7, has a more positive score. We can suppose that the
+characters tend to become more positive and maybe less sarcastic as the
+series goes on
+
+\hypertarget{quanteda-analysis}{%
+\subsection{Quanteda analysis}\label{quanteda-analysis}}
+
+From another dictionary named `data\_dictionary\_LSD2015', we see pretty
+much the same analysis.
+
+\hypertarget{valence-shifters-analysis}{%
+\subsection{Valence-Shifters analysis}\label{valence-shifters-analysis}}
+
+Valence shifters are words that alter or intensify the meaning of the
+polarized words and include negators and amplifiers.
+
+\begin{enumerate}
+\def\labelenumi{\alph{enumi}.}
+\setcounter{enumi}{23}
+\tightlist
+\item
+  Valence shifter
+\item
+  Number key value corresponding to:
+\end{enumerate}
+
+Valence Shifter Value Negator 1 Amplifier (intensifier) 2 De-amplifier
+(downtoner) 3 Adversative Conjunction 4
+
+\includegraphics{report_files/figure-latex/unnamed-chunk-44-1.pdf} We
+can see with this density graph, the average sentiment on the wole
+season, with the valence shifters. It tends on average to be superior to
+0, the mean around 0.8.
+
+\hypertarget{valence-shifter-approach-on-each-season}{%
+\section{Valence shifter approach on each
+season}\label{valence-shifter-approach-on-each-season}}
+
+\includegraphics{report_files/figure-latex/unnamed-chunk-46-1.pdf} The
+analysis is possible by going through each sentence. Looking at season 9
+for instance, the end of the show looks to be very positive with an
+increasing trend. The pattern shows that sometimes we have high peaks
+like in season 4. And sometimes very low peaks but it remains well
+distributed. Indeed if we take a look at season 10, we have 4 drops in
+the negative and it looks to appear every 1000 sentences.
+
+\includegraphics{report_files/figure-latex/unnamed-chunk-48-1.pdf} With
+this barplot, we can once again identify the scaled average sentiment
+and see that the most positive season is 10 and the least positive
+season is 2. The main difference with the valence shifter shows that
+season 10 is way more positive with this analysis compared to the
+previous one. It shows how important we must consider this aspect.
+
+\hypertarget{part-3.3.1-topic-modelling}{%
+\section{Part 3.3.1 : Topic
+Modelling}\label{part-3.3.1-topic-modelling}}
+
+\hypertarget{similarities-between-season-scripts}{%
+\subsection{Similarities between season
+scripts}\label{similarities-between-season-scripts}}
+
+In this part, we want to compare the similarities of the scripts between
+the season. We decided to use the 3 similarities measure to compute the
+similarity matrix: Jaccard similarity, Cosine distance, and Euclidean
+distance. The best/explanatory method in our case seems to be the
+Euclidean one and we will therefore concentrate on it for the following.
+
+\includegraphics{report_files/figure-latex/unnamed-chunk-51-1.pdf} From
+the Euclidean co-occurence matrix plot, it seems that season 4 is close
+to every other seasons. On the contrary, season 6 and season 2 are more
+distant (but we know that there may be a problem in webscrapping).
+
+\hypertarget{clustering}{%
+\subsection{Clustering}\label{clustering}}
+
+Then, to create a cluster, we decide to focus on the Euclidean distance
+only.
+
+\includegraphics{report_files/figure-latex/unnamed-chunk-52-1.pdf}
+
+\begin{verbatim}
+##       Clust.1     Clust.2     Clust.3
+## 1 gablehouser        siri sheldon-bot
+## 2         hee switzerland      latham
+## 3      no-one         bom       glenn
+## 4         leo       flags        todd
+## 5        halo     crawley       troll
+\end{verbatim}
+
+Not surprisingly here, we find the same characteristics for seasons 4, 2
+and 6 as before regarding their proximities.
+
+\hypertarget{similarities-between-words}{%
+\subsection{Similarities between
+words}\label{similarities-between-words}}
+
+We use the cosine distance measure to determine the similarities between
+words.
+
+\hypertarget{clustering-words}{%
+\subsection{Clustering words}\label{clustering-words}}
+
+\includegraphics{report_files/figure-latex/unnamed-chunk-54-1.pdf}
+
+We decided to represent the similarities of words with a cluster
+dendogram rather than a matrix. With the matrix the the interpretation
+is harder to read. The method used here in the cluster distance is 1 -
+Similarities (cosine). As a result : \emph{`feel'} and \emph{`happy'}
+are really close. However when we compare \emph{`live'}, \emph{`baby'}
+and \emph{`night'} and \emph{`friend'} are very distant. Indeed if it
+refers to `baby' as a child, I guess it is not used in the same scene as
+`night with friend'.
+
+\hypertarget{part-3.3.2-term-topic-analysis}{%
+\subsection{Part 3.3.2 : Term-Topic
+Analysis}\label{part-3.3.2-term-topic-analysis}}
+
+We want to analyze the topics of the season scripts using LSA and LDA.
+
+As the first dimension is often linked to the document length, we wanted
+to verify that this was the case. And indeed, the dimension 1 is
+negatively correlated with the document length.
+
+Then we did an analysis of topics 2 and 3.
+
+\begin{itemize}
+\tightlist
+\item
+  Topic 2 is associated positively to ``baby'', ``feel'' and ``love''
+  and negatively with ``ring'', ``night'' and ``mother''.
+\item
+  Topic 3 is associated positively to ``time'', ``gablehouser'' and
+  ``enter'' and negatively with ``ring'', ``past'' and ``feel''.
+\end{itemize}
+
+In order to visually represent the relationship between topics 2 and 3,
+seasons and words, we perform an LSA-based biplot. Because of the large
+number of terms, the interpretation is difficult. Below, you can see the
+chart to the terms that are mostly related to the dimensions 2 and 3
+
+\includegraphics{report_files/figure-latex/unnamed-chunk-59-1.pdf}
+
+The biplot shows that Topic 2 is associated with seasons 7,8,9 and 10
+and with the words ``love'', ``baby'', ``happy'',``guy'' and
+anti-associated with season 3 and with the words ``ring'', ``friend'',
+``mother''. Topic 3 is associated with seasons 1 and 4 and with words
+``enter'', ``gablehouser'', ``machine'' and anti-associated with
+``ring'', ``fine'', ``day''.
+
+\hypertarget{lda-using-quanteda}{%
+\subsection{LDA using quanteda}\label{lda-using-quanteda}}
+
+We now turn to an LDA. We started with 10 topics and then eliminated the
+non-miningful ones until we get to choose 5 topics. These topics are
+related to the words below.
+
+\begin{verbatim}
+##      topic1        topic2    topic3   topic4     topic5  
+## [1,] "page"        "past"    "play"   "baby"     "time"  
+## [2,] "sister"      "enter"   "wed"    "feel"     "guy"   
+## [3,] "sheldon-bot" "leave"   "hawk"   "birthday" "talk"  
+## [4,] "latham"      "voice"   "space"  "flag"     "friend"
+## [5,] "girlfriend"  "alright" "kripke" "kitchen"  "call"
+\end{verbatim}
+
+\hypertarget{term-topic-analysis}{%
+\subsection{Term-Topic Analysis}\label{term-topic-analysis}}
+
+The ``phi'' provides the probabilities of selecting a term given that it
+is a given topic. For a given topic, the largest phi provide the terms
+that are most associated with the topic.
+
+\includegraphics{report_files/figure-latex/unnamed-chunk-62-1.pdf}
+
+Here we plot the 5 largest probability terms within each subject.
+Despite the fact that these terms have the ighest probability to appears
+in this topic, their phi values are relatively low and therefore they
+are only slightly more common than the other terms.
+
+\hypertarget{topic-document-analysis}{%
+\subsection{Topic-Document Analysis}\label{topic-document-analysis}}
+
+The ``theta'' provides the probabilities (i.e., proportions) of the
+topics within each document (season).
+
+\includegraphics{report_files/figure-latex/unnamed-chunk-63-1.pdf}
+
+This graph shows us that Topic 5 is present at more than 50\% in all
+seasons. Topic 1 is more related to season 4, Topic 2 to seasons 1,2,3,
+Topic 3 to seasons 5,6,8 and Topic 4 to seasons 9 and 10. It seems to be
+a chronological link between the topics and the seasons.
+
+\hypertarget{part-3.2-sentiment-analysis-by-character}{%
+\section{Part 3.2 : Sentiment Analysis by
+character}\label{part-3.2-sentiment-analysis-by-character}}
+
+After the analysis of the script according to the seasons, we wanted to
+see how the five main characters (Sheldon, Leonard, Penny, Raj and
+Howard) of the show impact the script of the show through a sentiment
+analysis.
+
+We use a data set with which an observation is given for a character
+according to the sentence he says. Thus, we can use again here the `nrc'
+lexicon and have an idea of the dispersions of the feelings for each of
+our characters.
+
+\begin{verbatim}
+## `summarise()` has grouped output by 'character_name'. You can override using
+## the `.groups` argument.
+\end{verbatim}
+
+\includegraphics{report_files/figure-latex/unnamed-chunk-66-1.pdf}
+
+First, we see in this graph that Sheldon seems to be the most `intense'
+character. In the sense that he is the one who uses the most words that
+can be categorized by a feeling. Then we notice an identical pattern in
+all the characters. Indeed, we have a prevalence of positive words then
+negative and on the contrary less words related to the feelings `trust'
+and `disgust'.
+
+Since in the previous analysis negative and positive feelings
+predominate, we wanted to try to use another dictionary. This is a
+General purpose English sentiment lexicon that categorizes words in a
+binary fashion, either positive or negative.
+
+\hypertarget{negative-positive-ratio-in-all-seasons-by-using-bing-lexicon}{%
+\subsection{Negative-Positive Ratio in all seasons by using bing
+lexicon}\label{negative-positive-ratio-in-all-seasons-by-using-bing-lexicon}}
+
+\includegraphics{report_files/figure-latex/unnamed-chunk-68-1.pdf}
+
+We obtain a surprising result considering our previous findings. Indeed,
+we notice that the `negative' represents a major part in all the
+characters. This is contradictory with the results of the nrc lexicon
+(why ?). We also notice that Sheldon is the most negative character and
+Penny the most `positive' character. This analysis is consistent with
+our previous results. Also, we can imagine that some seasons are more or
+less pleasant for our characters. For example, Raj seems to have used
+more `positive' words in season 9 and Leonard in season 2 while Sheldon
+uses more negative than positive words in seasons 1, 3 and 7.
+
+\hypertarget{valence-shifter-approach-on-each-character}{%
+\section{Valence shifter approach on each
+character}\label{valence-shifter-approach-on-each-character}}
+
+\includegraphics{report_files/figure-latex/unnamed-chunk-70-1.pdf}
+
+The analysis is possible by going through each sentence. The most
+`instense' character is Sheldon, he appears to be very expressive in the
+positive like in the negative. However we can guess that he tends to be
+less and less negative through the end of the show. The lowest peaks are
+a little bit less frequent.
+
+\includegraphics{report_files/figure-latex/unnamed-chunk-72-1.pdf}
+
+With this barplot, we can once again identify the average sentiment and
+see that the most positive character is Penny with an average of 0.13,
+followed by Leonard. The least positive character is Sheldon.
+
+\hypertarget{supervised-learning}{%
+\section{Supervised Learning}\label{supervised-learning}}
+
+\hypertarget{features-dtm-and-lsa}{%
+\subsection{Features: DTM and LSA}\label{features-dtm-and-lsa}}
+
+First we create the corpus from the data set ``character\_speech''.
+Within this data set every line is coupled to the characters (Howard,
+Leonard, Penny, Raj, and Sheldon). The variable y is the character name
+(Howard, Leonard, Penny, Raj, and Sheldon) and is the variable we want
+to predict. This prediction is based on the previously mentioned lines
+in the script. After this we create a DFM from the tokenized corpus of
+the characters and their corresponding speech.
+
+Next, we train the classifier. First we combine the target variable and
+LSA together in a data frame. We then take a sample of 80\% of this data
+frame as the train set. The other 20\% will be used as the test set. We
+then train the classifier with the ranger package. We then predict and
+show the results in a confusion matrix of the caret package. It can be
+noted that the base rate (here called ``No Information Rate'') is
+0.2946. With an accuracy of 0.3572, it can be concluded that it does
+better than it would by random sampling. However, it also can be said
+that this accuracy is quite low. Therefore, in the next couple of
+paragraphs we look at further improving the model and its accuracy.
+
+\hypertarget{improving-the-features}{%
+\subsection{Improving the features:}\label{improving-the-features}}
+
+First, we transform the DFM to LSA, as we did in the previous paragraph.
+However, now we try to see for which number of dimensions the model
+gives the highest accuracy. A maximum number of 1000 dimensions is
+chosen, as with these dimensions the run time is already very long and
+the accuracy does not seem to increase significantly after 1000
+dimensions.
+
+The different accuracies for the number of dimensions 2 ,5, 25, 50, 100,
+500, 1000 are respectively 0.2597865, 0.3128437, 0.3303138, 0.3377548,
+0.3513426, 0.3581365, and 0.3568424. Due to the long run time and the
+fact that the accuracy curve is flattening, we choose a number of
+dimensions of 100, as this has a relative high accuracy, while taken the
+run time into account. We thus choose for a number of 100 dimensions (nd
+= 100) for the DFM and LSA.
+
+Second, we now make the choice to try to further improve the model by
+first transforming the DFM into a TF-IDF. As we did in the paragraph
+above, we again try to figure out for which number of dimensions the
+model gives the best accuracy. The resulting accuracies are 0.2761242,
+0.3023293, 0.3485927, 0.3489162, 0.3558719, 0.3587836, and 0.3536072 for
+respectively the number of dimension 2, 5, 25, 50, 100, 500, 1000.
+
+After running several scenarios with different dimensions, we again
+choose to use 100 dimensions, as more dimensions will increase the run
+time immensely, while the improvement on the accuracy is minimal.
+Furthermore, we choose to use the tf-idf, as this outperforms the dfm by
+a small margin, namely 0.3513426 for the dfm and 0.3558719 for the
+tf-idf.
+
+We now rerun the model with the chosen dimensions, so we can further
+improve on the accuracy with word embedding.
+
+\hypertarget{word-embedding-with-glove}{%
+\subsection{Word Embedding with glove}\label{word-embedding-with-glove}}
+
+We choose 100 as number of iterations, as the loss does decrease with
+more iterations, but the run time becomes too extensive, compared to the
+improvement made with every additional iteration. So we make the
+arbitrary decision to keep the number of iterations at 100. Increasing
+the rank from 25 to 50 (with 100 iterations) decreases the loss from
+0.0202 to 0.0051 and an accuracy of 0.3569 and 0.3692 respectively.
+Using a rank of 100 gives a loss of zero and an accuracy of 0.3614. It
+is thus interesting to see that the accuracy decreases for this value of
+100 for the rank, while the loss decreases. As a rank of 50 returns the
+highest accuracy for the chosen values for the rank, we use this value
+in our further analysis.
+
+For a window of 1, giving a loss of 0.0052 and accuracy of 0.3692 with a
+rank of 50. As the paragraph above has shown, a lower loss does not mean
+a higher accuracy, we thus compute both the loss and the accuracy for
+each window. Increasing the window to 5 gives a loss 0.0354 and an
+accuracy of 0.365. Decreasing the the window to 3 gives a loss of 0.0253
+and an accuracy of 0.3687. Again, we decrease the window to 2 which
+shows a loss 0.0168 of and an accuracy of 0.3685. Again, the difference
+is accuracy is small, however as a window of 1 results in the highest
+accuracy, we chose this as our base for the further improvements with
+GloVe.
+
+We tried another case where we add the length of the sentences. However,
+it decreases the accuracy to 0.3596. The explanation for this might be
+for the fact that each character has similar average lengths of lines of
+the script, as it is a very large corpus we are working with.
+
+Also, it seems that adding the centers will decrease the accuracy,
+namely to 0.3621. Thus, we get no further improvement based on combining
+the centers from the GloVe model and the tf-idf, compared to the GloVe
+model by itself.
+
+Out of curiosity and interest, we also tried to see how this accuracy
+would materialize in practice. The idea was to come up with a random
+sentence and see how the model would classify it. Sadly due to time
+constraint, we were not able to figure out the code to successfully
+predict a character name based on a random sentence. The code we tried
+is accessible within our files.
+
+Concluding from the previously run code, it can be said that using the
+GloVe model by itself gives the highest accuracy. Two things should be
+noted however, namely that the difference in accuracy does not change a
+lot with the different methods. Furthermore, although the accuracy is
+higher than the base rate, it does not increase significantly. An
+explanation might be due to the fact that it are fictional characters,
+which differ in the show by personality, but not a lot by vocabulary as
+seen in the Exploratory Data Analysis with the token-to-ratio graph. In
+other words, as most scenes in the series are based on conversations
+between the characters, similar topics and words will be discusses by
+the characters. This causes the same kind of distinctive words to be
+used by multiple characters. Also, since Penny is perceived as the less
+intelligent character within the series, we would have expect the models
+to be able to predict Penny pretty well. However, from the confusion
+matrices it can be concluded that this is not the case.
+
+\hypertarget{conclusion}{%
+\section{Conclusion}\label{conclusion}}
+
+Given the context of this series, we could have expected a much more
+scientific vocabulary. But we realized that it fits a lot in the codes
+of American sitcoms that puts forward the relationships between the
+characters, the dramas, and the typical subjects that we can expect from
+people of their age.
+
+The second half of the show seems more positive score. We can suppose
+that the characters tend to become more positive and maybe less
+sarcastic as the series goes on.
+
+Concerning the characters, Sheldon is the star of the show and this is
+felt in the analysis. He is always the one who talks the most and is the
+most intense.
+
+The second half of the show, except for season 7, has a more positive
+score. We can suppose that the characters tend to become more positive
+and maybe less sarcastic as the series goes on.
+
+\hypertarget{limits}{%
+\section{Limits:}\label{limits}}
+
+Some limits we encountered, could be :
+
+\begin{itemize}
+\tightlist
+\item
+  maybe a problems in web-scrapping for season 2 and 6 as they seems to
+  be shorter in terms of the number of words web-scrapped.
+\item
+  a non-exhaustive list of the characters of the series, which can
+  differ a little bit the exploratory analysis
+\end{itemize}
+
+\hypertarget{futur-work}{%
+\section{Futur work:}\label{futur-work}}
+
+As a future work, we might want to improve the Machine Learning part.
+Indeed, as already explained, the accuracy is not very large so we could
+try to find new techniques to improve or even try other machine learning
+model. Another aspect could be to continue the part we started about the
+prediction of a character based on a given sentence.
+
+\hypertarget{reference}{%
+\section{Reference}\label{reference}}
+
+@NRC @AFINN @Stemming\_lemma
+
+\hypertarget{refs}{}
+\begin{CSLReferences}{0}{0}
+\end{CSLReferences}
+
+\end{document}

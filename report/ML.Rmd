@@ -43,7 +43,7 @@ dim(character.dfm)
 
 Next, we train the classifier. First we combine the target variable and LSA together in a data frame. We then take a sample of 80% of this data frame as the train set. The other 20% will be used as the test set. We then train the classifier with the ranger package. We then predict and show the results in a confusion matrix of the caret package. It can be noted that the base rate (here called "No Information Rate") is 0.2946. With an accuracy of 0.3572, it can be concluded that it does better than it would by random sampling. However, it also can be said that this accuracy is quite low. Therefore, in the next couple of paragraphs we look at further improving the model and its accuracy. 
 
-```{r echo=FALSE, cache=TRUE}
+```{r echo=FALSE, cache=TRUE, eval=FALSE}
 set.seed(1234)
 # Create lsa from the dfm
 character.lsa <- textmodel_lsa(character.dfm, nd=25)
@@ -71,7 +71,7 @@ First, we transform the DFM to LSA, as we did in the previous paragraph. However
 
 The different accuracies for the number of dimensions 2 ,5, 25, 50, 100, 500, 1000 are respectively 0.2597865, 0.3128437, 0.3303138, 0.3377548, 0.3513426, 0.3581365, and 0.3568424. Due to the long run time and the fact that the accuracy curve is flattening, we choose a number of dimensions of 100, as this has a relative high accuracy, while taken the run time into account. We thus choose for a number of 100 dimensions (nd = 100) for the DFM and LSA.
 
-```{r echo=FALSE, cache=TRUE}
+```{r echo=FALSE, cache=TRUE, include=FALSE, eval=FALSE}
 set.seed(1234)
 # Set the number of dimensions
 nd.vec <- c(2,5,25,50,100, 500, 1000)
@@ -92,7 +92,7 @@ for (j in 1:length(nd.vec)){
 
 ```
 
-```{r echo=FALSE}
+```{r echo=FALSE, eval=FALSE}
 #print(accdfm.vec)
 
 # Plot a graph with the different accuracies
@@ -107,7 +107,7 @@ Second, we now make the choice to try to further improve the model by first tran
 
 After running several scenarios with different dimensions, we again choose to use 100 dimensions, as more dimensions will increase the run time immensely, while the improvement on the accuracy is minimal. Furthermore, we choose to use the tf-idf, as this outperforms the dfm by a small margin, namely 0.3513426 for the dfm and 0.3558719 for the tf-idf.
 
-```{r echo=FALSE, cache=TRUE}
+```{r echo=FALSE, cache=TRUE, include=FALSE, eval=FALSE}
 set.seed(1234)
 # Now we test which number of dimension should be chosen comparing it with the tf-idf. 
 nd.vec <- c(2,5,25,50,100, 500, 1000)
@@ -131,7 +131,7 @@ for (j in 1:length(nd.vec)){
 ```
 
 
-```{r echo=FALSE}
+```{r echo=FALSE, eval=FALSE}
 #print(acc.vec)
 
 # Plot the accuracies
@@ -143,7 +143,7 @@ plot(acc.vec ~ nd.vec, type='b',
 
 We now rerun the model with the chosen dimensions, so we can further improve on the accuracy with word embedding.
 
-```{r echo=FALSE, cache=TRUE}
+```{r echo=FALSE, cache=TRUE, eval=FALSE}
 # We now run the model again, but this time with the chosen dimensions from the previous results.
 set.seed(1234)
 character.tfidf <- dfm_tfidf(character.dfm)
@@ -166,7 +166,7 @@ We choose 100 as number of iterations, as the loss does decrease with more itera
 
 For a window of 1, giving a loss of 0.0052  and accuracy of 0.3692 with a rank of 50. As the paragraph above has shown, a lower loss does not mean a higher accuracy, we thus compute both the loss and the accuracy for each window. Increasing the window to 5 gives a loss 0.0354 and an accuracy of 0.365. Decreasing the the window to 3 gives a loss of 0.0253 and an accuracy of 0.3687. Again, we decrease the window to 2 which shows a loss 0.0168 of and an accuracy of 0.3685. Again, the difference is accuracy is small, however as a window of 1 results in the highest accuracy, we chose this as our base for the further improvements with GloVe.
 
-```{r echo=FALSE, cache=TRUE}
+```{r echo=FALSE, cache=TRUE, include=FALSE, eval=FALSE}
 set.seed(1234)
 # Create a fcm from the character.tok
 character.fcm <- fcm(character.tok, 
@@ -180,7 +180,7 @@ glove <- GlobalVectors$new(rank = 50, x_max = 1)
 word_vectors_main <- glove$fit_transform(character.fcm, n_iter = 100) 
 ```
 
-```{r echo=FALSE, cache=TRUE}
+```{r echo=FALSE, cache=TRUE, include=FALSE, eval=FALSE}
 set.seed(1234)
 
 # We now use the glove vectors instead of the tf-idf and the dfm
@@ -212,7 +212,7 @@ confusionMatrix(data=pred.te$predictions, reference = df.te[complete.cases(df.te
 We tried another case where we add the length of the sentences. However, it decreases the accuracy to 0.3596. The explanation for this might be for the fact that each character has similar average lengths of lines of the script, as it is a very large corpus we are working with.
 
 
-```{r echo=FALSE, cache=TRUE}
+```{r echo=FALSE, cache=TRUE, include=FALSE, eval=FALSE}
 set.seed(1234)
 character.tfidf <- dfm_tfidf(character.dfm)
 character.lsa <- textmodel_lsa(character.tfidf, nd=100)
@@ -235,7 +235,7 @@ confusionMatrix(data=pred.te$predictions, reference = df.te[complete.cases(df.te
 Also, it seems that adding the centers will decrease the accuracy, namely to 0.3621. Thus, we get no further improvement based on combining the centers from the GloVe model and the tf-idf, compared to the GloVe model by itself.
 
 
-```{r echo=FALSE, cache=TRUE}
+```{r echo=FALSE, cache=TRUE, include=FALSE, eval=FALSE}
 set.seed(1234)
 character.tfidf <- dfm_tfidf(character.dfm)
 character.lsa <- textmodel_lsa(character.tfidf, nd=100)
@@ -259,7 +259,7 @@ Out of curiosity and interest, we also tried to see how this accuracy would mate
 
 
 
-```{r echo=FALSE, cache=TRUE, include=FALSE}
+```{r echo=FALSE, cache=TRUE, include=FALSE, eval=FALSE}
 ## Trying code to put in sentences to predict (Most recent code)
 # Set seed to ensure reproducibility
 set.seed(1234)
@@ -313,7 +313,7 @@ print(prediction$predictions)
 
 
 
-```{r echo=FALSE, cache=TRUE, include=FALSE}
+```{r echo=FALSE, cache=TRUE, include=FALSE, eval=FALSE}
 ## Trying code to put in sentences to predict (old code)
 set.seed(1234)
 char_pred <- data.frame(Predicted_sentence = c("Put here the sentence you want to predict"))

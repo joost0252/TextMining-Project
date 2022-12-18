@@ -3,10 +3,9 @@ title: "Introduction"
 output: html_document
 ---
 
-Teacher : Boldi - Baumgartner
+Teachers : Prof. M.-O. Boldi - Prof. M. Baumgartner
 Fall Semester 2022
 
-Elodie Shoeiline Kwan, Joost Dijkstra, Katia Voltz and Nina Bidet
 
 # Introduction
 

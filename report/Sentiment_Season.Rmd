@@ -64,9 +64,9 @@ head(season.sent, 10) %>%
 ```
 
 ## Sentiment Analyis
-```{r echo=FALSE}
-table(season.sent$season, 
-      season.sent$sentiment)
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+season_sent_table <- table(season.sent$season, 
+                           season.sent$sentiment)
 
 ## Long format
 season.sent %>% 
@@ -83,7 +83,7 @@ season.sent %>%
 ```
 
 To compare the documents, each season, we rescale them by their length (i.e. the frequencies of sentiments are computed, by document):
-```{r echo = FALSE}
+```{r echo = FALSE, message=FALSE, warning=FALSE}
 #totals by document
 season.sent.doc.total <- 
   season.sent %>% 
@@ -118,7 +118,10 @@ Now, on this part, we will us the AFINN dictionary. This dictionary contains a l
 We see on the below table that the word 'abandoned' has a value of -2 which means that it is relatively negative. 
 
 ```{r echo=FALSE}
-head(get_sentiments("afinn"))
+head(get_sentiments("afinn")) %>%
+  kbl(caption = "The 6 first row of AFINN dictionary ") %>%
+  kable_classic(full_width = T, html_font = "Cambria", font_size = 7) %>%
+  kable_styling(latex_options = "HOLD_position")
 ```
 
 We see there on the table below that the seasons 3, 2 and 7 are categorized as relatively negative with season 3 being the most negative. 

@@ -82,17 +82,17 @@ From the Euclidean co-occurence matrix plot, it seems that season 4 is close to 
 ## Clustering 
 Then, to create a cluster, we decide to focus on the Euclidean distance only.
 
-```{r echo=FALSE}
+```{r echo=FALSE, fig.height=3, fig.width=8}
 season.hc <- hclust(as.dist(season.euc))
 ## crude.hc <- hclust(as.dist(1 - crude.jac)) # use this line for Jaccard
 ## crude.hc <- hclust(as.dist(1 - crude.cos)) # use this line for Cosine
 plot(season.hc)
 
 season.clust <- cutree(season.hc, k = 3)
-season.clust
+#season.clust
 
 season.km <- kmeans(season.tfidf_lemma, centers = 3)
-season.km$cluster
+#season.km$cluster
 
 
 data.frame(
@@ -105,7 +105,7 @@ Not surprisingly here, we find the same characteristics for seasons 4, 2 and 6 a
 
 ## Similarities between words
 We use the cosine distance measure to determine the similarities between words. 
-```{r echo=FALSE, include=FALSE}
+```{r echo=FALSE, include=FALSE, fig.height=4, fig.width=4}
 # Cosine
 season.feat <- textstat_frequency(season.dfm_lemma) %>%
   filter(rank <= 50) 
@@ -193,6 +193,8 @@ ggplot(data = season.cos.mat, aes(x=Var1, y=Var2, fill=value)) +
 season.hcw <- hclust(as.dist(1 - season.cos))
 plot(season.hcw)
 ```
+
+<br>
 We decided to represent the similarities of words with a cluster dendogram rather than a matrix. With the matrix the the interpretation is harder to read. The method used here in the cluster distance is 1 - Similarities (cosine). 
 As a result : _'feel'_ and _'happy'_ are really close. However when we compare _'live'_, _'baby'_ and _'night'_ and _'friend'_ are very distant. Indeed if it refers to 'baby' as a child, I guess it is not used in the same scene as 'night with friend'. 
 
@@ -200,8 +202,7 @@ As a result : _'feel'_ and _'happy'_ are really close. However when we compare _
 
 We want to analyze the topics of the season scripts using LSA and LDA.
 
-# Maybe we can put in into include = FALSE
-```{r echo=FALSE}
+```{r echo=FALSE, include=FALSE}
 season.tf <- dfm(season.tk_lemma)
 season.lsa <- textmodel_lsa(x = season.tf, nd = 10) 
 head(season.lsa$docs)
@@ -218,6 +219,7 @@ data.frame(season.freq_lemma,
   xlab("Number of tokens") + 
   ylab("LSA dim. 1")
 ```
+
 As the first dimension is often linked to the document length, we wanted to verify that this was the case. And indeed, the dimension 1 is negatively correlated with the document length.
 
 Then we did an analysis of topics 2 and 3.
@@ -261,6 +263,8 @@ biplot(
   xlab = "Dim 2",
   ylab = "Dim 3")
 ```
+
+<br> 
 The biplot shows that Topic 2 is associated with seasons 7,8,9 and 10 and with the words “love”, “baby”, “happy","guy" and anti-associated with season 3 and with the words “ring”, “friend”, “mother”. Topic 3 is associated with seasons 1 and 4 and with words “enter”, “gablehouser”, “machine” and anti-associated with “ring”, “fine”, “day”. 
 
 ## LDA using quanteda
@@ -270,13 +274,18 @@ set.seed(1234) #To create reproducible results
 season.lda <- textmodel_lda(x = season.tf, k = 5)
 seededlda::terms(season.lda, 5)
 ```
-# I think we can remove this one since we have the graph juste after
-```{r echo=FALSE}
+
+
+```{r echo=FALSE, include=FALSE}
 seededlda::topics(season.lda)
 seededlda::topics(season.lda) %>% table()
 ```
+
+
 ## Term-Topic Analysis
 The "phi" provides the probabilities of selecting a term given that it is a given topic. For a given topic, the largest phi provide the terms that are most associated with the topic.
+
+
 ```{r echo=FALSE}
 phi.long <- melt(
   season.lda$phi,
@@ -296,10 +305,15 @@ phi.long %>%
     axis.text.y = element_text(size = 5),
     strip.text = element_text(size = 5))
 ```
+
+
+<br>
 Here we plot the 5 largest probability terms within each subject. Despite the fact that these terms have the ighest probability to appears in this topic, their phi values are relatively low and therefore they are only slightly more common than the other terms.
 
 ## Topic-Document Analysis
 The "theta" provides the probabilities (i.e., proportions) of the topics within each document (season). 
+
+
 ```{r echo=FALSE}
 set.seed(1234)
 theta.long <- melt(
@@ -320,6 +334,8 @@ theta.long %>%
     axis.text.y = element_text(size = 5),
     strip.text = element_text(size = 5))
 ```
+
+
 This graph shows us that Topic 5 is present at more than 50% in all seasons. Topic 1 is more related to season 4, Topic 2 to seasons 1,2,3, Topic 3 to seasons 5,6,8 and Topic 4 to seasons 9 and 10. It seems to be a chronological link between the topics and the seasons.
 
 

@@ -1,7 +1,7 @@
 ---
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 ```{r, echo = FALSE, message = FALSE, warning = FALSE, include=FALSE}
 source("../scripts/setup.R")
@@ -162,7 +162,7 @@ season.tfidf_lemma %>%
 
 On this plot, we cannot see very clearly as there are a lot of terms. But we see that "time", "guys" are indeed very frequent as seen previously and that "gablehouser" and "sheldon-bot" are very specific to one particular season each. For the term "gablehouser", it is season 1 after research. In the show it is actually a character Dr. Eric Gablehauser, he does not appear in the show after the 2 first season and we did not notice him before to remove it with the other characters' name. 
 
-```{r echo=FALSE}
+```{r echo=FALSE, fig.height=2, fig.width=8}
 season.freq_lemma %>% 
   ggplot(aes(x=log10(docfreq),
              y=log10(frequency))) + 
@@ -205,7 +205,8 @@ We made a Keyness analysis, to understand what is the ration of the terms in the
 
 - In the second graph, we analysis season 7 as the target. The reference is the rest of the corpus, and we observe that the word _'element'_ is the most used in the script of season 7 compared to the rest. 
 
-```{r echo=FALSE}
+```{r echo=FALSE, fig.height=5, fig.width=5, fig.align='center'}
+
 ## text5
 season.keyness <- textstat_keyness(season.dfm_lemma, target = "text5")
 
@@ -215,6 +216,7 @@ textplot_keyness(season.keyness)
 season.keyness <- textstat_keyness(season.dfm_lemma, target = "text7")
 
 textplot_keyness(season.keyness)
+
 ```
 
 ### Co-occurence analysis 
@@ -382,7 +384,7 @@ char_tfidf_plot
 This plot allows us to confirm our first insight.  Again, we have alreasy seen previously in the season analysis that terms such as _'time'_, _'guy'_ and _'talk'_ are very frequent throughout the whole seasons and here they are present throughout each character so they are not specific to anyone. On the contrary, we see words such as _'hee'_ and _'remarkable'_ are very specific to a certain character.
 
 
-```{r echo=FALSE}
+```{r echo=FALSE, fig.height=2, fig.width=8}
 char.freq_lemma %>% 
   ggplot(aes(x=log10(docfreq),
              y=log10(frequency))) + 

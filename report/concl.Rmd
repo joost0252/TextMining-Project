@@ -14,17 +14,17 @@ Concerning the characters, Sheldon is the star of the show and this is felt in t
 The second half of the show, except for season 7, has a more positive score. We can suppose that the characters tend to become more positive and maybe less sarcastic as the series goes on. 
 
 # Limits:
-- Maybe a problems in webscrappinf for season 2 and 6
+Some limits we encountered, could be : 
+
+- maybe a problems in web-scrapping for season 2 and 6 as they seems to be shorter in terms of the number of words web-scrapped.
+- a non-exhaustive list of the characters of the series, which can differ a little bit the exploratory analysis
 
 # Futur work: 
-- Machine Learning 
+As a future work, we might want to improve the Machine Learning part. Indeed, as already explained, the accuracy is not very large so we could try to find new techniques to improve or even try other machine learning model. Another aspect could be to continue the part we started about the prediction of a character based on a given sentence. 
 
-# Reference 
 
-https://saifmohammad.com/WebPages/NRC-Emotion-Lexicon.htm
 
-http://corpustext.com/reference/sentiment_afinn.html
 
-https://nlp.stanford.edu/IR-book/html/htmledition/stemming-and-lemmatization-1.html
+
 
 
